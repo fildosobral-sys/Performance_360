@@ -44,48 +44,48 @@ function criterion(id, name, orientation, impact, improvement){
 
 function coreCategoryTemplates(){
   return [
-    {id:"cat_org",name:"Organizacao",description:"Avalia se o colaborador mantem seu setor organizado, padronizado e preparado para proporcionar uma excelente experiencia ao cliente.",active:true,criteria:[
+    {id:"cat_org",name:"Organização",description:"Avalia se o colaborador mantem seu setor organizado, padronizado e preparado para proporcionar uma excelente experiência ao cliente.",active:true,criteria:[
       criterion("crit_org_1","Produto sem preco","Todo produto exposto deve possuir etiqueta de preco legivel, atualizada e posicionada corretamente para facilitar a consulta do cliente.","A ausencia de preco dificulta a decisao de compra, reduz a credibilidade da exposicao e pode ocasionar perda de vendas.","Realize conferencias periodicas das etiquetas e solicite imediatamente a impressao quando identificar qualquer ausencia."),
-      criterion("crit_org_2","Etiqueta divergente (preco ou descricao incorreta)","A etiqueta deve corresponder exatamente ao produto exposto, contendo preco, descricao e informacoes atualizadas.","Etiquetas incorretas geram duvidas, retrabalho e podem causar insatisfacao ao cliente.","Sempre confirme se a etiqueta corresponde ao produto antes da abertura da loja e durante a reposicao."),
-      criterion("crit_org_3","Produto fora da localizacao definida","Cada produto deve permanecer no local estabelecido pelo layout da loja.","Produtos fora da localizacao dificultam a experiencia do cliente e prejudicam a organizacao do setor.","Sempre reposicione imediatamente os produtos que estiverem fora do padrao."),
-      criterion("crit_org_4","Produtos desalinhados ou mal organizados","Os produtos devem permanecer alinhados, organizados e visualmente padronizados.","A apresentacao influencia diretamente a percepcao de qualidade da loja.","Realize pequenos ajustes durante todo o expediente, nao apenas na abertura da loja."),
-      criterion("crit_org_5","Exposicao fora do padrao visual","A exposicao deve seguir o padrao definido pela empresa, respeitando posicionamento, espacamento e comunicacao visual.","Uma exposicao inadequada reduz o impacto comercial e dificulta a venda.","Revise frequentemente o padrao visual do setor e ajuste sempre que necessario."),
-      criterion("crit_org_6","Comunicacao visual ausente ou inadequada","Cartazes, materiais promocionais e identificacoes devem estar presentes e corretamente posicionados.","A falta de comunicacao reduz a visibilidade das campanhas e dificulta a tomada de decisao do cliente.","Verifique diariamente a presenca e conservacao dos materiais de comunicacao."),
+      criterion("crit_org_2","Etiqueta divergente (preco ou descricao incorreta)","A etiqueta deve corresponder exatamente ao produto exposto, contendo preco, descricao e informações atualizadas.","Etiquetas incorretas geram duvidas, retrabalho e podem causar insatisfacao ao cliente.","Sempre confirme se a etiqueta corresponde ao produto antes da abertura da loja e durante a reposicao."),
+      criterion("crit_org_3","Produto fora da localizacao definida","Cada produto deve permanecer no local estabelecido pelo layout da loja.","Produtos fora da localizacao dificultam a experiência do cliente e prejudicam a organizacao do setor.","Sempre reposicione imediatamente os produtos que estiverem fora do padrão."),
+      criterion("crit_org_4","Produtos desalinhados ou mal organizados","Os produtos devem permanecer alinhados, organizados e visualmente padronizados.","A apresentacao influencia diretamente a percepcao de qualidade da loja.","Realize pequenos ajustes durante todo o expediente, não apenas na abertura da loja."),
+      criterion("crit_org_5","Exposicao fora do padrão visual","A exposicao deve seguir o padrão definido pela empresa, respeitando posicionamento, espacamento e comunicacao visual.","Uma exposicao inadequada reduz o impacto comercial e dificulta a venda.","Revise frequentemente o padrão visual do setor e ajuste sempre que necessario."),
+      criterion("crit_org_6","Comunicacao visual ausente ou inadequada","Cartazes, materiais promocionais e identificações devem estar presentes e corretamente posicionados.","A falta de comunicacao reduz a visibilidade das campanhas e dificulta a tomada de decisao do cliente.","Verifique diariamente a presenca e conservacao dos materiais de comunicacao."),
       criterion("crit_org_7","Mercadorias armazenadas de forma inadequada","Produtos de apoio ou estoque do setor devem permanecer organizados e armazenados corretamente.","A armazenagem inadequada aumenta riscos de avarias e dificulta o trabalho da equipe.","Organize continuamente os espacos de armazenamento e evite acumulo desnecessario."),
-      criterion("crit_org_8","Corredor ou area de circulacao obstruida","As areas de circulacao devem permanecer livres para garantir seguranca e conforto aos clientes.","Obstrucoes prejudicam a experiencia do cliente e aumentam o risco de acidentes.","Nunca deixe caixas, produtos ou equipamentos bloqueando a passagem."),
-      criterion("crit_org_9","Produto avariado exposto para venda","Produtos com qualquer tipo de dano nao devem permanecer expostos sem autorizacao.","Compromete a imagem da empresa, pode gerar reclamacoes e perdas financeiras.","Retire imediatamente o produto da exposicao e comunique o responsavel."),
-      criterion("crit_org_10","Setor sem padrao de organizacao","Todo o setor deve transmitir organizacao, padronizacao e facilidade para o cliente localizar os produtos.","A desorganizacao compromete a imagem da loja e reduz a eficiencia da equipe.","Mantenha inspecoes frequentes no proprio setor durante toda a jornada."),
+      criterion("crit_org_8","Corredor ou area de circulacao obstruida","As areas de circulacao devem permanecer livres para garantir seguranca e conforto aos clientes.","Obstrucoes prejudicam a experiência do cliente e aumentam o risco de acidentes.","Nunca deixe caixas, produtos ou equipamentos bloqueando a passagem."),
+      criterion("crit_org_9","Produto avariado exposto para venda","Produtos com qualquer tipo de dano não devem permanecer expostos sem autorizacao.","Compromete a imagem da empresa, pode gerar reclamações e perdas financeiras.","Retire imediatamente o produto da exposicao e comunique o responsavel."),
+      criterion("crit_org_10","Setor sem padrão de organizacao","Todo o setor deve transmitir organizacao, padronizacao e facilidade para o cliente localizar os produtos.","A desorganizacao compromete a imagem da loja e reduz a eficiencia da equipe.","Mantenha inspecoes frequentes no proprio setor durante toda a jornada."),
       criterion("crit_org_11","Produtos sem reposicao adequada","A exposicao deve permanecer completa sempre que houver disponibilidade de estoque.","A falta de reposicao reduz o potencial de vendas e prejudica a apresentacao do setor.","Acompanhe constantemente os espacos vazios e providencie a reposicao sempre que possivel."),
-      criterion("crit_org_12","Mistura de produtos ou categorias","Cada categoria deve permanecer organizada conforme o layout da empresa.","Misturas dificultam a localizacao dos produtos e comprometem a experiencia do cliente.","Reposicione imediatamente qualquer produto encontrado em categoria incorreta."),
-      criterion("crit_org_13","Material promocional desatualizado","Campanhas encerradas ou materiais vencidos devem ser retirados imediatamente.","Informacoes desatualizadas geram duvidas e podem causar transtornos ao cliente.","Acompanhe o calendario promocional e substitua os materiais no prazo correto."),
-      criterion("crit_org_14","Falta de conferencia diaria do setor","Cada colaborador deve realizar inspecoes periodicas em seu setor durante o expediente.","Pequenos problemas deixam de ser corrigidos e se acumulam ao longo do dia.","Inclua conferencias rapidas na sua rotina para manter o setor sempre dentro do padrao."),
-      criterion("crit_org_15","Organizacao geral abaixo do padrao esperado","Ha diversas pequenas nao conformidades que comprometem a apresentacao geral do setor.","A percepcao do cliente sobre a loja e diretamente influenciada pela organizacao do ambiente.","Desenvolva o habito de cuidar do setor continuamente, mantendo o padrao esperado durante todo o expediente.")
+      criterion("crit_org_12","Mistura de produtos ou categorias","Cada categoria deve permanecer organizada conforme o layout da empresa.","Misturas dificultam a localizacao dos produtos e comprometem a experiência do cliente.","Reposicione imediatamente qualquer produto encontrado em categoria incorreta."),
+      criterion("crit_org_13","Material promocional desatualizado","Campanhas encerradas ou materiais vencidos devem ser retirados imediatamente.","Informações desatualizadas geram duvidas e podem causar transtornos ao cliente.","Acompanhe o calendario promocional e substitua os materiais no prazo correto."),
+      criterion("crit_org_14","Falta de conferencia diaria do setor","Cada colaborador deve realizar inspecoes periodicas em seu setor durante o expediente.","Pequenos problemas deixam de ser corrigidos e se acumulam ao longo do dia.","Inclua conferencias rapidas na sua rotina para manter o setor sempre dentro do padrão."),
+      criterion("crit_org_15","Organização geral abaixo do padrão esperado","Ha diversas pequenas não conformidades que comprometem a apresentacao geral do setor.","A percepcao do cliente sobre a loja e diretamente influenciada pela organizacao do ambiente.","Desenvolva o habito de cuidar do setor continuamente, mantendo o padrão esperado durante todo o expediente.")
     ]},
-    {id:"cat_clean",name:"Limpeza e Conservacao do Setor",description:"Avalia se o colaborador mantem seu setor limpo, conservado, organizado e pronto para proporcionar uma excelente experiencia ao cliente.",active:true,criteria:[
-      criterion("crit_clean_1","Produto com sujeira aparente","Todo produto exposto deve permanecer limpo, livre de poeira, manchas, marcas de dedos ou qualquer outra sujeira visivel.","Produtos sujos reduzem a percepcao de qualidade, comprometem a experiencia do cliente e prejudicam as vendas.","Inclua a limpeza dos produtos na rotina diaria e faca inspecoes frequentes durante o expediente."),
+    {id:"cat_clean",name:"Limpeza e Conservacao do Setor",description:"Avalia se o colaborador mantem seu setor limpo, conservado, organizado e pronto para proporcionar uma excelente experiência ao cliente.",active:true,criteria:[
+      criterion("crit_clean_1","Produto com sujeira aparente","Todo produto exposto deve permanecer limpo, livre de poeira, manchas, marcas de dedos ou qualquer outra sujeira visivel.","Produtos sujos reduzem a percepcao de qualidade, comprometem a experiência do cliente e prejudicam as vendas.","Inclua a limpeza dos produtos na rotina diaria e faca inspecoes frequentes durante o expediente."),
       criterion("crit_clean_2","Limpeza superficial dos produtos","A limpeza foi realizada apenas na parte visivel do produto, deixando laterais, parte traseira, inferior ou interna sem higienizacao, quando aplicavel.","A limpeza incompleta transmite falta de cuidado e pode ser percebida pelo cliente durante a demonstracao.","Realize uma limpeza completa dos produtos, incluindo todas as areas acessiveis."),
       criterion("crit_clean_3","Moveis ou expositores com sujeira","Prateleiras, balcoes, nichos, bases e expositores devem permanecer limpos e conservados.","Estruturas sujas comprometem a apresentacao do setor e a imagem da empresa.","Inclua moveis e expositores na rotina diaria de limpeza."),
       criterion("crit_clean_4","Piso do setor sem limpeza adequada","O piso deve permanecer limpo, sem residuos, poeira, manchas ou lixo.","Alem da aparencia, pisos sujos podem representar riscos de acidentes.","Mantenha atencao constante ao piso do setor durante todo o expediente."),
-      criterion("crit_clean_5","Area inferior dos produtos sem limpeza","A parte inferior dos produtos deve receber limpeza periodica.","Sao locais frequentemente esquecidos, mas facilmente percebidos durante demonstracoes.","Inclua essas areas na rotina de limpeza completa."),
+      criterion("crit_clean_5","Area inferior dos produtos sem limpeza","A parte inferior dos produtos deve receber limpeza periodica.","Sao locais frequentemente esquecidos, mas facilmente percebidos durante demonstrações.","Inclua essas areas na rotina de limpeza completa."),
       criterion("crit_clean_6","Parte traseira dos produtos sem limpeza","Produtos afastados para demonstracao devem apresentar limpeza tambem na parte traseira.","Clientes percebem rapidamente quando o cuidado e apenas superficial.","Sempre que realizar limpeza, verifique tambem a parte posterior dos produtos."),
       criterion("crit_clean_7","Interior dos produtos sem limpeza (quando aplicavel)","Geladeiras, fogoes, guarda-roupas, maquinas e demais produtos devem estar limpos internamente quando expostos.","O cliente costuma abrir e verificar o interior dos produtos antes da compra.","Realize limpeza interna sempre que necessario."),
       criterion("crit_clean_8","Equipamentos de trabalho sujos","Computadores, impressoras, telefones, leitores e demais equipamentos devem permanecer limpos.","Equipamentos sem limpeza comprometem o ambiente de trabalho e a produtividade.","Inclua os equipamentos na rotina diaria de conservacao."),
-      criterion("crit_clean_9","Cabos ou equipamentos desorganizados","Cabos, extensoes, carregadores e equipamentos devem permanecer organizados.","Alem da aparencia, reduz riscos de acidentes.","Organize toda a infraestrutura do setor mantendo o padrao da empresa."),
-      criterion("crit_clean_10","Ferramentas ou materiais fora do local adequado","Escadas, carrinhos, panos, materiais de limpeza e ferramentas nao devem permanecer expostos sem necessidade.","Comprometem a organizacao e a seguranca do ambiente.","Apos o uso, devolva imediatamente cada material ao seu local."),
-      criterion("crit_clean_11","Lixeira cheia ou residuos no setor","Lixeiras devem permanecer limpas e dentro da capacidade.","Residuos comprometem a higiene e a experiencia do cliente.","Realize o descarte sempre que necessario."),
-      criterion("crit_clean_12","Embalagens ou materiais espalhados","Caixas, plasticos, papeloes e embalagens nao devem permanecer no salao de vendas.","Geram aspecto de desorganizacao e aumentam riscos de acidentes.","Mantenha apenas os materiais necessarios durante a operacao."),
+      criterion("crit_clean_9","Cabos ou equipamentos desorganizados","Cabos, extensoes, carregadores e equipamentos devem permanecer organizados.","Alem da aparencia, reduz riscos de acidentes.","Organize toda a infraestrutura do setor mantendo o padrão da empresa."),
+      criterion("crit_clean_10","Ferramentas ou materiais fora do local adequado","Escadas, carrinhos, panos, materiais de limpeza e ferramentas não devem permanecer expostos sem necessidade.","Comprometem a organizacao e a seguranca do ambiente.","Apos o uso, devolva imediatamente cada material ao seu local."),
+      criterion("crit_clean_11","Lixeira cheia ou residuos no setor","Lixeiras devem permanecer limpas e dentro da capacidade.","Residuos comprometem a higiene e a experiência do cliente.","Realize o descarte sempre que necessario."),
+      criterion("crit_clean_12","Embalagens ou materiais espalhados","Caixas, plasticos, papeloes e embalagens não devem permanecer no salao de vendas.","Geram aspecto de desorganizacao e aumentam riscos de acidentes.","Mantenha apenas os materiais necessarios durante a operacao."),
       criterion("crit_clean_13","Vidros, espelhos ou superficies com manchas","Vidros, espelhos e superficies brilhantes devem permanecer limpos.","Sao pontos que chamam muita atencao do cliente.","Realize limpeza frequente utilizando os materiais adequados."),
       criterion("crit_clean_14","Equipamentos ou estruturas sem conservacao","Foi identificada falta de zelo na conservacao dos equipamentos ou estruturas do setor.","A falta de conservacao reduz a vida util dos equipamentos e prejudica a imagem da empresa.","Zele pelos equipamentos como patrimonio da empresa, comunicando qualquer necessidade de manutencao."),
-      criterion("crit_clean_15","Setor abaixo do padrao de limpeza e conservacao","O conjunto do setor nao atende ao padrao esperado de limpeza, organizacao e conservacao.","A primeira impressao do cliente e formada pela aparencia do ambiente, influenciando diretamente sua confianca na empresa.","Adote uma rotina continua de inspecao, limpeza e conservacao, mantendo o setor sempre preparado para receber o cliente.")
+      criterion("crit_clean_15","Setor abaixo do padrão de limpeza e conservacao","O conjunto do setor não atende ao padrão esperado de limpeza, organizacao e conservacao.","A primeira impressao do cliente e formada pela aparencia do ambiente, influenciando diretamente sua confianca na empresa.","Adote uma rotina continua de inspecao, limpeza e conservacao, mantendo o setor sempre preparado para receber o cliente.")
     ]},
     {id:"cat_service",name:"Atendimento e Pos-Venda",description:"Avalia se o colaborador presta atendimento consultivo, cordial e comprometido, acompanhando o cliente do primeiro contato ao pos-venda.",active:true,criteria:[
-      criterion("crit_service_1","Nao realizou a abordagem inicial do cliente","Todo cliente deve ser recebido com cordialidade e atencao logo ao chegar ao setor.","A ausencia de abordagem reduz as oportunidades de venda e compromete a experiencia do cliente.","Mantenha atencao constante ao fluxo de clientes e realize uma abordagem natural, cordial e no tempo adequado."),
+      criterion("crit_service_1","Nao realizou a abordagem inicial do cliente","Todo cliente deve ser recebido com cordialidade e atencao logo ao chegar ao setor.","A ausencia de abordagem reduz as oportunidades de venda e compromete a experiência do cliente.","Mantenha atencao constante ao fluxo de clientes e realize uma abordagem natural, cordial e no tempo adequado."),
       criterion("crit_service_2","Atendimento realizado sem cordialidade","O atendimento deve demonstrar educacao, respeito, simpatia e interesse genuino em ajudar.","A postura do vendedor influencia diretamente a percepcao do cliente sobre a empresa.","Pratique uma comunicacao acolhedora e mantenha uma postura positiva durante todo o atendimento."),
-      criterion("crit_service_3","Nao identificou corretamente a necessidade do cliente","Antes de apresentar produtos, e necessario compreender o que realmente o cliente procura.","Sem entender a necessidade, aumentam as chances de oferecer uma solucao inadequada.","Faca perguntas, escute atentamente e confirme as informacoes antes de apresentar alternativas."),
+      criterion("crit_service_3","Nao identificou corretamente a necessidade do cliente","Antes de apresentar produtos, e necessario compreender o que realmente o cliente procura.","Sem entender a necessidade, aumentam as chances de oferecer uma solucao inadequada.","Faca perguntas, escute atentamente e confirme as informações antes de apresentar alternativas."),
       criterion("crit_service_4","Nao apresentou corretamente os beneficios do produto","O cliente deve compreender as principais caracteristicas, diferenciais e vantagens do produto.","A falta de demonstracao reduz o valor percebido da solucao apresentada.","Conheca profundamente os produtos e apresente seus beneficios de forma clara e objetiva."),
-      criterion("crit_service_5","Nao ofertou os servicos disponiveis","Sempre que aplicavel, devem ser apresentados garantia estendida, seguros, assistencia e demais servicos da empresa.","Alem de reduzir os resultados da empresa, o cliente deixa de conhecer solucoes que podem beneficia-lo.","Inclua naturalmente a apresentacao dos servicos durante o processo de venda."),
-      criterion("crit_service_6","Forneceu informacao incorreta ao cliente","Todas as informacoes sobre preco, prazo, garantia, entrega, montagem e condicoes comerciais devem seguir os padroes oficiais da empresa.","Informacoes incorretas geram retrabalho, reclamacoes e perda de credibilidade.","Sempre confirme as informacoes antes de repassa-las ao cliente."),
-      criterion("crit_service_7","Informou prazo de entrega ou montagem diferente do padrao","Nunca criar expectativas diferentes daquelas definidas oficialmente.","Promessas incorretas geram frustracao e aumentam as reclamacoes.","Informe somente prazos oficiais e atualizados."),
+      criterion("crit_service_5","Nao ofertou os servicos disponiveis","Sempre que aplicavel, devem ser apresentados garantia estendida, seguros, assistencia e demais servicos da empresa.","Alem de reduzir os resultados da empresa, o cliente deixa de conhecer soluções que podem beneficia-lo.","Inclua naturalmente a apresentacao dos servicos durante o processo de venda."),
+      criterion("crit_service_6","Forneceu informacao incorreta ao cliente","Todas as informações sobre preco, prazo, garantia, entrega, montagem e condicoes comerciais devem seguir os padroes oficiais da empresa.","Informações incorretas geram retrabalho, reclamações e perda de credibilidade.","Sempre confirme as informações antes de repassa-las ao cliente."),
+      criterion("crit_service_7","Informou prazo de entrega ou montagem diferente do padrão","Nunca criar expectativas diferentes daquelas definidas oficialmente.","Promessas incorretas geram frustracao e aumentam as reclamações.","Informe somente prazos oficiais e atualizados."),
       criterion("crit_service_8","Nao realizou o retorno prometido ao cliente","Todo compromisso assumido deve ser cumprido dentro do prazo informado.","A falta de retorno transmite desorganizacao e reduz a confianca do cliente.","Organize sua agenda e acompanhe todos os retornos pendentes."),
       criterion("crit_service_9","Nao acompanhou o pos-venda","Quando necessario, o vendedor deve acompanhar a entrega, montagem ou solucao de problemas ate sua conclusao.","O cliente percebe falta de comprometimento apos a venda.","Acompanhe o cliente ate que todo o processo seja concluido."),
       criterion("crit_service_10","Transferiu responsabilidade sem acompanhar a solucao","Mesmo quando outro setor assume a demanda, o vendedor continua sendo referencia para o cliente.","O cliente sente abandono e perde confianca na empresa.","Acompanhe o andamento da solicitacao e mantenha o cliente informado."),
@@ -93,24 +93,24 @@ function coreCategoryTemplates(){
       criterion("crit_service_12","Utilizou celular para fins pessoais no expediente","O uso do celular deve estar relacionado as atividades profissionais.","Reduz produtividade e pode comprometer o atendimento.","Utilize o celular prioritariamente para atividades relacionadas ao trabalho."),
       criterion("crit_service_13","Utilizou celular durante o atendimento ao cliente","Durante o atendimento, a atencao deve estar totalmente voltada ao cliente.","O cliente pode interpretar a atitude como falta de interesse ou respeito.","Evite qualquer distracao enquanto estiver atendendo."),
       criterion("crit_service_14","Nao utilizou o telefone como ferramenta de relacionamento","Quando aplicavel, o celular deve ser utilizado para acompanhar clientes, enviar propostas e fortalecer o relacionamento comercial.","Perde-se oportunidade de fidelizacao e geracao de novas vendas.","Reserve momentos da rotina para contatos ativos com clientes."),
-      criterion("crit_service_15","Cliente retornou com reclamacao sobre atendimento ou pos-venda","Foi registrada reclamacao relacionada a qualidade do atendimento, acompanhamento ou suporte prestado.","Reclamacoes impactam diretamente a imagem da empresa, a fidelizacao dos clientes e os resultados da filial.","Analise a situacao, identifique a causa da reclamacao e adote acoes para evitar novas ocorrencias.")
+      criterion("crit_service_15","Cliente retornou com reclamacao sobre atendimento ou pos-venda","Foi registrada reclamacao relacionada a qualidade do atendimento, acompanhamento ou suporte prestado.","Reclamações impactam diretamente a imagem da empresa, a fidelizacao dos clientes e os resultados da filial.","Analise a situacao, identifique a causa da reclamacao e adote ações para evitar novas ocorrencias.")
     ]},
     {id:"cat_disc",name:"Disciplina",description:"Avalia o cumprimento das normas internas, postura profissional, responsabilidade individual e comprometimento com regras e padroes.",active:true,criteria:[
       criterion("crit_disc_1","Atraso sem justificativa","O colaborador deve cumprir rigorosamente seu horario de entrada, retornos de intervalos e demais compromissos de jornada.","Atrasos prejudicam a operacao, sobrecarregam a equipe e comprometem a organizacao da loja.","Organize sua rotina para chegar com antecedencia e comunique imediatamente qualquer imprevisto."),
-      criterion("crit_disc_2","Ausencia do setor sem comunicacao","Sempre que precisar se ausentar do setor, o colaborador deve comunicar seu lider ou equipe.","A ausencia sem comunicacao compromete o atendimento e prejudica a experiencia do cliente.","Antes de deixar seu setor, informe sua equipe e garanta que o atendimento continuara normalmente."),
-      criterion("crit_disc_3","Descumprimento de orientacao da lideranca","As orientacoes da lideranca devem ser executadas dentro do prazo e conforme solicitado.","O nao cumprimento prejudica o alinhamento da equipe e o alcance dos resultados.","Caso tenha duvidas ou dificuldades, converse com a lideranca antes de executar a atividade."),
-      criterion("crit_disc_4","Nao executou atividade solicitada","As atividades delegadas fazem parte das responsabilidades do cargo.","O nao cumprimento gera retrabalho e sobrecarga para a equipe.","Priorize as atividades recebidas e informe imediatamente qualquer impedimento."),
+      criterion("crit_disc_2","Ausencia do setor sem comunicacao","Sempre que precisar se ausentar do setor, o colaborador deve comunicar seu lider ou equipe.","A ausencia sem comunicacao compromete o atendimento e prejudica a experiência do cliente.","Antes de deixar seu setor, informe sua equipe e garanta que o atendimento continuara normalmente."),
+      criterion("crit_disc_3","Descumprimento de orientacao da lideranca","As orientações da lideranca devem ser executadas dentro do prazo e conforme solicitado.","O não cumprimento prejudica o alinhamento da equipe e o alcance dos resultados.","Caso tenha duvidas ou dificuldades, converse com a lideranca antes de executar a atividade."),
+      criterion("crit_disc_4","Nao executou atividade solicitada","As atividades delegadas fazem parte das responsabilidades do cargo.","O não cumprimento gera retrabalho e sobrecarga para a equipe.","Priorize as atividades recebidas e informe imediatamente qualquer impedimento."),
       criterion("crit_disc_5","Uso inadequado do celular durante o expediente","O telefone celular deve ser utilizado prioritariamente como ferramenta de trabalho.","O uso inadequado reduz produtividade e prejudica o foco nas atividades.","Evite redes sociais e assuntos particulares durante o horario de trabalho."),
-      criterion("crit_disc_6","Uniforme ou apresentacao pessoal fora do padrao","Uniforme, cracha e apresentacao pessoal devem seguir o padrao definido pela empresa.","A apresentacao influencia diretamente a imagem profissional da equipe.","Mantenha diariamente sua apresentacao conforme os padroes da empresa."),
-      criterion("crit_disc_7","Descumprimento de procedimentos internos","Todos os processos operacionais devem ser executados conforme orientacao da empresa.","O descumprimento aumenta riscos, retrabalho e perda de qualidade.","Revise os procedimentos e execute cada etapa conforme o padrao estabelecido."),
-      criterion("crit_disc_8","Conversas paralelas comprometeram atendimento ou produtividade","Conversas entre colaboradores nao devem interferir no atendimento ao cliente nem nas atividades da loja.","Distracoes reduzem produtividade e prejudicam a experiencia do cliente.","Priorize o atendimento e utilize momentos apropriados para conversas informais."),
+      criterion("crit_disc_6","Uniforme ou apresentacao pessoal fora do padrão","Uniforme, cracha e apresentacao pessoal devem seguir o padrão definido pela empresa.","A apresentacao influencia diretamente a imagem profissional da equipe.","Mantenha diariamente sua apresentacao conforme os padroes da empresa."),
+      criterion("crit_disc_7","Descumprimento de procedimentos internos","Todos os processos operacionais devem ser executados conforme orientacao da empresa.","O descumprimento aumenta riscos, retrabalho e perda de qualidade.","Revise os procedimentos e execute cada etapa conforme o padrão estabelecido."),
+      criterion("crit_disc_8","Conversas paralelas comprometeram atendimento ou produtividade","Conversas entre colaboradores não devem interferir no atendimento ao cliente nem nas atividades da loja.","Distrações reduzem produtividade e prejudicam a experiência do cliente.","Priorize o atendimento e utilize momentos apropriados para conversas informais."),
       criterion("crit_disc_9","Baixo comprometimento com as atividades da rotina","Espera-se iniciativa e responsabilidade na execucao das tarefas diarias.","A falta de comprometimento compromete o desempenho individual e coletivo.","Mantenha postura proativa e execute suas responsabilidades com atencao e qualidade."),
-      criterion("crit_disc_10","Reincidencia em ocorrencia ja orientada anteriormente","O colaborador voltou a apresentar uma nao conformidade que ja havia sido objeto de orientacao ou feedback.","A reincidencia demonstra dificuldade na aplicacao dos feedbacks e compromete a evolucao profissional.","Transforme os feedbacks recebidos em acoes praticas de melhoria continua."),
+      criterion("crit_disc_10","Reincidencia em ocorrencia ja orientada anteriormente","O colaborador voltou a apresentar uma não conformidade que ja havia sido objeto de orientacao ou feedback.","A reincidencia demonstra dificuldade na aplicação dos feedbacks e compromete a evolucao profissional.","Transforme os feedbacks recebidos em ações praticas de melhoria continua."),
       criterion("crit_disc_11","Descumprimento das normas de seguranca","As normas de seguranca devem ser respeitadas em todas as atividades.","O descumprimento pode colocar em risco colaboradores, clientes e patrimonio.","Siga rigorosamente os procedimentos de seguranca e comunique qualquer situacao de risco."),
-      criterion("crit_disc_12","Postura incompativel com o ambiente profissional","Espera-se respeito, etica, equilibrio emocional e profissionalismo durante toda a jornada.","Comportamentos inadequados prejudicam o clima organizacional e a imagem da empresa.","Mantenha uma postura respeitosa e profissional em todas as situacoes."),
-      criterion("crit_disc_13","Resistencia as orientacoes ou feedbacks","O colaborador deve receber orientacoes de forma respeitosa e utiliza-las para seu desenvolvimento.","A resistencia dificulta a evolucao profissional e o alinhamento da equipe.","Receba os feedbacks como oportunidade de aprendizado e melhoria continua."),
-      criterion("crit_disc_14","Falta de responsabilidade sobre o proprio setor","Cada colaborador e responsavel pelo acompanhamento e conservacao do setor sob sua responsabilidade.","A falta de responsabilidade compromete a organizacao, a imagem da loja e a experiencia do cliente.","Adote postura de dono do setor, acompanhando continuamente tudo o que estiver sob sua responsabilidade."),
-      criterion("crit_disc_15","Descumprimento dos padroes da empresa","Foi identificada uma ou mais condutas incompativeis com os padroes internos estabelecidos pela empresa.","O descumprimento afeta diretamente a qualidade da operacao, a experiencia do cliente e os resultados da equipe.","Conheca os padroes da empresa, siga as orientacoes da lideranca e mantenha disciplina na execucao das atividades diarias.")
+      criterion("crit_disc_12","Postura incompativel com o ambiente profissional","Espera-se respeito, etica, equilibrio emocional e profissionalismo durante toda a jornada.","Comportamentos inadequados prejudicam o clima organizacional e a imagem da empresa.","Mantenha uma postura respeitosa e profissional em todas as situações."),
+      criterion("crit_disc_13","Resistencia as orientações ou feedbacks","O colaborador deve receber orientações de forma respeitosa e utiliza-las para seu desenvolvimento.","A resistencia dificulta a evolucao profissional e o alinhamento da equipe.","Receba os feedbacks como oportunidade de aprendizado e melhoria continua."),
+      criterion("crit_disc_14","Falta de responsabilidade sobre o proprio setor","Cada colaborador e responsavel pelo acompanhamento e conservacao do setor sob sua responsabilidade.","A falta de responsabilidade compromete a organizacao, a imagem da loja e a experiência do cliente.","Adote postura de dono do setor, acompanhando continuamente tudo o que estiver sob sua responsabilidade."),
+      criterion("crit_disc_15","Descumprimento dos padroes da empresa","Foi identificada uma ou mais condutas incompativeis com os padroes internos estabelecidos pela empresa.","O descumprimento afeta diretamente a qualidade da operacao, a experiência do cliente e os resultados da equipe.","Conheca os padroes da empresa, siga as orientações da lideranca e mantenha disciplina na execucao das atividades diarias.")
     ]}
   ];
 }
@@ -119,22 +119,22 @@ function quickCriteria(prefix, names, topic){
   return names.map((name, index) => criterion(
     `${prefix}_${index + 1}`,
     name,
-    `Verificar esta nao conformidade dentro de ${topic}, registrando somente quando for identificada durante a avaliacao.`,
-    `Impacta a qualidade de ${topic}, gera retrabalho, reduz a eficiencia operacional e pode comprometer a experiencia do cliente e os resultados da equipe.`,
+    `Verificar esta não conformidade dentro de ${topic}, registrando somente quando for identificada durante a avaliação.`,
+    `Impacta a qualidade de ${topic}, gera retrabalho, reduz a eficiencia operacional e pode comprometer a experiência do cliente e os resultados da equipe.`,
     `Corrigir a situacao, alinhar o procedimento esperado com o colaborador e acompanhar a evolucao no proximo ciclo.`
   ));
 }
 
 function supplementalCategoryTemplates(){
   return [
-    {id:"cat_register",name:"Cadastro e Continuidade do Atendimento",description:"Avalia a qualidade do cadastro, das informacoes prestadas ao cliente e do acompanhamento das demandas apos a venda.",active:true,criteria:quickCriteria("crit_register",[
-      "Cadastro realizado com informacoes incompletas",
-      "Cadastro realizado com informacoes incorretas",
+    {id:"cat_register",name:"Cadastro e Continuidade do Atendimento",description:"Avalia a qualidade do cadastro, das informações prestadas ao cliente e do acompanhamento das demandas apos a venda.",active:true,criteria:quickCriteria("crit_register",[
+      "Cadastro realizado com informações incompletas",
+      "Cadastro realizado com informações incorretas",
       "Telefone ou contato informado incorretamente",
       "Endereco ou ponto de referencia preenchido inadequadamente",
-      "Nao registrou observacoes importantes no cadastro",
-      "Informou prazo de entrega diferente do padrao da empresa",
-      "Informou prazo de montagem diferente do padrao da empresa",
+      "Nao registrou observações importantes no cadastro",
+      "Informou prazo de entrega diferente do padrão da empresa",
+      "Informou prazo de montagem diferente do padrão da empresa",
       "Nao orientou corretamente o cliente sobre entrega e montagem",
       "Cliente retornou por falta de informacao prestada na venda",
       "Nao acompanhou a solucao apos retorno do cliente",
@@ -142,26 +142,26 @@ function supplementalCategoryTemplates(){
       "Nao registrou corretamente a solicitacao do cliente",
       "Cliente retornou por falha no processo de venda",
       "Nao realizou acompanhamento quando solicitado pela lideranca",
-      "Processo de cadastro e continuidade abaixo do padrao esperado"
+      "Processo de cadastro e continuidade abaixo do padrão esperado"
     ],"cadastro e continuidade do atendimento")},
-    {id:"cat_stock",name:"Gestao do Estoque e Patrimonio",description:"Avalia o cuidado com patrimonio, conferencia dos produtos, organizacao do estoque do setor e prevencao de perdas.",active:true,criteria:quickCriteria("crit_stock",[
+    {id:"cat_stock",name:"Gestão do Estoque e Patrimônio",description:"Avalia o cuidado com patrimonio, conferencia dos produtos, organizacao do estoque do setor e prevencao de perdas.",active:true,criteria:quickCriteria("crit_stock",[
       "Nao realizou conferencia do estoque do setor",
-      "Divergencia de estoque nao comunicada",
+      "Divergencia de estoque não comunicada",
       "Produto armazenado em local inadequado",
       "Produto avariado sem identificacao ou comunicacao",
       "Produto reservado sem identificacao",
       "Produto indisponivel por falta de acompanhamento",
       "Estoque do setor desorganizado",
       "Nao comunicou falta de produto",
-      "Patrimonio da empresa sem conservacao",
+      "Patrimônio da empresa sem conservacao",
       "Equipamentos utilizados de forma inadequada",
       "Nao participou da conferencia quando solicitado",
       "Falta de zelo pelos produtos expostos",
       "Nao comunicou necessidade de manutencao",
       "Descuido com materiais da empresa",
-      "Gestao do estoque e patrimonio abaixo do padrao esperado"
+      "Gestão do estoque e patrimonio abaixo do padrão esperado"
     ],"gestao do estoque e patrimonio")},
-    {id:"cat_products",name:"Produtos e Servicos",description:"Avalia o conhecimento tecnico sobre produtos e servicos e a capacidade de apresentar solucoes completas ao cliente.",active:true,criteria:quickCriteria("crit_products",[
+    {id:"cat_products",name:"Produtos e Serviços",description:"Avalia o conhecimento tecnico sobre produtos e servicos e a capacidade de apresentar soluções completas ao cliente.",active:true,criteria:quickCriteria("crit_products",[
       "Demonstrou pouco conhecimento sobre o produto",
       "Nao apresentou os principais beneficios do produto",
       "Nao apresentou produtos complementares",
@@ -176,15 +176,15 @@ function supplementalCategoryTemplates(){
       "Nao aproveitou oportunidade de agregar valor a venda",
       "Nao apresentou diferenciais da empresa",
       "Nao utilizou materiais de apoio disponiveis",
-      "Apresentacao de produtos e servicos abaixo do padrao esperado"
+      "Apresentacao de produtos e servicos abaixo do padrão esperado"
     ],"produtos e servicos")},
-    {id:"cat_goals",name:"Gestao de Metas e Resultados",description:"Avalia se o colaborador conhece indicadores, acompanha metas, divulga campanhas e cria acoes para alcancar resultados.",active:true,criteria:quickCriteria("crit_goals",[
+    {id:"cat_goals",name:"Gestão de Metas e Resultados",description:"Avalia se o colaborador conhece indicadores, acompanha metas, divulga campanhas e cria ações para alcançar resultados.",active:true,criteria:quickCriteria("crit_goals",[
       "Nao conhece sua meta mensal",
       "Nao acompanha sua meta diaria",
       "Nao conhece seu resultado atual",
       "Nao conhece seu Ticket Medio",
       "Nao conhece sua Taxa de Conversao",
-      "Nao conhece sua Eficiencia em Servicos",
+      "Nao conhece sua Eficiencia em Serviços",
       "Nao realiza prospeccao em momentos de baixo fluxo",
       "Nao utiliza o WhatsApp como ferramenta comercial",
       "Nao divulga campanhas da empresa",
@@ -193,12 +193,12 @@ function supplementalCategoryTemplates(){
       "Nao utiliza os materiais de divulgacao",
       "Nao acompanha seus indicadores diariamente",
       "Nao desenvolve plano de acao para melhorar os resultados",
-      "Gestao de metas e resultados abaixo do padrao esperado"
+      "Gestão de metas e resultados abaixo do padrão esperado"
     ],"gestao de metas e resultados")},
     {id:"cat_team",name:"Trabalho em Equipe e Colaboracao",description:"Avalia relacionamento interpessoal, espirito de equipe, colaboracao entre setores e compromisso com resultados coletivos.",active:true,criteria:quickCriteria("crit_team",[
       "Nao colaborou com a equipe quando solicitado",
       "Demonstrou resistencia em trabalhar em equipe",
-      "Nao compartilhou informacoes importantes com a equipe",
+      "Nao compartilhou informações importantes com a equipe",
       "Nao prestou apoio a outro setor quando necessario",
       "Gerou conflitos desnecessarios",
       "Demonstrou falta de respeito com colegas",
@@ -210,15 +210,15 @@ function supplementalCategoryTemplates(){
       "Nao demonstrou comprometimento com os objetivos da loja",
       "Nao demonstrou disponibilidade para colaborar",
       "Comunicacao inadequada com a equipe",
-      "Trabalho em equipe abaixo do padrao esperado"
+      "Trabalho em equipe abaixo do padrão esperado"
     ],"trabalho em equipe e colaboracao")},
-    {id:"cat_proactivity",name:"Proatividade e Iniciativa",description:"Avalia capacidade de agir antecipadamente, buscar solucoes, gerar negocios e contribuir espontaneamente para resultados.",active:true,criteria:quickCriteria("crit_proactivity",[
+    {id:"cat_proactivity",name:"Proatividade e Iniciativa",description:"Avalia capacidade de agir antecipadamente, buscar soluções, gerar negocios e contribuir espontaneamente para resultados.",active:true,criteria:quickCriteria("crit_proactivity",[
       "Nao demonstrou iniciativa durante o expediente",
       "Aguardou ordens para executar atividades simples",
       "Nao buscou clientes em momentos de baixo movimento",
-      "Nao realizou acoes de prospeccao",
+      "Nao realizou ações de prospeccao",
       "Nao apresentou sugestoes de melhoria",
-      "Identificou problema e nao comunicou",
+      "Identificou problema e não comunicou",
       "Nao acompanhou oportunidades de venda",
       "Demonstrou pouca iniciativa para resolver problemas",
       "Nao aproveitou oportunidades para melhorar o setor",
@@ -227,41 +227,41 @@ function supplementalCategoryTemplates(){
       "Nao buscou conhecimento para melhorar seu desempenho",
       "Nao demonstrou atitude de dono do negocio",
       "Nao contribuiu para melhoria dos resultados da filial",
-      "Proatividade e iniciativa abaixo do padrao esperado"
+      "Proatividade e iniciativa abaixo do padrão esperado"
     ],"proatividade e iniciativa")},
     {id:"cat_communication",name:"Comunicacao",description:"Avalia a qualidade da comunicacao com clientes, colegas, lideranca e demais setores, garantindo clareza e alinhamento.",active:true,criteria:quickCriteria("crit_communication",[
-      "Nao comunicou informacoes importantes a lideranca",
-      "Nao comunicou informacoes importantes aos colegas",
+      "Nao comunicou informações importantes a lideranca",
+      "Nao comunicou informações importantes aos colegas",
       "Passou informacao incorreta ao cliente",
       "Comunicacao inadequada com o cliente",
-      "Nao respondeu solicitacoes no prazo esperado",
-      "Nao registrou informacoes importantes",
-      "Nao acompanhou as comunicacoes oficiais da empresa",
+      "Nao respondeu solicitações no prazo esperado",
+      "Nao registrou informações importantes",
+      "Nao acompanhou as comunicações oficiais da empresa",
       "Nao compartilhou campanhas ou comunicados quando orientado",
       "Comunicacao inadequada nos grupos corporativos",
-      "Nao confirmou o entendimento das orientacoes recebidas",
+      "Nao confirmou o entendimento das orientações recebidas",
       "Falta de clareza na comunicacao",
       "Nao manteve a lideranca atualizada sobre ocorrencias",
       "Demonstrou pouca transparencia na comunicacao",
       "Nao utilizou os canais corretos de comunicacao",
-      "Comunicacao abaixo do padrao esperado"
+      "Comunicacao abaixo do padrão esperado"
     ],"comunicacao")},
-    {id:"cat_development",name:"Desenvolvimento Profissional",description:"Avalia comprometimento com desenvolvimento profissional, aplicacao de feedbacks, aprendizado continuo e adaptacao a mudancas.",active:true,criteria:quickCriteria("crit_development",[
+    {id:"cat_development",name:"Desenvolvimento Profissional",description:"Avalia comprometimento com desenvolvimento profissional, aplicação de feedbacks, aprendizado continuo e adaptação a mudanças.",active:true,criteria:quickCriteria("crit_development",[
       "Nao aplicou feedbacks recebidos anteriormente",
-      "Demonstrou resistencia as mudancas",
+      "Demonstrou resistencia as mudanças",
       "Nao participou dos treinamentos disponibilizados",
       "Participou do treinamento sem demonstrar interesse",
       "Nao buscou atualizacao sobre produtos, processos ou campanhas",
       "Demonstrou pouco interesse pelo proprio desenvolvimento",
       "Nao colocou em pratica os conhecimentos adquiridos",
       "Demonstrou dificuldade em adaptar-se aos novos processos",
-      "Nao demonstrou evolucao apos orientacoes",
+      "Nao demonstrou evolucao apos orientações",
       "Nao buscou solucionar duvidas",
       "Nao demonstrou interesse em aprender novas atividades",
       "Nao compartilhou conhecimentos com a equipe",
       "Nao demonstrou comprometimento com sua evolucao",
       "Nao assumiu responsabilidade pelo proprio desenvolvimento",
-      "Desenvolvimento profissional abaixo do padrao esperado"
+      "Desenvolvimento profissional abaixo do padrão esperado"
     ],"desenvolvimento profissional")}
   ];
 }
@@ -418,8 +418,8 @@ function feedbackBucket(score){
 function performanceFeedback(score, seed="", occurrenceCount=0){
   const messages = {
     excellent:[
-      "Desempenho excelente. Manter o padrao, reconhecer as boas praticas e compartilhar atitudes que possam inspirar a equipe.",
-      "Resultado de referencia. O colaborador demonstra consistencia, cuidado com a rotina e forte alinhamento com o padrao esperado.",
+      "Desempenho excelente. Manter o padrão, reconhecer as boas praticas e compartilhar atitudes que possam inspirar a equipe.",
+      "Resultado de referencia. O colaborador demonstra consistencia, cuidado com a rotina e forte alinhamento com o padrão esperado.",
       "Performance muito acima do esperado. Reforcar o reconhecimento e manter acompanhamento para preservar esse nivel de entrega.",
       "Excelente resultado. O foco agora e sustentar a regularidade, valorizar os pontos fortes e transformar boas praticas em exemplo.",
       "Atuacao de alto impacto. Manter a disciplina operacional e estimular que esse comportamento positivo seja replicado no setor.",
@@ -429,12 +429,12 @@ function performanceFeedback(score, seed="", occurrenceCount=0){
       "Resultado muito bom. Reforcar os acertos e acompanhar pequenos ajustes para transformar a boa entrega em excelencia.",
       "Performance consistente. O colaborador apresenta bom dominio da rotina e deve manter atencao aos detalhes para evoluir ainda mais.",
       "Muito bom desempenho. Valorizar a evolucao apresentada e direcionar as oportunidades pontuais com clareza.",
-      "Resultado positivo e bem sustentado. Manter feedbacks curtos, objetivos e frequentes para consolidar o padrao.",
+      "Resultado positivo e bem sustentado. Manter feedbacks curtos, objetivos e frequentes para consolidar o padrão.",
       "Boa consistencia operacional. O proximo passo e reduzir pequenas reincidencias e ampliar o protagonismo no setor.",
       "Desempenho forte. Reforcar comportamentos positivos e acompanhar indicadores para preservar o ritmo de evolucao."
     ],
     good:[
-      "Resultado bom. Existem oportunidades pontuais de melhoria, mas o desempenho geral permanece dentro de um padrao positivo.",
+      "Resultado bom. Existem oportunidades pontuais de melhoria, mas o desempenho geral permanece dentro de um padrão positivo.",
       "Bom desempenho no periodo. Corrigir os pontos observados e manter disciplina para evitar que pequenas falhas se repitam.",
       "Entrega satisfatoria. O colaborador tem boa base e deve focar nos detalhes que ainda limitam uma nota mais alta.",
       "Resultado regular positivo. Manter acompanhamento, alinhar prioridades e transformar oportunidades em evolucao pratica.",
@@ -442,19 +442,19 @@ function performanceFeedback(score, seed="", occurrenceCount=0){
       "Desempenho adequado. O foco deve ser reduzir ocorrencias pontuais e fortalecer os comportamentos que ja funcionam bem."
     ],
     attention:[
-      "Desempenho em desenvolvimento. Priorizar as ocorrencias mais recorrentes e acompanhar a execucao das acoes corretivas.",
+      "Desempenho em desenvolvimento. Priorizar as ocorrencias mais recorrentes e acompanhar a execucao das ações corretivas.",
       "Resultado exige atencao. Definir combinados claros, prazos curtos e validar se as correcoes foram aplicadas na rotina.",
       "Ha pontos relevantes a corrigir. O colaborador deve receber direcionamento objetivo e acompanhamento proximo no proximo ciclo.",
       "Performance abaixo do potencial. Organizar plano de acao simples, com foco nas falhas que mais impactam cliente e setor.",
       "Resultado pede acompanhamento. Reconhecer avancos, mas cobrar consistencia nas rotinas basicas e nas responsabilidades do cargo.",
-      "Evolucao necessaria. O gestor deve alinhar expectativas, registrar evidencias e revisar o progresso com frequencia."
+      "Evolução necessaria. O gestor deve alinhar expectativas, registrar evidencias e revisar o progresso com frequencia."
     ],
     critical:[
       "Necessita atencao imediata. Definir plano de acao, acompanhar de perto e registrar evidencias de melhoria no proximo ciclo.",
       "Resultado critico para o periodo. Priorizar orientacao direta, combinados formais e acompanhamento frequente da lideranca.",
-      "Desempenho abaixo do esperado. E necessario agir rapidamente para corrigir falhas, reduzir reincidencias e recuperar o padrao.",
+      "Desempenho abaixo do esperado. E necessario agir rapidamente para corrigir falhas, reduzir reincidencias e recuperar o padrão.",
       "Situacao de alerta. O colaborador precisa de direcionamento claro, prazo de regularizacao e validacao constante da evolucao.",
-      "Performance insuficiente. Focar nas causas principais, registrar acoes corretivas e acompanhar o cumprimento dos combinados.",
+      "Performance insuficiente. Focar nas causas principais, registrar ações corretivas e acompanhar o cumprimento dos combinados.",
       "Resultado requer intervencao gerencial. Trabalhar um plano objetivo e medir a evolucao com evidencias no ciclo seguinte."
     ]
   };
@@ -465,7 +465,7 @@ function performanceFeedback(score, seed="", occurrenceCount=0){
 }
 
 function positiveBadges(text){
-  const defaults = ["Organizacao","Comprometimento","Atendimento","Trabalho em equipe","Evolucao"];
+  const defaults = ["Organização","Comprometimento","Atendimento","Trabalho em equipe","Evolução"];
   const items = String(text || "").split(/[,\n.;]+/).map(item => item.trim()).filter(Boolean);
   return (items.length ? items : defaults).slice(0,6);
 }
@@ -575,19 +575,25 @@ function fileToDataUrl(file){
 function renderEmployees(){
   $("evalEmployee").innerHTML = state.employees.filter(e => e.active).map(e => `<option value="${e.id}">${esc(e.name)} - ${esc(e.sector)}</option>`).join("");
   $("historyEmployee").innerHTML = `<option value="">Todos os colaboradores</option>` + state.employees.map(e => `<option value="${e.id}">${esc(e.name)}</option>`).join("");
-  $("employeeList").innerHTML = state.employees.map(employee => `
-    <article class="employee-card">
+  const latestMap = latestByEmployee();
+  $("employeeList").innerHTML = state.employees.map(employee => {
+    const last = latestMap.get(employee.id);
+    const score = last ? scoreText(last.score) : "-";
+    const statusClass = employee.active ? "status-active" : "status-inactive";
+    return `
+    <article class="employee-card app-person-card">
       <header>
         <img class="employee-photo" src="${employee.photo || defaultPhoto}" alt="">
         <div><h3>${esc(employee.name)}</h3><p>${esc(employee.role)}</p><p>${esc(employee.sector)}</p></div>
+        <strong class="employee-score">${score}</strong>
       </header>
-      <div class="employee-meta"><span class="${employee.active ? "status-active" : "status-inactive"}">${employee.active ? "Ativo" : "Inativo"}</span></div>
+      <div class="employee-meta"><span class="${statusClass}">${employee.active ? "Ativo" : "Inativo"}</span><span>${last ? `${dateText(last.date)} • ${classification(last.score)}` : "Sem avaliação salva"}</span></div>
       <div class="actions">
         <button class="button secondary" data-edit-employee="${employee.id}" type="button">Editar</button>
         <button class="button secondary" data-toggle-employee="${employee.id}" type="button">${employee.active ? "Inativar" : "Ativar"}</button>
         <button class="button danger" data-delete-employee="${employee.id}" type="button">Excluir</button>
       </div>
-    </article>`).join("") || `<div class="empty">Nenhum colaborador cadastrado.</div>`;
+    </article>`}).join("") || `<div class="empty">Nenhum colaborador cadastrado.</div>`;
   if(!$("evalEmployee").value && state.employees.find(e => e.active)) currentEval.employeeId = state.employees.find(e => e.active).id;
   $("evalEmployee").value = currentEval.employeeId;
   renderSelectedEmployee();
@@ -635,12 +641,12 @@ function renderChecklist(){
     <article class="category ${index === 0 ? "is-open" : ""}" data-category="${category.id}">
       <button class="category-head" type="button" data-toggle-category="${category.id}">
         <span class="category-title-block"><strong>${esc(category.name)}</strong><small>${esc(category.description || "")}</small></span>
-        <span class="category-count">${category.criteria.filter(c => c.active).length} criterios</span>
+        <span class="category-count">${category.criteria.filter(c => c.active).length} critérios</span>
       </button>
       <div class="category-body">
         ${category.criteria.filter(c => c.active).map(criteria => criterionRow(category, criteria)).join("")}
       </div>
-    </article>`).join("") || `<div class="empty">Nenhum criterio ativo nas configuracoes.</div>`;
+    </article>`).join("") || `<div class="empty">Nenhum criterio ativo nas configurações.</div>`;
   refreshScore();
 }
 
@@ -700,8 +706,12 @@ function setOccurrence(criteriaId, checked){
 function refreshScore(){
   const score = calculateScore(currentEval);
   const pill = $("currentScorePill");
+  const checked = Object.values(currentEval.occurrences || {}).filter(item => item.checked).length;
+  const total = activeCriteria().length || 1;
   pill.textContent = `Nota ${scoreText(score)}`;
+  pill.title = `${checked} ocorrência(s) marcada(s) em ${total} critérios ativos`;
   pill.className = `score-pill ${scoreClass(score)}`;
+  document.documentElement.style.setProperty("--eval-progress", `${Math.min(100, Math.round((checked / total) * 100))}%`);
 }
 
 async function saveNote(event){
@@ -777,7 +787,7 @@ function saveEvaluation(){
   setView("reports");
   $("reportEvaluation").value = data.id;
   renderSelectedReport();
-  alert("Avaliacao salva. A parcial ja esta disponivel em Relatorios para envio ou impressao.");
+  alert("Avaliacao salva. A parcial ja esta disponivel em Relatórios para envio ou impressao.");
 }
 
 function renderDashboard(){
@@ -794,20 +804,20 @@ function renderDashboard(){
   const priceQtyMonth = monthOccurrences.filter(item => normalize(item.criteriaName).includes("produto sem preco")).reduce((sum,item)=>sum + Number(item.quantity || 0),0);
   const topQuantity = topByQuantity(occurrences);
   $("dashboardKpis").innerHTML = [
-    ["Colaboradores", state.employees.length],
-    ["Avaliacoes", state.evaluations.length],
-    ["Media atual", scoreText(avg(filtered.map(e => e.score)))],
-    ["Ocorrencias", occurrences.length],
-    ["Maior qtd.", topQuantity ? `${topQuantity.quantity}` : "0"],
-    ["Sem preço/mês", priceQtyMonth],
-    ["Qtd. media", scoreText(avg(quantityOccurrences.map(item => Number(item.quantity || 0)))).replace(",0","")],
-    ["Criticos", quantityOccurrences.filter(item => quantitySeverity(item.quantity).key === "critical").length]
-  ].map(([label,value])=>`<div class="kpi"><span>${label}</span><strong>${value}</strong></div>`).join("");
+    ["Colaboradores", state.employees.length, "people"],
+    ["Avaliações", state.evaluations.length, "evals"],
+    ["Média atual", scoreText(avg(filtered.map(e => e.score))), "score"],
+    ["Ocorrências", occurrences.length, "warn"],
+    ["Maior qtd.", topQuantity ? `${topQuantity.quantity}` : "0", "qty"],
+    ["Sem preço/mês", priceQtyMonth, "price"],
+    ["Qtd. média", scoreText(avg(quantityOccurrences.map(item => Number(item.quantity || 0)))).replace(",0",""), "avg"],
+    ["Críticos", quantityOccurrences.filter(item => quantitySeverity(item.quantity).key === "critical").length, "critical"]
+  ].map(([label,value,type])=>`<div class="kpi kpi-${type}"><span>${label}</span><strong>${value}</strong></div>`).join("");
   $("rankingGeneral").innerHTML = rankingRows(latest.sort((a,b)=>b.score-a.score));
   $("rankingSector").innerHTML = sectors.map(sector => {
     const values = latest.filter(item => item.employeeSnapshot.sector === sector);
     return `<div class="ranking-row"><span></span><div><strong>${esc(sector)}</strong><small>${values.length} colaborador(es)</small></div><strong>${scoreText(avg(values.map(v => v.score)))}</strong></div>`;
-  }).join("") || `<div class="empty">Sem avaliacoes.</div>`;
+  }).join("") || `<div class="empty">Sem avaliações.</div>`;
   renderCategoryRanking(filtered);
   renderEvolution(filtered);
   renderTopOccurrences(occurrences);
@@ -829,7 +839,7 @@ function rankingRows(items){
     <img src="${item.employeeSnapshot.photo || defaultPhoto}" alt="">
     <div><strong>${index + 1}. ${esc(item.employeeSnapshot.name)}</strong><small>${esc(item.employeeSnapshot.role)} - ${esc(item.employeeSnapshot.sector)}</small></div>
     <strong>${scoreText(item.score)}</strong>
-  </div>`).join("") : `<div class="empty">Sem avaliacoes salvas.</div>`;
+  </div>`).join("") : `<div class="empty">Sem avaliações salvas.</div>`;
 }
 
 function renderCategoryRanking(items){
@@ -882,7 +892,7 @@ function renderTopEvolution(){
     const values = state.evaluations.filter(e => e.employeeId === employee.id).sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt));
     return values.length >= 2 ? {employee,delta:values.at(-1).score - values[0].score,latest:values.at(-1)} : null;
   }).filter(Boolean).sort((a,b)=>b.delta-a.delta);
-  $("topEvolution").innerHTML = rows.slice(0,6).map(row => `<div class="ranking-row"><img src="${row.employee.photo || defaultPhoto}" alt=""><div><strong>${esc(row.employee.name)}</strong><small>Evolucao desde a primeira avaliacao</small></div><strong>${row.delta >= 0 ? "+" : ""}${scoreText(row.delta)}</strong></div>`).join("") || `<div class="empty">Evolucao exige pelo menos duas avaliacoes.</div>`;
+  $("topEvolution").innerHTML = rows.slice(0,6).map(row => `<div class="ranking-row"><img src="${row.employee.photo || defaultPhoto}" alt=""><div><strong>${esc(row.employee.name)}</strong><small>Evolução desde a primeira avaliação</small></div><strong>${row.delta >= 0 ? "+" : ""}${scoreText(row.delta)}</strong></div>`).join("") || `<div class="empty">Evolução exige pelo menos duas avaliações.</div>`;
 }
 
 function renderTimeline(){
@@ -1084,13 +1094,13 @@ function selectedEvaluation(){
 }
 
 function reportHtml(type, evaluation){
-  if(!evaluation) return `<div class="empty">Salve uma avaliacao para gerar relatorios.</div>`;
+  if(!evaluation) return `<div class="empty">Salve uma avaliação para gerar relatorios.</div>`;
   const occs = occurrenceList(evaluation);
   const positives = evaluation.positive || "Manter comportamentos positivos observados e registrar novas evidencias no proximo ciclo.";
   const titleMap = {weekly:"Parcial semanal",fortnight:"Parcial quinzenal",monthly:"Fechamento mensal",compare:"Comparativo entre meses",pdi:"Plano de desenvolvimento individual"};
   if(type === "compare"){
     const rows = state.evaluations.filter(item => item.employeeId === evaluation.employeeId).sort((a,b)=>a.month.localeCompare(b.month));
-    return `<div class="exec-report"><div class="exec-report-top"><div><span>MÉTODO SOBRAL</span><h3>Comparativo entre meses</h3><p>${esc(evaluation.employeeSnapshot.name)} | ${esc(evaluation.employeeSnapshot.sector)}</p></div></div><div class="exec-block"><table class="exec-table"><tr><th>Mes</th><th>Nota</th><th>Ocorrencias</th><th>Quantidade</th><th>Classificacao</th></tr>${rows.map(item => `<tr><td>${esc(item.month)}</td><td>${scoreText(item.score)}</td><td>${occurrenceList(item).length}</td><td>${occurrenceList(item).reduce((sum,o)=>sum+Number(o.quantity || 0),0)}</td><td>${classification(item.score)}</td></tr>`).join("")}</table></div></div>`;
+    return `<div class="exec-report"><div class="exec-report-top"><div><span>MÉTODO SOBRAL</span><h3>Comparativo entre meses</h3><p>${esc(evaluation.employeeSnapshot.name)} | ${esc(evaluation.employeeSnapshot.sector)}</p></div></div><div class="exec-block"><table class="exec-table"><tr><th>Mes</th><th>Nota</th><th>Ocorrências</th><th>Quantidade</th><th>Classificacao</th></tr>${rows.map(item => `<tr><td>${esc(item.month)}</td><td>${scoreText(item.score)}</td><td>${occurrenceList(item).length}</td><td>${occurrenceList(item).reduce((sum,o)=>sum+Number(o.quantity || 0),0)}</td><td>${classification(item.score)}</td></tr>`).join("")}</table></div></div>`;
   }
   const pdi = occs.slice(0,4).map(item => `<tr><td>${esc(item.categoryName)}</td><td>${esc(item.criteriaName)}</td><td>${item.correctiveAction ? esc(item.correctiveAction) : "Eliminar reincidencia e comprovar rotina correta."}</td><td>Proximo ciclo</td><td>Foto, checklist ou validacao do gestor.</td></tr>`).join("");
   const stats = reportStats(evaluation);
@@ -1224,7 +1234,7 @@ async function drawShareArt(evaluation, width=1280, height=720){
     ctx.fillRect(0,0,width,height);
     ctx.fillStyle = "#101827";
     ctx.font = `700 ${sx(32)}px Arial`;
-    ctx.fillText("Salve uma avaliacao para gerar a arte.", sx(72), sx(260));
+    ctx.fillText("Salve uma avaliação para gerar a arte.", sx(72), sx(260));
     return;
   }
   const stats = reportStats(evaluation);
@@ -1275,7 +1285,7 @@ async function drawShareArt(evaluation, width=1280, height=720){
   ctx.fillStyle = exec.color; ctx.font = `800 ${sx(20)}px Arial`; ctx.fillText(exec.stars, sx(1030), sx(250));
   ctx.fillStyle = "#475467"; ctx.font = `600 ${sx(12)}px Arial`; drawWrappedText(ctx,feedback,sx(1030),sx(278),sx(170),sx(15),2);
 
-  const summary = [["Ocorrencias",stats.active.length],["Pontos descontados",scoreText(stats.discount)],["Qtd. registros",stats.totalQuantity],["Resolvidas",stats.resolved],["Pendentes",stats.pending],["Tempo medio",stats.avgRegularization]];
+  const summary = [["Ocorrências",stats.active.length],["Pontos descontados",scoreText(stats.discount)],["Qtd. registros",stats.totalQuantity],["Resolvidas",stats.resolved],["Pendentes",stats.pending],["Tempo medio",stats.avgRegularization]];
   summary.forEach(([label,value],index)=>{
     const x = sx(48 + index*198);
     ctx.fillStyle = "#fff"; roundRect(ctx,x,sx(326),sx(178),sx(72),sx(14)); ctx.fill();
@@ -1294,7 +1304,7 @@ async function drawShareArt(evaluation, width=1280, height=720){
     ctx.fillStyle = "#ecfdf3"; roundRect(ctx,x,y,sx(220),sx(30),sx(15)); ctx.fill();
     ctx.fillStyle = "#166534"; ctx.font = `800 ${sx(13)}px Arial`; drawWrappedText(ctx,`OK ${badge}`,x+sx(12),y+sx(20),sx(196),sx(14),1);
   });
-  ctx.fillStyle = "#101827"; ctx.font = `900 ${sx(18)}px Arial`; ctx.fillText("Ocorrencias e Status", sx(660), sx(462));
+  ctx.fillStyle = "#101827"; ctx.font = `900 ${sx(18)}px Arial`; ctx.fillText("Ocorrências e Status", sx(660), sx(462));
   const rows = stats.records;
   ctx.fillStyle = "#f1f5f9"; roundRect(ctx,sx(660),sx(480),sx(540),sx(28),sx(8)); ctx.fill();
   ctx.fillStyle = "#475467"; ctx.font = `800 ${sx(11)}px Arial`; ctx.fillText("CATEGORIA",sx(674),sx(499)); ctx.fillText("CRITERIO",sx(820),sx(499)); ctx.fillText("QTD",sx(1050),sx(499)); ctx.fillText("STATUS",sx(1110),sx(499));
@@ -1316,10 +1326,10 @@ async function drawShareArt(evaluation, width=1280, height=720){
 
 async function downloadArt(scale){
   const evaluation = selectedEvaluation();
-  if(!evaluation) return alert("Selecione uma avaliacao para baixar.");
+  if(!evaluation) return alert("Selecione uma avaliação para baixar.");
   await drawShareArt(evaluation, scale === 8 ? 7680 : 3840, scale === 8 ? 4320 : 2160);
   const canvas = $("shareCanvas");
-  const fileName = `performance-${evaluation?.employeeSnapshot?.name || "avaliacao"}-${scale}k.png`.replace(/\s+/g,"-").toLowerCase();
+  const fileName = `performance-${evaluation?.employeeSnapshot?.name || "avaliação"}-${scale}k.png`.replace(/\s+/g,"-").toLowerCase();
   let blob = null;
   try{
     blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png", 1));
@@ -1344,7 +1354,7 @@ async function downloadArt(scale){
 
 function sendEvaluationWhatsApp(){
   const evaluation = selectedEvaluation();
-  if(!evaluation) return alert("Selecione uma avaliacao para enviar.");
+  if(!evaluation) return alert("Selecione uma avaliação para enviar.");
   const typed = prompt("Informe o WhatsApp do colaborador com DDD. O codigo do Brasil (55) sera aplicado automaticamente.", "");
   if(!typed) return;
   const digits = typed.replace(/\D/g, "");
@@ -1352,7 +1362,7 @@ function sendEvaluationWhatsApp(){
   const number = digits.startsWith("55") ? digits : `55${digits}`;
   const message = [
     `Ola ${evaluation.employeeSnapshot.name}.`,
-    `Segue sua avaliacao de desempenho.`,
+    `Segue sua avaliação de desempenho.`,
     `Nota final: ${scoreText(evaluation.score)} - ${executiveClassification(evaluation.score).label}.`,
     performanceFeedback(evaluation.score, `${evaluation.employeeId}|${evaluation.employeeSnapshot.name}|${evaluation.date}`, occurrenceList(evaluation).length),
     location.href
@@ -1402,7 +1412,12 @@ function setupEvents(){
     const viewButton = event.target.closest("[data-view]");
     if(viewButton) setView(viewButton.dataset.view);
     const category = event.target.closest("[data-toggle-category]");
-    if(category) document.querySelector(`[data-category="${category.dataset.toggleCategory}"]`)?.classList.toggle("is-open");
+    if(category){
+      const target = document.querySelector(`[data-category="${category.dataset.toggleCategory}"]`);
+      const willOpen = !target?.classList.contains("is-open");
+      document.querySelectorAll(".category.is-open").forEach(item => { if(item !== target) item.classList.remove("is-open"); });
+      target?.classList.toggle("is-open", willOpen);
+    }
     const info = event.target.closest("[data-info]");
     if(info){
       const categoryElement = info.closest(".category");
@@ -1426,7 +1441,7 @@ function setupEvents(){
     const toggle = event.target.closest("[data-toggle-employee]");
     if(toggle){ const e = employeeById(toggle.dataset.toggleEmployee); if(e){e.active = !e.active; saveState(); renderAll();} }
     const del = event.target.closest("[data-delete-employee]");
-    if(del && confirm("Excluir colaborador e manter historico ja salvo?")){ state.employees = state.employees.filter(e => e.id !== del.dataset.deleteEmployee); saveState(); renderAll(); }
+    if(del && confirm("Excluir colaborador e manter histórico ja salvo?")){ state.employees = state.employees.filter(e => e.id !== del.dataset.deleteEmployee); saveState(); renderAll(); }
     const note = event.target.closest("[data-note]");
     if(note){
       editingNoteKey = note.dataset.note;
@@ -1482,7 +1497,7 @@ function setupEvents(){
   $("noteForm").addEventListener("submit", saveNote);
   $("cancelNoteButton").addEventListener("click", () => $("noteDialog").close());
   $("saveEvalButton").addEventListener("click", saveEvaluation);
-  $("clearEvalButton").addEventListener("click", () => { if(confirm("Limpar avaliacao atual?")){ currentEval = emptyEvaluation(); currentEval.employeeId = $("evalEmployee").value; $("evalPositive").value = $("evalGeneralNote").value = $("evalJustification").value = ""; renderChecklist(); } });
+  $("clearEvalButton").addEventListener("click", () => { if(confirm("Limpar avaliação atual?")){ currentEval = emptyEvaluation(); currentEval.employeeId = $("evalEmployee").value; $("evalPositive").value = $("evalGeneralNote").value = $("evalJustification").value = ""; renderChecklist(); } });
   $("previewImageButton").addEventListener("click", () => { const data = collectEvaluation(); drawShareArt(data); setView("reports"); });
   $("weeklyReportButton").addEventListener("click", () => renderSelectedReport("weekly"));
   $("fortnightReportButton").addEventListener("click", () => renderSelectedReport("fortnight"));

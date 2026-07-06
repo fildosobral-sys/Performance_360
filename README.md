@@ -24,3 +24,8 @@ Depois acesse o link do GitHub Pages no celular e escolha **Adicionar à tela in
 ## Dados
 
 Os dados ficam salvos no `localStorage` do navegador. Use o botão **Backup JSON** para guardar uma cópia antes de trocar de celular, limpar cache ou atualizar a plataforma.
+
+
+## Versão PRO PWA
+
+Esta versão inclui ajustes de experiência mobile em estilo aplicativo, PWA instalável, service worker, tela em modo standalone, cards executivos, dashboard com KPIs destacados, avaliação com acordeão inteligente, nota fixa durante avaliação e melhorias visuais para Android/iOS.

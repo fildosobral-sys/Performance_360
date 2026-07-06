@@ -1,4 +1,4 @@
-const CACHE_NAME = "performance-360-v20260706-pwa-1";
+const CACHE_NAME = "performance-360-v20260706-pro-ios-1";
 const APP_SHELL = [
   "./",
   "./index.html",

@@ -1781,20 +1781,35 @@ function chartRows(type){
 
 function attachDashboardChartButtons(){
   const targets = [
-    ["rankingGeneral","general"], ["rankingSector","sector"], ["rankingCategory","category"], ["evolutionCharts","evolution"], ["topOccurrences","occurrences"]
+    ["rankingGeneral","general"],
+    ["rankingSector","sector"],
+    ["rankingCategory","category"],
+    ["evolutionCharts","evolution"],
+    ["topOccurrences","occurrences"]
   ];
+
   targets.forEach(([id,type]) => {
     const node = $(id);
-    const card = node?.closest("section, .card, .panel, article, div");
-    if(!node || !card || card.querySelector(`[data-open-chart="${type}"]`)) return;
+    if(!node) return;
+
+    // O botão deve ficar somente no cabeçalho do bloco, nunca em cima das linhas/dados.
+    const card = node.closest("section") || node.parentElement;
+    if(!card || card.querySelector(`[data-open-chart="${type}"]`)) return;
+
+    const heading = card.querySelector("h2, h3") || card.firstElementChild;
+    if(!heading) return;
+
     card.classList.add("chart-card-host");
+    heading.classList.add("chart-heading");
+
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "chart-toggle";
     btn.dataset.openChart = type;
     btn.innerHTML = "📈";
     btn.title = "Abrir gráfico";
-    card.appendChild(btn);
+    btn.setAttribute("aria-label", `Abrir gráfico: ${heading.textContent.trim() || type}`);
+    heading.appendChild(btn);
   });
 }
 
@@ -2015,7 +2030,8 @@ function injectSobralPolish(){
     #dashboardKpis .kpi{min-height:82px!important;padding:16px!important;border-radius:20px!important;overflow:hidden!important;}
     #dashboardKpis .kpi strong{font-size:30px!important;line-height:1!important;}
     .chart-card-host{position:relative!important;}
-    .chart-toggle{position:absolute!important;right:18px!important;top:18px!important;width:42px!important;height:42px!important;border:0!important;border-radius:999px!important;background:#eef4ff!important;color:#0f172a!important;box-shadow:0 8px 20px rgba(15,23,42,.10)!important;font-size:18px!important;display:flex!important;align-items:center!important;justify-content:center!important;z-index:5!important;}
+    .chart-heading{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;margin-right:0!important;}
+    .chart-toggle{position:static!important;flex:0 0 auto!important;width:38px!important;height:38px!important;border:0!important;border-radius:999px!important;background:#eef4ff!important;color:#0f172a!important;box-shadow:0 8px 20px rgba(15,23,42,.10)!important;font-size:18px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;z-index:1!important;margin-left:auto!important;}
     .chart-toggle:active{transform:scale(.96)!important;}
     .chart-dialog{border:0!important;border-radius:28px!important;padding:0!important;max-width:min(92vw,760px)!important;background:transparent!important;}
     .chart-dialog::backdrop{background:rgba(15,23,42,.55)!important;backdrop-filter:blur(3px)!important;}
@@ -2042,7 +2058,7 @@ function injectSobralPolish(){
       #dashboardKpis{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;}
       #dashboardKpis .kpi{min-height:74px!important;padding:12px 14px!important;}
       #dashboardKpis .kpi strong{font-size:28px!important;}
-      .chart-toggle{right:16px!important;top:16px!important;width:38px!important;height:38px!important;}
+      .chart-toggle{position:static!important;width:36px!important;height:36px!important;font-size:16px!important;}
       .mini-chart-row{grid-template-columns:30px 1fr!important;gap:10px!important;}
       .mini-chart-row i{grid-column:1/-1!important;}
       .mini-chart-row>strong{position:absolute;right:34px;margin-top:-28px;}

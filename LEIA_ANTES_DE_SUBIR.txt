@@ -1,0 +1,37 @@
+VERSÃO LIMPA - DESEMPENHO 360 PRO PWA
+
+Para atualizar o GitHub:
+
+1. Apague todos os arquivos antigos do repositório.
+2. Suba SOMENTE os arquivos e pastas deste ZIP.
+3. A estrutura final deve ficar assim:
+
+index.html
+app.js
+styles.css
+manifest.json
+service-worker.js
+README.md
+.nojekyll
+LEIA_ANTES_DE_SUBIR.txt
+icons/
+  icon-192.png
+  icon-512.png
+  maskable-512.png
+
+Não precisa subir arquivos antigos como:
+INICIAR_PLATAFORMA.bat
+servidor.py
+server-out.log
+server-error.log
+build-standalone.ps1
+PERFORMANCE_360_AVALIACAO_ATUALIZADO.html
+estilos.css
+logo-foco.png
+logo-zenir.png
+
+Depois de publicar, no celular:
+- abrir o site
+- atualizar a página
+- limpar cache se necessário
+- usar Adicionar à tela inicial / Instalar app

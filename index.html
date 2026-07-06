@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Performance 360">
+  <link rel="manifest" href="manifest.json?v=20260706-pro-ios-1">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Performance Individual 360</title>
+    <link rel="stylesheet" href="styles.css?v=20260706-pro-ios-1">
+  <script src="app.js?v=20260706-pro-ios-1" defer></script>
+</head>
+<body>
+  <header class="topbar no-print">
+    <div>
+      <span class="eyebrow">Método Sobral</span>
+      <h1>Performance Individual 360</h1>
+      <p>Ocorrências, feedback, histórico e desenvolvimento contínuo.</p>
+    </div>
+    <button class="ghost-button" id="quickShareButton" type="button">Compartilhar</button>
+  </header>
+
+  <nav class="mobile-tabs no-print" aria-label="Navegação principal">
+    <button class="tab-button is-active" data-view="dashboard" type="button">Dashboard</button>
+    <button class="tab-button" data-view="employees" type="button">Equipe</button>
+    <button class="tab-button" data-view="evaluation" type="button">Avaliar</button>
+    <button class="tab-button" data-view="history" type="button">Histórico</button>
+    <button class="tab-button" data-view="reports" type="button">Relatórios</button>
+    <button class="tab-button" data-view="settings" type="button">Ajustes</button>
+  </nav>
+
+  <main class="layout">
+    <aside class="sidebar no-print">
+      <div class="brand-block">
+        <strong id="brandName">Empresa</strong>
+        <span>Gestão de desempenho</span>
+      </div>
+      <button class="side-link is-active" data-view="dashboard" type="button">Dashboard</button>
+      <button class="side-link" data-view="employees" type="button">Colaboradores</button>
+      <button class="side-link" data-view="evaluation" type="button">Nova avaliação</button>
+      <button class="side-link" data-view="history" type="button">Linha do tempo</button>
+      <button class="side-link" data-view="reports" type="button">Relatórios</button>
+      <button class="side-link" data-view="settings" type="button">Configurações</button>
+    </aside>
+
+    <section class="content">
+      <section class="view is-active" id="view-dashboard">
+        <div class="view-head">
+          <div>
+            <span class="eyebrow">Visão geral</span>
+            <h2>Dashboard</h2>
+          </div>
+          <select id="dashboardSector"></select>
+        </div>
+        <div class="kpi-grid" id="dashboardKpis"></div>
+        <div class="split-grid">
+          <article class="panel"><h3>Ranking geral</h3><div id="rankingGeneral"></div></article>
+          <article class="panel"><h3>Ranking por setor</h3><div id="rankingSector"></div></article>
+        </div>
+        <div class="split-grid">
+          <article class="panel"><h3>Ranking por categoria</h3><div id="rankingCategory"></div></article>
+          <article class="panel"><h3>Evolução semanal e mensal</h3><div id="evolutionCharts"></div></article>
+        </div>
+        <div class="split-grid">
+          <article class="panel"><h3>Principais ocorrências</h3><div id="topOccurrences"></div></article>
+          <article class="panel"><h3>Maiores evoluções</h3><div id="topEvolution"></div></article>
+        </div>
+      </section>
+
+      <section class="view" id="view-employees">
+        <div class="view-head">
+          <div>
+            <span class="eyebrow">Cadastro</span>
+            <h2>Colaboradores</h2>
+          </div>
+          <button class="button primary" id="newEmployeeButton" type="button">Novo colaborador</button>
+        </div>
+        <form class="panel form-panel" id="employeeForm">
+          <input type="hidden" id="employeeId">
+          <div class="photo-row">
+            <img id="employeePhotoPreview" alt="Foto do colaborador">
+            <label class="file-drop">Foto<input id="employeePhoto" type="file" accept="image/*"></label>
+          </div>
+          <div class="field-grid four">
+            <label>Nome em destaque<input id="employeeName" required></label>
+            <label>Cargo<input id="employeeRole" required></label>
+            <label>Setor<input id="employeeSector" required></label>
+            <label>Status<select id="employeeActive"><option value="true">Ativo</option><option value="false">Inativo</option></select></label>
+          </div>
+          <div class="actions"><button class="button secondary" id="cancelEmployeeButton" type="button">Limpar</button><button class="button primary" type="submit">Salvar colaborador</button></div>
+        </form>
+        <div class="employee-grid" id="employeeList"></div>
+      </section>
+
+      <section class="view" id="view-evaluation">
+        <div class="view-head">
+          <div>
+            <span class="eyebrow">Checklist mensal</span>
+            <h2>Avaliação individual</h2>
+          </div>
+          <div class="score-pill" id="currentScorePill">Nota 10,0</div>
+        </div>
+        <section class="panel">
+          <div class="field-grid four">
+            <label>Colaborador<select id="evalEmployee"></select></label>
+            <label>Gestor responsável<input id="evalManager" value="Gestor"></label>
+            <label>Data<input id="evalDate" type="date"></label>
+            <label>Mês de referência<input id="evalMonth" type="month"></label>
+          </div>
+          <div id="selectedEmployeeCard" class="selected-person"></div>
+        </section>
+        <section class="checklist-shell" id="checklist"></section>
+        <section class="panel">
+          <h3>Feedback e contestacao</h3>
+          <div class="field-grid">
+            <label>Pontos positivos<textarea id="evalPositive" placeholder="Reconhecimentos, avancos e comportamentos positivos"></textarea></label>
+            <label>Observacao geral do gestor<textarea id="evalGeneralNote" placeholder="Resumo objetivo da avaliacao"></textarea></label>
+            <label>Justificativa do colaborador<textarea id="evalJustification" placeholder="Contestacao ou justificativa do colaborador"></textarea></label>
+          </div>
+        </section>
+        <div class="sticky-actions no-print">
+          <button class="button secondary" id="clearEvalButton" type="button">Limpar</button>
+          <button class="button secondary" id="previewImageButton" type="button">Prévia da arte</button>
+          <button class="button primary" id="saveEvalButton" type="button">Salvar avaliacao</button>
+        </div>
+      </section>
+
+      <section class="view" id="view-history">
+        <div class="view-head">
+          <div>
+            <span class="eyebrow">Auditoria</span>
+            <h2>Linha do tempo</h2>
+          </div>
+          <select id="historyEmployee"></select>
+        </div>
+        <div id="timeline"></div>
+      </section>
+
+      <section class="view" id="view-reports">
+        <div class="view-head">
+          <div>
+            <span class="eyebrow">Saidas</span>
+            <h2>Relatórios e imagens</h2>
+          </div>
+          <select id="reportEvaluation"></select>
+        </div>
+        <div class="report-actions no-print">
+          <button class="button secondary" id="weeklyReportButton" type="button">Parcial semanal</button>
+          <button class="button secondary" id="fortnightReportButton" type="button">Parcial quinzenal</button>
+          <button class="button secondary" id="monthlyReportButton" type="button">Fechamento mensal</button>
+          <button class="button secondary" id="compareReportButton" type="button">Comparativo</button>
+          <button class="button secondary" id="pdiReportButton" type="button">PDI</button>
+        </div>
+        <section class="panel report-output" id="reportOutput"></section>
+        <section class="panel">
+          <h3>Arte profissional</h3>
+          <canvas id="shareCanvas" width="1280" height="720"></canvas>
+          <div class="report-actions no-print">
+            <button class="button primary" id="downloadImageButton" type="button">Baixar imagem</button>
+            <button class="button secondary" id="downloadPdfButton" type="button">Baixar PDF</button>
+            <button class="button secondary" id="whatsappButton" type="button">Enviar WhatsApp</button>
+          </div>
+        </section>
+      </section>
+
+      <section class="view" id="view-settings">
+        <div class="view-head">
+          <div>
+            <span class="eyebrow">Administração</span>
+            <h2>Configurações</h2>
+          </div>
+          <button class="button primary" id="exportBackupButton" type="button">Backup JSON</button>
+        </div>
+        <section class="panel form-panel">
+          <h3>Regras gerais</h3>
+          <div class="field-grid four">
+            <label>Nome da empresa<input id="settingCompany"></label>
+            <label>Nota inicial<input id="settingInitialScore" type="number" step="0.1"></label>
+            <label>Reincidencia<input id="settingRecurrence" type="number" step="0.1"></label>
+            <label>Avaliadores autorizados<input id="settingManagers"></label>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="view-head compact"><div><h3>Categorias e criterios</h3><p class="helper-text">Os descontos sao recalculados automaticamente para que todos os criterios ativos somem a nota inicial.</p></div><button class="button secondary" id="addCategoryButton" type="button">Nova categoria</button></div>
+          <div id="criteriaAdmin"></div>
+        </section>
+        <section class="panel">
+          <h3>Permissoes e dados</h3>
+          <div class="report-actions">
+            <label class="button secondary file-button">Importar backup<input id="importBackupInput" type="file" accept=".json"></label>
+            <button class="button danger" id="resetDataButton" type="button">Apagar dados</button>
+          </div>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="noteDialog">
+    <form method="dialog" id="noteForm">
+      <h3 id="noteDialogTitle">Observacao</h3>
+      <textarea id="noteText" placeholder="Observacao opcional"></textarea>
+      <div class="field-grid">
+        <label>Quantidade encontrada<input id="occurrenceQuantity" type="number" min="0" step="1" placeholder="Ex.: 3"></label>
+        <label>Classificacao automática<input id="occurrenceSeverity" readonly></label>
+      </div>
+      <div class="field-grid">
+        <label>Status da ocorrência<select id="occurrenceStatus">
+          <option value="pending">Pendente de analise</option>
+          <option value="confirmed">Confirmada</option>
+          <option value="justified">Justificada</option>
+          <option value="canceled">Cancelada</option>
+          <option value="recurrent">Reincidente</option>
+        </select></label>
+        <label>Ação corretiva<select id="correctiveAction">
+          <option value="">Selecione</option>
+          <option>Corrigido imediatamente.</option>
+          <option>Solicitado novo material.</option>
+          <option>Etiquetas em impressão.</option>
+          <option>Reorganização realizada.</option>
+          <option>Aguardando reposição.</option>
+          <option>Treinamento realizado.</option>
+          <option value="Outro">Outro</option>
+        </select></label>
+      </div>
+      <label id="correctiveOtherWrap" hidden>Outro combinado<input id="correctiveOther" placeholder="Descreva a ação corretiva"></label>
+      <div class="field-grid">
+        <label>Foto<input id="evidencePhoto" type="file" accept="image/*" capture="environment"></label>
+        <label>Video<input id="evidenceVideo" type="file" accept="video/*"></label>
+        <label>Audio<input id="evidenceAudio" type="file" accept="audio/*"></label>
+      </div>
+      <div class="actions">
+        <button class="button secondary" value="cancel" type="button" id="cancelNoteButton">Cancelar</button>
+        <button class="button primary" value="default" type="submit">Salvar</button>
+      </div>
+    </form>
+  </dialog>
+
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260706-pro-ios-1").catch(()=>{}));}</script>
+</body>
+</html>

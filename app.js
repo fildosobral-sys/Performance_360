@@ -1300,7 +1300,7 @@ function reportHtml(type, evaluation){
   return `<div class="exec-report">
     <div class="exec-report-top">
       <div><span>MÉTODO SOBRAL</span><h3>Performance Individual 360</h3><p>Relatório Executivo de Desenvolvimento</p></div>
-      <div class="exec-meta"><strong>${esc(state.settings.company || "Empresa")}</strong><small>Filial: ${esc(evaluation.employeeSnapshot.sector || "-")}</small><small>Data: ${dateText(evaluation.date)}</small><small>Período: ${esc(evaluation.month || "-")}</small></div>
+      <div class="exec-meta"><img class="exec-brand-logo" src="${zenirLogo}" alt="Zenir"><strong>${esc(state.settings.company || "Empresa")}</strong><small>Filial: ${esc(evaluation.employeeSnapshot.sector || "-")}</small><small>Data: ${dateText(evaluation.date)}</small><small>Período: ${esc(evaluation.month || "-")}</small></div>
     </div>
     <div class="exec-hero">
       <div class="exec-person">
@@ -1517,9 +1517,12 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   setFont(800,15,"#cbd5e1"); ctx.fillText("METODO SOBRAL", sx(54), sx(36));
   setFont(900,34,"#fff"); ctx.fillText("Performance Individual 360", sx(54), sx(76));
   setFont(600,17,"#d8dee8"); ctx.fillText("Relatorio Executivo de Desenvolvimento", sx(54), sx(108));
-  drawContainImage(ctx,logoZenirImg,sx(930),sx(22),sx(210),sx(58));
-  setFont(800,16,"#0f172a"); textBlock(state.settings.company || "Empresa",930,92,250,18,1);
-  setFont(600,12,"#334155"); textBlock(`Data: ${dateText(evaluation.date)} | Periodo: ${evaluation.month || "-"}`,930,114,260,15,1);
+  const brandBoxX = sx(880), brandBoxW = sx(360), brandCenter = brandBoxX + brandBoxW / 2;
+  drawContainImage(ctx,logoZenirImg,brandCenter - sx(120),sx(18),sx(240),sx(62));
+  ctx.textAlign = "center";
+  setFont(800,17,"#0f172a"); ctx.fillText(state.settings.company || "Empresa", brandCenter, sx(90));
+  setFont(600,12,"#334155"); ctx.fillText(`Data: ${dateText(evaluation.date)} | Periodo: ${evaluation.month || "-"}`, brandCenter, sx(116));
+  ctx.textAlign = "left";
 
   // Colaborador + nota
   fillCard(50,174,670,170,24);
@@ -1788,15 +1791,20 @@ function attachDashboardChartButtons(){
     ["topOccurrences","occurrences"]
   ];
 
+  // Limpa botões antigos que ficaram no cabeçalho do Dashboard ou sobre os dados.
+  document.querySelectorAll("#view-dashboard .chart-toggle").forEach(btn => btn.remove());
+  document.querySelectorAll("#view-dashboard .chart-heading").forEach(h => h.classList.remove("chart-heading"));
+
   targets.forEach(([id,type]) => {
     const node = $(id);
     if(!node) return;
 
-    // O botão deve ficar somente no cabeçalho do bloco, nunca em cima das linhas/dados.
-    const card = node.closest("section") || node.parentElement;
-    if(!card || card.querySelector(`[data-open-chart="${type}"]`)) return;
+    // O botão fica somente no cabeçalho do card/painel dono daquele ranking.
+    // Nunca usa section, porque section pega a tela inteira e joga vários ícones perto do título Dashboard.
+    const card = node.closest("article.panel, .panel, article, .dashboard-card");
+    if(!card) return;
 
-    const heading = card.querySelector("h2, h3") || card.firstElementChild;
+    const heading = card.querySelector(":scope > h2, :scope > h3, :scope > header h2, :scope > header h3");
     if(!heading) return;
 
     card.classList.add("chart-card-host");
@@ -2031,7 +2039,12 @@ function injectSobralPolish(){
     #dashboardKpis .kpi strong{font-size:30px!important;line-height:1!important;}
     .chart-card-host{position:relative!important;}
     .chart-heading{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;margin-right:0!important;}
+    #view-dashboard > .section-head .chart-toggle{display:none!important;}
     .chart-toggle{position:static!important;flex:0 0 auto!important;width:38px!important;height:38px!important;border:0!important;border-radius:999px!important;background:#eef4ff!important;color:#0f172a!important;box-shadow:0 8px 20px rgba(15,23,42,.10)!important;font-size:18px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;z-index:1!important;margin-left:auto!important;}
+    .exec-meta{background:#dbeafe!important;border-radius:0 24px 24px 0!important;color:#0f172a!important;text-align:center!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;padding:12px 18px!important;min-width:250px!important;}
+    .exec-meta .exec-brand-logo{display:block!important;width:min(220px,80%)!important;max-height:62px!important;object-fit:contain!important;margin:0 auto 4px!important;}
+    .exec-meta strong{font-size:16px!important;line-height:1.15!important;}
+    .exec-meta small{color:#334155!important;margin-top:3px!important;}
     .chart-toggle:active{transform:scale(.96)!important;}
     .chart-dialog{border:0!important;border-radius:28px!important;padding:0!important;max-width:min(92vw,760px)!important;background:transparent!important;}
     .chart-dialog::backdrop{background:rgba(15,23,42,.55)!important;backdrop-filter:blur(3px)!important;}

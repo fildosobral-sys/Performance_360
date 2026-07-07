@@ -1,4 +1,4 @@
-const CACHE_NAME = "performance-360-text-fix-20260707-1";
+const CACHE_NAME = "performance-360-emoji-fix-20260707-1";
 const APP_SHELL = [
   "./",
   "./index.html",

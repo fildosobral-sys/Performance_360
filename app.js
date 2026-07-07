@@ -74,14 +74,14 @@ function startCanvasTextRepair(){
   proto.measureText = function(text){ return originalMeasureText.call(this, repairText(text)); };
 }
 const STATUS_LABELS = {
-  pending:"Pendente de analise",
-  confirmed:"Confirmada",
-  justified:"Justificada",
-  canceled:"Cancelada",
-  resolved:"Resolvida",
-  recurrent:"Reincidente",
-  maintained:"Confirmada",
-  changed:"Confirmada"
+  pending:"\u{1F7E1} Pendente de analise",
+  confirmed:"\u{1F7E2} Confirmada",
+  justified:"\u{1F535} Justificada",
+  canceled:"\u{26AA} Cancelada",
+  resolved:"\u{2705} Resolvida",
+  recurrent:"\u{1F534} Reincidente",
+  maintained:"\u{1F7E2} Confirmada",
+  changed:"\u{1F7E2} Confirmada"
 };
 
 const defaultPhoto = "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160"><rect width="160" height="160" fill="#e8edf3"/><circle cx="80" cy="62" r="32" fill="#98a2b3"/><path d="M28 142c8-34 28-52 52-52s44 18 52 52" fill="#98a2b3"/></svg>`);
@@ -610,9 +610,9 @@ function averageResolutionTime(records){
 function quantitySeverity(quantity){
   const value = Number(quantity || 0);
   if(!value) return {key:"none", label:"Sem quantidade", short:"Sem quantidade"};
-  if(value <= 2) return {key:"low", label:"ðŸŸ¢ Baixa ocorrÃªncia", short:"Baixa"};
-  if(value <= 5) return {key:"attention", label:"ðŸŸ¡ AtenÃ§Ã£o", short:"AtenÃ§Ã£o"};
-  return {key:"critical", label:"ðŸ”´ CrÃ­tico", short:"CrÃ­tico"};
+  if(value <= 2) return {key:"low", label:"\u{1F7E2} Baixa ocorrência", short:"\u{1F7E2} Baixa"};
+  if(value <= 5) return {key:"attention", label:"\u{1F7E1} Atenção", short:"\u{1F7E1} Atenção"};
+  return {key:"critical", label:"\u{1F534} Crítico", short:"\u{1F534} Crítico"};
 }
 
 function statusLabel(status){
@@ -832,20 +832,20 @@ function updateCategoryVisual(categoryId){
   element.classList.toggle("is-edited", edited);
   const badge = element.querySelector(".category-count");
   if(badge){
-    const base = badge.dataset.count || badge.textContent.replace(/\s*OK\s*$/, "");
-    badge.innerHTML = edited ? `${esc(base)} <span class="category-done">OK</span>` : esc(base);
+    const base = badge.dataset.count || badge.textContent.replace(/\s*(OK|✅)\s*$/, "");
+    badge.innerHTML = edited ? `${esc(base)} <span class="category-done">\u{2705}</span>` : esc(base);
   }
 }
 
 function renderChecklist(){
   $("checklist").innerHTML = state.categories.filter(category => category.active).map(category => {
     const edited = categoryWasEdited(category.id);
-    const count = `${category.criteria.filter(c => c.active).length} criterios`;
+    const count = `${category.criteria.filter(c => c.active).length} crit\u00E9rios`;
     return `
     <article class="category ${edited ? "is-edited" : ""}" data-category="${category.id}">
       <button class="category-head" type="button" data-toggle-category="${category.id}">
         <span class="category-title-block"><strong>${esc(category.name)}</strong><small>${esc(category.description || "")}</small></span>
-        <span class="category-count" data-count="${esc(count)}">${esc(count)}${edited ? ` <span class="category-done">OK</span>` : ""}</span>
+        <span class="category-count" data-count="${esc(count)}">${esc(count)}${edited ? ` <span class="category-done">\u{2705}</span>` : ""}</span>
       </button>
       <div class="category-body">
         ${category.criteria.filter(c => c.active).map(criteria => criterionRow(category, criteria)).join("")}
@@ -866,7 +866,7 @@ function criterionRow(category, criteria){
     <div class="criterion-name"><strong>${esc(criteria.name)}</strong></div>
     <span class="deduction">-${pointsText(criteria.points)}</span>
     ${criteria.description ? `<button class="info-button" type="button" data-info="${criteria.id}" aria-expanded="false" aria-label="Orientacao do criterio">i</button>` : `<span class="info-spacer"></span>`}
-    <button class="icon-note" type="button" data-note="${criteria.id}" title="Observacao">${hasNote ? "Obs" : "+"}</button>
+    <button class="icon-note" type="button" data-note="${criteria.id}" title="Observacao">${hasNote ? "\u{1F4DD}" : "\u{270F}\u{FE0F}"}</button>
     ${criteria.description ? `<div class="orientation-panel" data-info-panel="${criteria.id}" hidden>
       <strong>Orientacao:</strong>
       <p>${esc(criteria.description)}</p>
@@ -1814,14 +1814,14 @@ function renderAll(){
 function displayIconForLabel(label){
   const text = normalize(String(label || ""));
   const rules = [
-    ["camas", "CAM"], ["colch", "COL"], ["eletro", "ELT"], ["move", "MOV"], ["celular", "CEL"], ["telefon", "TEL"], ["bicic", "BIC"],
-    ["organiz", "ORG"], ["preco", "PRE"], ["etiqueta", "ETQ"], ["localizacao", "LOC"], ["exposicao", "EXP"], ["visual", "VIS"],
-    ["limpeza", "LIM"], ["sujeira", "LIM"], ["conservacao", "CON"], ["atendimento", "ATD"], ["cliente", "CLI"], ["pos venda", "POS"],
-    ["disciplina", "DIS"], ["cadastro", "CAD"], ["estoque", "EST"], ["produto", "PRO"], ["servico", "SER"], ["meta", "MET"],
-    ["resultado", "RES"], ["equipe", "EQP"], ["comunicacao", "COM"], ["desenvolvimento", "DEV"], ["proatividade", "PRO"]
+    ["camas", "\u{1F6CF}\u{FE0F}"], ["colch", "\u{1F6CF}\u{FE0F}"], ["eletro", "\u{1F4FA}"], ["move", "\u{1F6CB}\u{FE0F}"], ["celular", "\u{1F4F1}"], ["telefon", "\u{1F4DE}"], ["bicic", "\u{1F6B2}"],
+    ["organiz", "\u{1F5C2}\u{FE0F}"], ["preco", "\u{1F3F7}\u{FE0F}"], ["etiqueta", "\u{1F3F7}\u{FE0F}"], ["localizacao", "\u{1F4CD}"], ["exposicao", "\u{1F5BC}\u{FE0F}"], ["visual", "\u{1F5BC}\u{FE0F}"],
+    ["limpeza", "\u{1F9F9}"], ["sujeira", "\u{1F9FD}"], ["conservacao", "\u{1F9F0}"], ["atendimento", "\u{1F91D}"], ["cliente", "\u{1F464}"], ["pos venda", "\u{1F4DE}"],
+    ["disciplina", "\u{23F1}\u{FE0F}"], ["cadastro", "\u{1F4DD}"], ["estoque", "\u{1F4E6}"], ["produto", "\u{1F6D2}"], ["servico", "\u{1F6E1}\u{FE0F}"], ["meta", "\u{1F3AF}"],
+    ["resultado", "\u{1F4CA}"], ["equipe", "\u{1F465}"], ["comunicacao", "\u{1F4AC}"], ["desenvolvimento", "\u{1F680}"], ["proatividade", "\u{26A1}"]
   ];
   const found = rules.find(([key]) => text.includes(key));
-  return found ? found[1] : "VER";
+  return found ? found[1] : "\u{1F4CC}";
 }
 
 function plainChartLabel(label){
@@ -1898,9 +1898,9 @@ function attachDashboardChartButtons(){
     btn.type = "button";
     btn.className = "chart-toggle";
     btn.dataset.openChart = type;
-    btn.innerHTML = "ðŸ“ˆ";
-    btn.title = "Abrir grÃ¡fico";
-    btn.setAttribute("aria-label", `Abrir grÃ¡fico: ${heading.textContent.trim() || type}`);
+    btn.innerHTML = "\u{1F4C8}";
+    btn.title = "Abrir gráfico";
+    btn.setAttribute("aria-label", `Abrir gráfico: ${heading.textContent.trim() || type}`);
     heading.appendChild(btn);
   });
 }
@@ -4613,25 +4613,39 @@ else init();
   function safeIcon(label){
     const t = typeof normalize === "function" ? normalize(label) : String(label || "").toLowerCase();
     const rules = [
-      ["organiz","ORG"], ["limpeza","LIM"], ["atendimento","ATD"], ["disciplina","DIS"],
-      ["cadastro","CAD"], ["estoque","EST"], ["patrimonio","EST"], ["produto","PRO"],
-      ["servico","SER"], ["meta","MET"], ["resultado","RES"], ["equipe","EQP"],
-      ["comunicacao","COM"], ["desenvolvimento","DEV"], ["proatividade","PRO"],
-      ["preco","PRE"], ["etiqueta","ETQ"], ["localizacao","LOC"], ["exposicao","EXP"],
-      ["sujeira","LIM"], ["cliente","CLI"]
+      ["organiz","\u{1F5C2}\u{FE0F}"], ["limpeza","\u{1F9F9}"], ["atendimento","\u{1F91D}"], ["disciplina","\u{23F1}\u{FE0F}"],
+      ["cadastro","\u{1F4DD}"], ["estoque","\u{1F4E6}"], ["patrimonio","\u{1F4E6}"], ["produto","\u{1F6D2}"],
+      ["servico","\u{1F6E1}\u{FE0F}"], ["meta","\u{1F3AF}"], ["resultado","\u{1F4CA}"], ["equipe","\u{1F465}"],
+      ["comunicacao","\u{1F4AC}"], ["desenvolvimento","\u{1F680}"], ["proatividade","\u{26A1}"],
+      ["preco","\u{1F3F7}\u{FE0F}"], ["etiqueta","\u{1F3F7}\u{FE0F}"], ["localizacao","\u{1F4CD}"], ["exposicao","\u{1F5BC}\u{FE0F}"],
+      ["sujeira","\u{1F9FD}"], ["cliente","\u{1F464}"]
     ];
     const found = rules.find(([key]) => t.includes(key));
     return found ? found[1] : "";
   }
-  window.displayIconForLabel = safeIcon;
-  window.setorIcon = safeIcon;
-  window.sectorEmoji360 = safeIcon;
-  window.categoryEmoji360 = safeIcon;
-  window.occurrenceEmoji360 = safeIcon;
+  function applyEmojiIconGuard(){
+    window.displayIconForLabel = safeIcon;
+    window.setorIcon = safeIcon;
+    window.sectorEmoji360 = safeIcon;
+    window.categoryEmoji360 = safeIcon;
+    window.occurrenceEmoji360 = safeIcon;
+    document.querySelectorAll(".chart-toggle").forEach(button => {
+      const raw = button.textContent || "";
+      if(!raw.trim() || /ðŸ|âœ|âš/.test(raw)) button.textContent = "\u{1F4C8}";
+    });
+    document.querySelectorAll(".category-done").forEach(item => item.textContent = "\u{2705}");
+    document.querySelectorAll(".icon-note").forEach(button => {
+      const raw = button.textContent || "";
+      if(!raw.trim() || raw === "Obs") button.textContent = "\u{1F4DD}";
+      if(raw === "+") button.textContent = "\u{270F}\u{FE0F}";
+    });
+  }
+  applyEmojiIconGuard();
+  [120, 350, 800, 1500].forEach(delay => setTimeout(applyEmojiIconGuard, delay));
   if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", () => setTimeout(() => repairVisibleText(), 80), {once:true});
+    document.addEventListener("DOMContentLoaded", () => setTimeout(() => { repairVisibleText(); applyEmojiIconGuard(); }, 80), {once:true});
   }else{
-    setTimeout(() => repairVisibleText(), 80);
+    setTimeout(() => { repairVisibleText(); applyEmojiIconGuard(); }, 80);
   }
 })();
 

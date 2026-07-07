@@ -548,6 +548,13 @@ function positiveCategoryBadges(evaluation){
   return okCategories.slice(0,6);
 }
 
+function cleanPositiveBadgeLabel(value=""){
+  return String(value || "")
+    .replace(/^[\s✓✔✅]+/u, "")
+    .replace(/^(ok|OK)\s+/u, "")
+    .trim();
+}
+
 function reportStats(evaluation){
   const active = occurrenceList(evaluation);
   const resolvedRecords = resolvedOccurrenceList(evaluation);
@@ -682,6 +689,54 @@ function feedbackByCriterion(criteriaName="", categoryName="", occurrence={}){
   return `Corrigir ${cleanCriterionText(criteriaName)} com foco no cliente, no padrÃ£o da loja e no resultado da equipe. Defina a aÃ§Ã£o, execute na rotina e acompanhe para nÃ£o virar reincidÃªncia.${qtdText}`;
 }
 
+function technicalFeedbackForOccurrence(occurrence={}, categoryName="", criteriaName=""){
+  return feedbackByCriterion(criteriaName || occurrence.criteriaName, categoryName || occurrence.categoryName, occurrence);
+}
+
+function occurrenceActionFeedback(occurrence={}, categoryName="", criteriaName=""){
+  const technical = technicalFeedbackForOccurrence(occurrence, categoryName, criteriaName);
+  const manual = String(occurrence?.correctiveAction || "").trim();
+  if(manual && normalize(manual) !== normalize(technical)){
+    return `Ação combinada: ${manual} Feedback técnico: ${technical}`;
+  }
+  return technical;
+}
+
+function directionalOccurrenceFeedback(occurrence={}, evaluation={}){
+  const base = occurrenceActionFeedback(occurrence, occurrence.categoryName, occurrence.criteriaName);
+  const score = Number(evaluation?.score || 0);
+  const sector = evaluation?.employeeSnapshot?.sector || "";
+  const previous = (state.evaluations || []).filter(item =>
+    item.employeeId === evaluation?.employeeId &&
+    item.id !== evaluation?.id &&
+    new Date(item.createdAt || item.date || 0) < new Date(evaluation?.createdAt || evaluation?.date || Date.now()) &&
+    item.occurrences?.[occurrence.criteriaId]?.checked
+  ).length;
+  const category = normalize(occurrence.categoryName);
+  const parts = [];
+  if(score >= 9){
+    parts.push("Como a nota geral esta em nivel excelente, trate este ponto como ajuste fino para proteger a consistencia e manter o colaborador como referencia positiva.");
+  }else if(score >= 7){
+    parts.push("Como o resultado geral esta em faixa positiva, o proximo passo e corrigir esta oportunidade com constancia para aproximar a entrega da excelencia.");
+  }else{
+    parts.push("Como a nota pede acompanhamento, combine uma acao simples, valide a execucao na rotina e registre a evolucao no proximo ciclo.");
+  }
+  if(sector){
+    parts.push(`No setor ${sector}, priorize rotinas visuais de conferencia, comunicacao clara e apoio entre equipe para prevenir repeticao.`);
+  }
+  if(previous > 0){
+    parts.push("Como ja existe historico deste ponto, acompanhe por alguns dias ate estabilizar e reconheca rapidamente qualquer evolucao observada.");
+  }
+  if(category.includes("atendimento")){
+    parts.push("Direcione a conversa para acolhimento, escuta ativa, abordagem consultiva e pos-venda consistente.");
+  }else if(category.includes("produto") || category.includes("servico")){
+    parts.push("Reforce conhecimento, argumentacao correta e oferta constante para melhorar eficiencia e resultado.");
+  }else if(category.includes("organiz") || category.includes("limpeza")){
+    parts.push("Use uma rotina curta de abertura, meio do expediente e fechamento para manter o padrao sem depender de cobranca.");
+  }
+  return [base, ...parts].join(" ");
+}
+
 function actionPlanText(item){
   const criteria = cleanCriterionText(item?.criteriaName || item?.name);
   const n = normalize(criteria);
@@ -705,8 +760,7 @@ function automaticFeedback(occurrence, categoryName="", criteriaName=""){
   if(status === "canceled") return "Registro cancelado para este ciclo. Manter acompanhamento para confirmar que o padrÃ£o permaneceu adequado.";
   if(status === "justified") return "Justificativa registrada. Validar a situaÃ§Ã£o com equilÃ­brio e manter acompanhamento do padrÃ£o esperado.";
   if(!occurrence?.checked) return "Item dentro do padrÃ£o neste ciclo. Manter rotina de conferÃªncia e boas prÃ¡ticas.";
-  if(status === "confirmed" && occurrence?.correctiveAction) return occurrence.correctiveAction;
-  return feedbackByCriterion(criteria, categoryName, occurrence);
+  return occurrenceActionFeedback(occurrence, categoryName, criteria);
 }
 
 function calculateScore(evaluation){
@@ -1001,6 +1055,7 @@ function saveEvaluation(){
   }else{
     state.evaluations.push(data);
   }
+  state.selectedReportId = data.id;
   saveState();
   currentEval = emptyEvaluation();
   currentEval.employeeId = data.employeeId;
@@ -1341,12 +1396,19 @@ function persistSettingsFromInputs(){
 }
 
 function renderReportSelectors(){
-  $("reportEvaluation").innerHTML = state.evaluations.slice().reverse().map(item => `<option value="${item.id}">${dateText(item.date)} - ${esc(item.employeeSnapshot.name)} - ${scoreText(item.score)}</option>`).join("");
+  const evaluations = (state.evaluations || []).slice().sort((a,b)=>new Date(b.createdAt || b.date || 0)-new Date(a.createdAt || a.date || 0));
+  $("reportEvaluation").innerHTML = evaluations.map(item => `<option value="${item.id}">${dateText(item.date)} - ${esc(item.employeeSnapshot?.name || employeeById(item.employeeId)?.name || "Colaborador")} - ${scoreText(item.score)}</option>`).join("");
+  const preferred = state.selectedReportId && evaluations.some(item => item.id === state.selectedReportId) ? state.selectedReportId : (evaluations[0]?.id || "");
+  if(preferred) $("reportEvaluation").value = preferred;
   renderSelectedReport();
 }
 
 function selectedEvaluation(){
-  return state.evaluations.find(item => item.id === $("reportEvaluation").value) || state.evaluations.at(-1);
+  const evaluations = state.evaluations || [];
+  const selectedId = $("reportEvaluation")?.value || state.selectedReportId || "";
+  const found = evaluations.find(item => item.id === selectedId) || evaluations[evaluations.length - 1] || null;
+  if(found) state.selectedReportId = found.id;
+  return found;
 }
 
 function reportHtml(type, evaluation){
@@ -1380,8 +1442,8 @@ function reportHtml(type, evaluation){
       ${[["OcorrÃªncias",stats.active.length],["Pontos descontados",pointsText(stats.discount)],["Qtd. registros",stats.totalQuantity],["Resolvidas",stats.resolved],["Pendentes",stats.pending],["Tempo mÃ©dio",stats.avgRegularization]].map(([label,value])=>`<div><span>${label}</span><strong>${value}</strong></div>`).join("")}
     </div>
     <section class="exec-block"><h4>Resumo Executivo</h4><p>Este relatÃ³rio consolida desempenho, ocorrÃªncias, aÃ§Ãµes corretivas e oportunidades de evoluÃ§Ã£o do colaborador no perÃ­odo avaliado.</p></section>
-    <section class="exec-block"><h4>Pontos Fortes</h4><div class="positive-badges">${positiveCategoryBadges(evaluation).map(item=>`<span>âœ“ OK ${esc(item)}</span>`).join("") || `<span>Foco total nas oportunidades registradas neste ciclo.</span>`}</div></section>
-    <section class="exec-block"><h4>Oportunidades de Melhoria</h4><table class="exec-table exec-opportunity-table"><tr><th>Categoria</th><th>CritÃ©rio</th><th>Qtd</th><th>Status</th><th>Feedback</th></tr>${stats.records.map(item => `<tr><td>${esc(item.categoryName)}</td><td>${esc(item.criteriaName)}</td><td>${Number(item.quantity || 0) || "-"}</td><td>${esc(statusShort(item.status))}</td><td>${esc(automaticFeedback(item, item.categoryName, item.criteriaName))}</td></tr>`).join("") || `<tr><td colspan="5">Nenhuma ocorrÃªncia registrada.</td></tr>`}</table></section>
+    <section class="exec-block"><h4>Pontos Fortes</h4><div class="positive-badges">${positiveCategoryBadges(evaluation).map(item=>`<span>OK ${esc(cleanPositiveBadgeLabel(item))}</span>`).join("") || `<span>Foco total nas oportunidades registradas neste ciclo.</span>`}</div></section>
+    <section class="exec-block"><h4>Oportunidades de Melhoria</h4><table class="exec-table exec-opportunity-table"><tr><th>Categoria</th><th>CritÃ©rio</th><th>Qtd</th><th>Status</th><th>AÃ§Ã£o / Feedback</th></tr>${stats.records.map(item => `<tr><td>${esc(item.categoryName)}</td><td>${esc(item.criteriaName)}</td><td>${Number(item.quantity || 0) || "-"}</td><td>${esc(statusShort(item.status))}</td><td>${esc(directionalOccurrenceFeedback(item, evaluation))}</td></tr>`).join("") || `<tr><td colspan="5">Nenhuma ocorrÃªncia registrada.</td></tr>`}</table></section>
     <section class="exec-block"><h4>ObservaÃ§Ã£o do Gestor</h4><p>${esc(evaluation.generalNote || "Sem observaÃ§Ã£o geral registrada.")}</p></section>
     <section class="exec-block"><h4>Justificativa do Colaborador</h4><p>${esc(evaluation.justification || "Sem justificativa registrada.")}</p></section>
     <section class="exec-block"><h4>Plano de Desenvolvimento</h4><table class="exec-table"><tr><th>Ãrea</th><th>Foco</th><th>AÃ§Ã£o</th><th>Prazo</th><th>EvidÃªncia</th></tr>${pdi || `<tr><td colspan="5">Manter desempenho e registrar boas prÃ¡ticas.</td></tr>`}</table></section>
@@ -1390,6 +1452,10 @@ function reportHtml(type, evaluation){
 
 function renderSelectedReport(type="monthly"){
   const evaluation = selectedEvaluation();
+  if(evaluation){
+    state.selectedReportId = evaluation.id;
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch{}
+  }
   $("reportOutput").innerHTML = reportHtml(type, evaluation).replaceAll("Filial:", "Setor:");
   drawShareArt(evaluation, 1240, 1754);
 }
@@ -1556,7 +1622,7 @@ async function drawShareArt(evaluation, width=1240, height=1754){
       criteria: item.criteriaName || "-",
       qtd:String(qtd),
       status,
-      feedback: item.correctiveAction || automaticFeedback(item, item.categoryName, item.criteriaName)
+      feedback: directionalOccurrenceFeedback(item, evaluation)
     };
   });
 
@@ -1680,7 +1746,7 @@ async function drawShareArt(evaluation, width=1240, height=1754){
     badges.forEach((badge,index)=>{
       const bx = 78 + (index%2)*238, by = y + 68 + Math.floor(index/2)*42;
       ctx.fillStyle = "#ecfdf3"; roundRect(ctx,sx(bx),sx(by),sx(210),sx(28),sx(14)); ctx.fill();
-      setFont(800,12,"#166534"); textBlock(`OK ${badge}`,bx+12,by+19,185,13,1);
+      setFont(800,12,"#166534"); textBlock(`OK ${cleanPositiveBadgeLabel(badge)}`,bx+12,by+19,185,13,1);
     });
   }else{
     setFont(700,14,"#475467"); textBlock("Neste ciclo, os pontos fortes ficam concentrados nas oportunidades que precisam de ajuste.",78,y+78,470,18,3);

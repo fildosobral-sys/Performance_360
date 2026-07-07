@@ -665,6 +665,7 @@ function setView(view){
   if(view === "reports") renderReportSelectors();
   if(view === "dashboard") renderDashboard();
   if(view === "history") renderTimeline();
+  window.scrollTo({top:0, behavior:"smooth"});
 }
 
 function fileToDataUrl(file){
@@ -720,7 +721,7 @@ function renderEmployees(){
         <button class="button secondary" data-toggle-employee="${employee.id}" type="button">${employee.active ? "Inativar" : "Ativar"}</button>
         <button class="button danger" data-delete-employee="${employee.id}" type="button">Excluir</button>
       </div>
-    </article>`}).join("") || `<div class="empty">Nenhum colaborador cadastrado.</div>`;
+    </article>`}).join("") || `<div class="empty empty-action"><strong>Nenhum colaborador cadastrado.</strong><span>Cadastre o primeiro colaborador para liberar avaliacoes, historico e relatorios.</span><button class="button primary" data-view="employees" type="button">Cadastrar colaborador</button></div>`;
   if(!$("evalEmployee").value && state.employees.find(e => e.active)) currentEval.employeeId = state.employees.find(e => e.active).id;
   $("evalEmployee").value = currentEval.employeeId;
   renderSelectedEmployee();
@@ -760,7 +761,7 @@ function renderSelectedEmployee(){
   const employee = employeeById(currentEval.employeeId || $("evalEmployee").value);
   $("selectedEmployeeCard").innerHTML = employee ? `
     <img src="${employee.photo || defaultPhoto}" alt="">
-    <div><h3>${esc(employee.name)}</h3><p>${esc(employee.role)} - ${esc(employee.sector)}</p></div>` : `<div class="empty">Cadastre ou selecione um colaborador ativo.</div>`;
+    <div><h3>${esc(employee.name)}</h3><p>${esc(employee.role)} - ${esc(employee.sector)}</p></div>` : `<div class="empty empty-action"><strong>Nenhum colaborador ativo selecionado.</strong><span>Cadastre ou ative um colaborador para iniciar a avaliacao.</span><button class="button primary" data-view="employees" type="button">Ir para equipe</button></div>`;
 }
 
 function categoryWasEdited(categoryId){
@@ -794,7 +795,7 @@ function renderChecklist(){
         ${category.criteria.filter(c => c.active).map(criteria => criterionRow(category, criteria)).join("")}
       </div>
     </article>`;
-  }).join("") || `<div class="empty">Nenhum criterio ativo nas configurações.</div>`;
+  }).join("") || `<div class="empty empty-action"><strong>Nenhum criterio ativo.</strong><span>Ative ou cadastre criterios para montar o checklist de avaliacao.</span><button class="button primary" data-view="settings" type="button">Ajustar criterios</button></div>`;
   refreshScore();
 }
 
@@ -1075,7 +1076,7 @@ function renderTimeline(){
   const employeeId = $("historyEmployee").value;
   const items = state.evaluations.filter(item => !employeeId || item.employeeId === employeeId).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
   $("timeline").innerHTML = `${timelineSellerCards(employeeId)}
-    ${items.map(item => timelineEvaluationCard(item)).join("") || `<div class="empty">Nenhum registro encontrado.</div>`}`;
+    ${items.map(item => timelineEvaluationCard(item)).join("") || `<div class="empty empty-action"><strong>Nenhum registro encontrado.</strong><span>Salve uma avaliacao para acompanhar a evolucao do colaborador na linha do tempo.</span><button class="button primary" data-view="evaluation" type="button">Nova avaliacao</button></div>`}`;
 }
 
 function timelineSellerCards(selectedId){
@@ -1094,7 +1095,7 @@ function timelineSellerCards(selectedId){
         </span>
         <b>${last ? scoreText(last.score) : "-"}</b>
       </button>`;
-    }).join("") || `<div class="empty">Nenhum colaborador cadastrado.</div>`}
+    }).join("") || `<div class="empty empty-action"><strong>Nenhum colaborador cadastrado.</strong><span>Cadastre colaboradores para organizar a linha do tempo por vendedor.</span><button class="button primary" data-view="employees" type="button">Cadastrar colaborador</button></div>`}
   </section>`;
 }
 
@@ -1287,7 +1288,7 @@ function selectedEvaluation(){
 }
 
 function reportHtml(type, evaluation){
-  if(!evaluation) return `<div class="empty">Salve uma avaliação para gerar relatorios.</div>`;
+  if(!evaluation) return `<div class="empty empty-action"><strong>Nenhuma avaliacao salva.</strong><span>Crie uma avaliacao para gerar parcial, fechamento, PDI e arte profissional.</span><button class="button primary" data-view="evaluation" type="button">Criar avaliacao</button></div>`;
   const occs = occurrenceList(evaluation);
   const positives = evaluation.positive || "Manter comportamentos positivos observados e registrar novas evidencias no proximo ciclo.";
   const titleMap = {weekly:"Parcial semanal",fortnight:"Parcial quinzenal",monthly:"Fechamento mensal",compare:"Comparativo entre meses",pdi:"Plano de desenvolvimento individual"};
@@ -2140,8 +2141,35 @@ function injectSobralPolish(){
   document.head.appendChild(style);
 }
 
+let deferredInstallPrompt = null;
+
+function setupPwaInstall(){
+  const installButton = $("installAppButton");
+  if(!installButton) return;
+  const isStandalone = window.matchMedia?.("(display-mode: standalone)")?.matches || window.navigator.standalone;
+  if(isStandalone) return;
+
+  window.addEventListener("beforeinstallprompt", event => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    installButton.hidden = false;
+  });
+
+  installButton.addEventListener("click", async () => {
+    if(deferredInstallPrompt){
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice.catch(() => null);
+      deferredInstallPrompt = null;
+      installButton.hidden = true;
+      return;
+    }
+    notify("No celular, toque no menu do navegador e escolha Adicionar a tela inicial.");
+  });
+}
+
 function init(){
   injectSobralPolish();
+  setupPwaInstall();
   $("evalDate").value = currentEval.date;
   $("evalMonth").value = currentEval.month;
   $("employeePhotoPreview").src = defaultPhoto;

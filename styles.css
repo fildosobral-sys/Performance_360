@@ -138,6 +138,7 @@ dialog{border:0;border-radius:14px;width:min(92vw,640px);padding:0;box-shadow:0 
 .empty.empty-action strong{display:block;color:#101827;font-size:16px}
 .empty.empty-action span{display:block;max-width:320px;line-height:1.35}
 .empty.empty-action .button{width:min(260px,100%)}
+.selected-person>.empty-action{grid-column:1/-1;width:100%;min-height:0}
 
 @media(max-width:780px){
   body{padding-bottom:calc(78px + env(safe-area-inset-bottom));background:#f4f6f9}
@@ -198,6 +199,7 @@ dialog{border:0;border-radius:14px;width:min(92vw,640px);padding:0;box-shadow:0 
   .field-grid,.field-grid.four{gap:9px!important}
   input,select,textarea{min-height:48px;border-radius:14px}
   .button{min-height:46px;border-radius:14px}
+  #view-evaluation{padding-bottom:210px!important}
   .sticky-actions{
     left:10px!important;
     right:10px!important;
@@ -222,4 +224,26 @@ dialog{border:0;border-radius:14px;width:min(92vw,640px);padding:0;box-shadow:0 
   .topbar h1{font-size:17px!important}
   .view-head h2{font-size:24px}
   .sticky-actions .button{font-size:11px!important;padding-inline:5px!important}
+  #view-evaluation{padding-bottom:222px!important}
+}
+
+/* AJUSTE v14 - configuracoes em acordeao, menu sem emoji duplicado e assinatura */
+.mobile-tabs .tab-button::before,
+.side-link::before{content:none!important;display:none!important}
+.admin-category>header{grid-template-columns:minmax(0,1fr) 132px 138px auto!important}
+.admin-category-actions{display:grid;gap:7px;align-items:end}
+.admin-category-actions span{display:inline-flex;align-items:center;justify-content:center;min-height:30px;border-radius:999px;background:rgba(255,255,255,.12);color:#e5edf8;font-size:12px;font-weight:900}
+.admin-toggle-button{min-height:40px!important}
+.admin-category-body{display:none}
+.admin-category.is-open .admin-category-body{display:block}
+.admin-category:not(.is-open){box-shadow:0 8px 22px rgba(15,23,42,.055)!important}
+.admin-category:not(.is-open)>header{border-bottom:0!important;border-radius:18px!important}
+.app-signature{padding:18px 12px 108px;text-align:center;color:#98a2b3;font-size:10px;letter-spacing:.04em;opacity:.42}
+.app-signature span{font-weight:700}
+@media(max-width:780px){
+  .admin-category>header{grid-template-columns:1fr!important}
+  .admin-category-actions{grid-template-columns:1fr 1fr;align-items:center}
+  .admin-category-actions span{min-height:40px}
+  .admin-category:not(.is-open)>header{border-radius:18px!important}
+  .app-signature{padding-bottom:118px}
 }

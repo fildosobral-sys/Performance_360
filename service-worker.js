@@ -1,4 +1,4 @@
-const CACHE_NAME = "performance-360-mobile-app-20260707-1";
+const CACHE_NAME = "performance-360-signature-fildo-20260707-1";
 const APP_SHELL = [
   "./",
   "./index.html",

@@ -8,21 +8,21 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Performance 360">
-  <link rel="manifest" href="manifest.json?v=20260707-mobile-app-1">
+  <link rel="manifest" href="manifest.json?v=20260707-signature-fildo-1">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Performance Individual 360</title>
-    <link rel="stylesheet" href="styles.css?v=20260707-mobile-app-1">
-  <script src="app.js?v=20260707-mobile-app-1" defer></script>
+    <link rel="stylesheet" href="styles.css?v=20260707-signature-fildo-1">
+  <script src="app.js?v=20260707-signature-fildo-1" defer></script>
 </head>
 <body>
   <header class="topbar no-print">
     <div>
-      <span class="eyebrow">MÃ©todo Sobral</span>
+      <span class="eyebrow">Método Sobral</span>
       <h1>Performance Individual 360</h1>
-      <p>OcorrÃªncias, feedback, histÃ³rico e desenvolvimento contÃ­nuo.</p>
+      <p>Ocorrências, feedback, histórico e desenvolvimento contínuo.</p>
     </div>
     <div class="topbar-actions">
       <button class="ghost-button" id="installAppButton" type="button" hidden>Instalar app</button>
@@ -43,21 +43,21 @@
     <aside class="sidebar no-print">
       <div class="brand-block">
         <strong id="brandName">Empresa</strong>
-        <span>GestÃ£o de desempenho</span>
+        <span>Gestão de desempenho</span>
       </div>
       <button class="side-link is-active" data-view="dashboard" type="button">Dashboard</button>
       <button class="side-link" data-view="employees" type="button">Colaboradores</button>
-      <button class="side-link" data-view="evaluation" type="button">Nova avaliaÃ§Ã£o</button>
+      <button class="side-link" data-view="evaluation" type="button">Nova avaliação</button>
       <button class="side-link" data-view="history" type="button">Linha do tempo</button>
-      <button class="side-link" data-view="reports" type="button">RelatÃ³rios</button>
-      <button class="side-link" data-view="settings" type="button">ConfiguraÃ§Ãµes</button>
+      <button class="side-link" data-view="reports" type="button">Relatórios</button>
+      <button class="side-link" data-view="settings" type="button">Configurações</button>
     </aside>
 
     <section class="content">
       <section class="view is-active" id="view-dashboard">
         <div class="view-head">
           <div>
-            <span class="eyebrow">VisÃ£o geral</span>
+            <span class="eyebrow">Visão geral</span>
             <h2>Dashboard</h2>
           </div>
           <select id="dashboardSector"></select>
@@ -69,11 +69,11 @@
         </div>
         <div class="split-grid">
           <article class="panel"><h3>Ranking por categoria</h3><div id="rankingCategory"></div></article>
-          <article class="panel"><h3>EvoluÃ§Ã£o semanal e mensal</h3><div id="evolutionCharts"></div></article>
+          <article class="panel"><h3>Evolução semanal e mensal</h3><div id="evolutionCharts"></div></article>
         </div>
         <div class="split-grid">
-          <article class="panel"><h3>Principais ocorrÃªncias</h3><div id="topOccurrences"></div></article>
-          <article class="panel"><h3>Maiores evoluÃ§Ãµes</h3><div id="topEvolution"></div></article>
+          <article class="panel"><h3>Principais ocorrências</h3><div id="topOccurrences"></div></article>
+          <article class="panel"><h3>Maiores evoluções</h3><div id="topEvolution"></div></article>
         </div>
       </section>
 
@@ -106,16 +106,16 @@
         <div class="view-head">
           <div>
             <span class="eyebrow">Checklist mensal</span>
-            <h2>AvaliaÃ§Ã£o individual</h2>
+            <h2>Avaliação individual</h2>
           </div>
           <div class="score-pill" id="currentScorePill">Nota 10,0</div>
         </div>
         <section class="panel">
           <div class="field-grid four">
             <label>Colaborador<select id="evalEmployee"></select></label>
-            <label>Gestor responsÃ¡vel<input id="evalManager" value="Gestor"></label>
+            <label>Gestor responsável<input id="evalManager" value="Gestor"></label>
             <label>Data<input id="evalDate" type="date"></label>
-            <label>MÃªs de referÃªncia<input id="evalMonth" type="month"></label>
+            <label>Mês de referência<input id="evalMonth" type="month"></label>
           </div>
           <div id="selectedEmployeeCard" class="selected-person"></div>
         </section>
@@ -130,7 +130,7 @@
         </section>
         <div class="sticky-actions no-print">
           <button class="button secondary" id="clearEvalButton" type="button">Limpar</button>
-          <button class="button secondary" id="previewImageButton" type="button">PrÃ©via da arte</button>
+          <button class="button secondary" id="previewImageButton" type="button">Prévia da arte</button>
           <button class="button primary" id="saveEvalButton" type="button">Salvar avaliacao</button>
         </div>
       </section>
@@ -150,7 +150,7 @@
         <div class="view-head">
           <div>
             <span class="eyebrow">Saidas</span>
-            <h2>RelatÃ³rios e imagens</h2>
+            <h2>Relatórios e imagens</h2>
           </div>
           <select id="reportEvaluation"></select>
         </div>
@@ -176,8 +176,8 @@
       <section class="view" id="view-settings">
         <div class="view-head">
           <div>
-            <span class="eyebrow">AdministraÃ§Ã£o</span>
-            <h2>ConfiguraÃ§Ãµes</h2>
+            <span class="eyebrow">Administração</span>
+            <h2>Configurações</h2>
           </div>
           <button class="button primary" id="exportBackupButton" type="button">Backup JSON</button>
         </div>
@@ -205,34 +205,38 @@
     </section>
   </main>
 
+  <footer class="app-signature" aria-label="Assinatura">
+    <span>Developed by Fildo Sobral</span>
+  </footer>
+
   <dialog id="noteDialog">
     <form method="dialog" id="noteForm">
       <h3 id="noteDialogTitle">Observacao</h3>
       <textarea id="noteText" placeholder="Observacao opcional"></textarea>
       <div class="field-grid">
         <label>Quantidade encontrada<input id="occurrenceQuantity" type="number" min="0" step="1" placeholder="Ex.: 3"></label>
-        <label>Classificacao automÃ¡tica<input id="occurrenceSeverity" readonly></label>
+        <label>Classificacao automática<input id="occurrenceSeverity" readonly></label>
       </div>
       <div class="field-grid">
-        <label>Status da ocorrÃªncia<select id="occurrenceStatus">
+        <label>Status da ocorrência<select id="occurrenceStatus">
           <option value="pending">Pendente de analise</option>
           <option value="confirmed">Confirmada</option>
           <option value="justified">Justificada</option>
           <option value="canceled">Cancelada</option>
           <option value="recurrent">Reincidente</option>
         </select></label>
-        <label>AÃ§Ã£o corretiva<select id="correctiveAction">
+        <label>Ação corretiva<select id="correctiveAction">
           <option value="">Selecione</option>
           <option>Corrigido imediatamente.</option>
           <option>Solicitado novo material.</option>
-          <option>Etiquetas em impressÃ£o.</option>
-          <option>ReorganizaÃ§Ã£o realizada.</option>
-          <option>Aguardando reposiÃ§Ã£o.</option>
+          <option>Etiquetas em impressão.</option>
+          <option>Reorganização realizada.</option>
+          <option>Aguardando reposição.</option>
           <option>Treinamento realizado.</option>
           <option value="Outro">Outro</option>
         </select></label>
       </div>
-      <label id="correctiveOtherWrap" hidden>Outro combinado<input id="correctiveOther" placeholder="Descreva a aÃ§Ã£o corretiva"></label>
+      <label id="correctiveOtherWrap" hidden>Outro combinado<input id="correctiveOther" placeholder="Descreva a ação corretiva"></label>
       <div class="field-grid">
         <label>Foto<input id="evidencePhoto" type="file" accept="image/*" capture="environment"></label>
         <label>Video<input id="evidenceVideo" type="file" accept="video/*"></label>
@@ -245,7 +249,7 @@
     </form>
   </dialog>
 
-<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260707-mobile-app-1").catch(()=>{}));}</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260707-signature-fildo-1").catch(()=>{}));}</script>
 </body>
 </html>
 

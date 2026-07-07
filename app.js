@@ -1,4 +1,4 @@
-"use strict";
+﻿"use strict";
 
 const STORAGE_KEY = "fsPerformanceIndividual360_v1";
 const $ = id => document.getElementById(id);
@@ -19,14 +19,14 @@ const avg = values => values.length ? values.reduce((a,b)=>a+b,0)/values.length 
 const activeCriteria = () => state.categories.flatMap(category => category.active ? category.criteria.filter(c => c.active).map(criteria => ({...criteria, categoryId:category.id, categoryName:category.name})) : []);
 const upperText = value => String(value || "").trim().toLocaleUpperCase("pt-BR");
 const STATUS_LABELS = {
-  pending:"🟡 Pendente de analise",
-  confirmed:"🟢 Confirmada",
-  justified:"🔵 Justificada",
-  canceled:"⚪ Cancelada",
-  resolved:"✅ Resolvida",
-  recurrent:"🔴 Reincidente",
-  maintained:"🟢 Confirmada",
-  changed:"🟢 Confirmada"
+  pending:"ðŸŸ¡ Pendente de analise",
+  confirmed:"ðŸŸ¢ Confirmada",
+  justified:"ðŸ”µ Justificada",
+  canceled:"âšª Cancelada",
+  resolved:"âœ… Resolvida",
+  recurrent:"ðŸ”´ Reincidente",
+  maintained:"ðŸŸ¢ Confirmada",
+  changed:"ðŸŸ¢ Confirmada"
 };
 
 const defaultPhoto = "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160"><rect width="160" height="160" fill="#e8edf3"/><circle cx="80" cy="62" r="32" fill="#98a2b3"/><path d="M28 142c8-34 28-52 52-52s44 18 52 52" fill="#98a2b3"/></svg>`);
@@ -45,48 +45,48 @@ function criterion(id, name, orientation, impact, improvement){
 
 function coreCategoryTemplates(){
   return [
-    {id:"cat_org",name:"Organização",description:"Avalia se o colaborador mantem seu setor organizado, padronizado e preparado para proporcionar uma excelente experiência ao cliente.",active:true,criteria:[
+    {id:"cat_org",name:"OrganizaÃ§Ã£o",description:"Avalia se o colaborador mantem seu setor organizado, padronizado e preparado para proporcionar uma excelente experiÃªncia ao cliente.",active:true,criteria:[
       criterion("crit_org_1","Produto sem preco","Todo produto exposto deve possuir etiqueta de preco legivel, atualizada e posicionada corretamente para facilitar a consulta do cliente.","A ausencia de preco dificulta a decisao de compra, reduz a credibilidade da exposicao e pode ocasionar perda de vendas.","Realize conferencias periodicas das etiquetas e solicite imediatamente a impressao quando identificar qualquer ausencia."),
-      criterion("crit_org_2","Etiqueta divergente (preco ou descricao incorreta)","A etiqueta deve corresponder exatamente ao produto exposto, contendo preco, descricao e informações atualizadas.","Etiquetas incorretas geram duvidas, retrabalho e podem causar insatisfacao ao cliente.","Sempre confirme se a etiqueta corresponde ao produto antes da abertura da loja e durante a reposicao."),
-      criterion("crit_org_3","Produto fora da localizacao definida","Cada produto deve permanecer no local estabelecido pelo layout da loja.","Produtos fora da localizacao dificultam a experiência do cliente e prejudicam a organizacao do setor.","Sempre reposicione imediatamente os produtos que estiverem fora do padrão."),
-      criterion("crit_org_4","Produtos desalinhados ou mal organizados","Os produtos devem permanecer alinhados, organizados e visualmente padronizados.","A apresentacao influencia diretamente a percepcao de qualidade da loja.","Realize pequenos ajustes durante todo o expediente, não apenas na abertura da loja."),
-      criterion("crit_org_5","Exposicao fora do padrão visual","A exposicao deve seguir o padrão definido pela empresa, respeitando posicionamento, espacamento e comunicacao visual.","Uma exposicao inadequada reduz o impacto comercial e dificulta a venda.","Revise frequentemente o padrão visual do setor e ajuste sempre que necessario."),
-      criterion("crit_org_6","Comunicacao visual ausente ou inadequada","Cartazes, materiais promocionais e identificações devem estar presentes e corretamente posicionados.","A falta de comunicacao reduz a visibilidade das campanhas e dificulta a tomada de decisao do cliente.","Verifique diariamente a presenca e conservacao dos materiais de comunicacao."),
+      criterion("crit_org_2","Etiqueta divergente (preco ou descricao incorreta)","A etiqueta deve corresponder exatamente ao produto exposto, contendo preco, descricao e informaÃ§Ãµes atualizadas.","Etiquetas incorretas geram duvidas, retrabalho e podem causar insatisfacao ao cliente.","Sempre confirme se a etiqueta corresponde ao produto antes da abertura da loja e durante a reposicao."),
+      criterion("crit_org_3","Produto fora da localizacao definida","Cada produto deve permanecer no local estabelecido pelo layout da loja.","Produtos fora da localizacao dificultam a experiÃªncia do cliente e prejudicam a organizacao do setor.","Sempre reposicione imediatamente os produtos que estiverem fora do padrÃ£o."),
+      criterion("crit_org_4","Produtos desalinhados ou mal organizados","Os produtos devem permanecer alinhados, organizados e visualmente padronizados.","A apresentacao influencia diretamente a percepcao de qualidade da loja.","Realize pequenos ajustes durante todo o expediente, nÃ£o apenas na abertura da loja."),
+      criterion("crit_org_5","Exposicao fora do padrÃ£o visual","A exposicao deve seguir o padrÃ£o definido pela empresa, respeitando posicionamento, espacamento e comunicacao visual.","Uma exposicao inadequada reduz o impacto comercial e dificulta a venda.","Revise frequentemente o padrÃ£o visual do setor e ajuste sempre que necessario."),
+      criterion("crit_org_6","Comunicacao visual ausente ou inadequada","Cartazes, materiais promocionais e identificaÃ§Ãµes devem estar presentes e corretamente posicionados.","A falta de comunicacao reduz a visibilidade das campanhas e dificulta a tomada de decisao do cliente.","Verifique diariamente a presenca e conservacao dos materiais de comunicacao."),
       criterion("crit_org_7","Mercadorias armazenadas de forma inadequada","Produtos de apoio ou estoque do setor devem permanecer organizados e armazenados corretamente.","A armazenagem inadequada aumenta riscos de avarias e dificulta o trabalho da equipe.","Organize continuamente os espacos de armazenamento e evite acumulo desnecessario."),
-      criterion("crit_org_8","Corredor ou area de circulacao obstruida","As areas de circulacao devem permanecer livres para garantir seguranca e conforto aos clientes.","Obstrucoes prejudicam a experiência do cliente e aumentam o risco de acidentes.","Nunca deixe caixas, produtos ou equipamentos bloqueando a passagem."),
-      criterion("crit_org_9","Produto avariado exposto para venda","Produtos com qualquer tipo de dano não devem permanecer expostos sem autorizacao.","Compromete a imagem da empresa, pode gerar reclamações e perdas financeiras.","Retire imediatamente o produto da exposicao e comunique o responsavel."),
-      criterion("crit_org_10","Setor sem padrão de organizacao","Todo o setor deve transmitir organizacao, padronizacao e facilidade para o cliente localizar os produtos.","A desorganizacao compromete a imagem da loja e reduz a eficiencia da equipe.","Mantenha inspecoes frequentes no proprio setor durante toda a jornada."),
+      criterion("crit_org_8","Corredor ou area de circulacao obstruida","As areas de circulacao devem permanecer livres para garantir seguranca e conforto aos clientes.","Obstrucoes prejudicam a experiÃªncia do cliente e aumentam o risco de acidentes.","Nunca deixe caixas, produtos ou equipamentos bloqueando a passagem."),
+      criterion("crit_org_9","Produto avariado exposto para venda","Produtos com qualquer tipo de dano nÃ£o devem permanecer expostos sem autorizacao.","Compromete a imagem da empresa, pode gerar reclamaÃ§Ãµes e perdas financeiras.","Retire imediatamente o produto da exposicao e comunique o responsavel."),
+      criterion("crit_org_10","Setor sem padrÃ£o de organizacao","Todo o setor deve transmitir organizacao, padronizacao e facilidade para o cliente localizar os produtos.","A desorganizacao compromete a imagem da loja e reduz a eficiencia da equipe.","Mantenha inspecoes frequentes no proprio setor durante toda a jornada."),
       criterion("crit_org_11","Produtos sem reposicao adequada","A exposicao deve permanecer completa sempre que houver disponibilidade de estoque.","A falta de reposicao reduz o potencial de vendas e prejudica a apresentacao do setor.","Acompanhe constantemente os espacos vazios e providencie a reposicao sempre que possivel."),
-      criterion("crit_org_12","Mistura de produtos ou categorias","Cada categoria deve permanecer organizada conforme o layout da empresa.","Misturas dificultam a localizacao dos produtos e comprometem a experiência do cliente.","Reposicione imediatamente qualquer produto encontrado em categoria incorreta."),
-      criterion("crit_org_13","Material promocional desatualizado","Campanhas encerradas ou materiais vencidos devem ser retirados imediatamente.","Informações desatualizadas geram duvidas e podem causar transtornos ao cliente.","Acompanhe o calendario promocional e substitua os materiais no prazo correto."),
-      criterion("crit_org_14","Falta de conferencia diaria do setor","Cada colaborador deve realizar inspecoes periodicas em seu setor durante o expediente.","Pequenos problemas deixam de ser corrigidos e se acumulam ao longo do dia.","Inclua conferencias rapidas na sua rotina para manter o setor sempre dentro do padrão."),
-      criterion("crit_org_15","Organização geral abaixo do padrão esperado","Ha diversas pequenas não conformidades que comprometem a apresentacao geral do setor.","A percepcao do cliente sobre a loja e diretamente influenciada pela organizacao do ambiente.","Desenvolva o habito de cuidar do setor continuamente, mantendo o padrão esperado durante todo o expediente.")
+      criterion("crit_org_12","Mistura de produtos ou categorias","Cada categoria deve permanecer organizada conforme o layout da empresa.","Misturas dificultam a localizacao dos produtos e comprometem a experiÃªncia do cliente.","Reposicione imediatamente qualquer produto encontrado em categoria incorreta."),
+      criterion("crit_org_13","Material promocional desatualizado","Campanhas encerradas ou materiais vencidos devem ser retirados imediatamente.","InformaÃ§Ãµes desatualizadas geram duvidas e podem causar transtornos ao cliente.","Acompanhe o calendario promocional e substitua os materiais no prazo correto."),
+      criterion("crit_org_14","Falta de conferencia diaria do setor","Cada colaborador deve realizar inspecoes periodicas em seu setor durante o expediente.","Pequenos problemas deixam de ser corrigidos e se acumulam ao longo do dia.","Inclua conferencias rapidas na sua rotina para manter o setor sempre dentro do padrÃ£o."),
+      criterion("crit_org_15","OrganizaÃ§Ã£o geral abaixo do padrÃ£o esperado","Ha diversas pequenas nÃ£o conformidades que comprometem a apresentacao geral do setor.","A percepcao do cliente sobre a loja e diretamente influenciada pela organizacao do ambiente.","Desenvolva o habito de cuidar do setor continuamente, mantendo o padrÃ£o esperado durante todo o expediente.")
     ]},
-    {id:"cat_clean",name:"Limpeza e Conservacao do Setor",description:"Avalia se o colaborador mantem seu setor limpo, conservado, organizado e pronto para proporcionar uma excelente experiência ao cliente.",active:true,criteria:[
-      criterion("crit_clean_1","Produto com sujeira aparente","Todo produto exposto deve permanecer limpo, livre de poeira, manchas, marcas de dedos ou qualquer outra sujeira visivel.","Produtos sujos reduzem a percepcao de qualidade, comprometem a experiência do cliente e prejudicam as vendas.","Inclua a limpeza dos produtos na rotina diaria e faca inspecoes frequentes durante o expediente."),
+    {id:"cat_clean",name:"Limpeza e Conservacao do Setor",description:"Avalia se o colaborador mantem seu setor limpo, conservado, organizado e pronto para proporcionar uma excelente experiÃªncia ao cliente.",active:true,criteria:[
+      criterion("crit_clean_1","Produto com sujeira aparente","Todo produto exposto deve permanecer limpo, livre de poeira, manchas, marcas de dedos ou qualquer outra sujeira visivel.","Produtos sujos reduzem a percepcao de qualidade, comprometem a experiÃªncia do cliente e prejudicam as vendas.","Inclua a limpeza dos produtos na rotina diaria e faca inspecoes frequentes durante o expediente."),
       criterion("crit_clean_2","Limpeza superficial dos produtos","A limpeza foi realizada apenas na parte visivel do produto, deixando laterais, parte traseira, inferior ou interna sem higienizacao, quando aplicavel.","A limpeza incompleta transmite falta de cuidado e pode ser percebida pelo cliente durante a demonstracao.","Realize uma limpeza completa dos produtos, incluindo todas as areas acessiveis."),
       criterion("crit_clean_3","Moveis ou expositores com sujeira","Prateleiras, balcoes, nichos, bases e expositores devem permanecer limpos e conservados.","Estruturas sujas comprometem a apresentacao do setor e a imagem da empresa.","Inclua moveis e expositores na rotina diaria de limpeza."),
       criterion("crit_clean_4","Piso do setor sem limpeza adequada","O piso deve permanecer limpo, sem residuos, poeira, manchas ou lixo.","Alem da aparencia, pisos sujos podem representar riscos de acidentes.","Mantenha atencao constante ao piso do setor durante todo o expediente."),
-      criterion("crit_clean_5","Area inferior dos produtos sem limpeza","A parte inferior dos produtos deve receber limpeza periodica.","Sao locais frequentemente esquecidos, mas facilmente percebidos durante demonstrações.","Inclua essas areas na rotina de limpeza completa."),
+      criterion("crit_clean_5","Area inferior dos produtos sem limpeza","A parte inferior dos produtos deve receber limpeza periodica.","Sao locais frequentemente esquecidos, mas facilmente percebidos durante demonstraÃ§Ãµes.","Inclua essas areas na rotina de limpeza completa."),
       criterion("crit_clean_6","Parte traseira dos produtos sem limpeza","Produtos afastados para demonstracao devem apresentar limpeza tambem na parte traseira.","Clientes percebem rapidamente quando o cuidado e apenas superficial.","Sempre que realizar limpeza, verifique tambem a parte posterior dos produtos."),
       criterion("crit_clean_7","Interior dos produtos sem limpeza (quando aplicavel)","Geladeiras, fogoes, guarda-roupas, maquinas e demais produtos devem estar limpos internamente quando expostos.","O cliente costuma abrir e verificar o interior dos produtos antes da compra.","Realize limpeza interna sempre que necessario."),
       criterion("crit_clean_8","Equipamentos de trabalho sujos","Computadores, impressoras, telefones, leitores e demais equipamentos devem permanecer limpos.","Equipamentos sem limpeza comprometem o ambiente de trabalho e a produtividade.","Inclua os equipamentos na rotina diaria de conservacao."),
-      criterion("crit_clean_9","Cabos ou equipamentos desorganizados","Cabos, extensoes, carregadores e equipamentos devem permanecer organizados.","Alem da aparencia, reduz riscos de acidentes.","Organize toda a infraestrutura do setor mantendo o padrão da empresa."),
-      criterion("crit_clean_10","Ferramentas ou materiais fora do local adequado","Escadas, carrinhos, panos, materiais de limpeza e ferramentas não devem permanecer expostos sem necessidade.","Comprometem a organizacao e a seguranca do ambiente.","Apos o uso, devolva imediatamente cada material ao seu local."),
-      criterion("crit_clean_11","Lixeira cheia ou residuos no setor","Lixeiras devem permanecer limpas e dentro da capacidade.","Residuos comprometem a higiene e a experiência do cliente.","Realize o descarte sempre que necessario."),
-      criterion("crit_clean_12","Embalagens ou materiais espalhados","Caixas, plasticos, papeloes e embalagens não devem permanecer no salao de vendas.","Geram aspecto de desorganizacao e aumentam riscos de acidentes.","Mantenha apenas os materiais necessarios durante a operacao."),
+      criterion("crit_clean_9","Cabos ou equipamentos desorganizados","Cabos, extensoes, carregadores e equipamentos devem permanecer organizados.","Alem da aparencia, reduz riscos de acidentes.","Organize toda a infraestrutura do setor mantendo o padrÃ£o da empresa."),
+      criterion("crit_clean_10","Ferramentas ou materiais fora do local adequado","Escadas, carrinhos, panos, materiais de limpeza e ferramentas nÃ£o devem permanecer expostos sem necessidade.","Comprometem a organizacao e a seguranca do ambiente.","Apos o uso, devolva imediatamente cada material ao seu local."),
+      criterion("crit_clean_11","Lixeira cheia ou residuos no setor","Lixeiras devem permanecer limpas e dentro da capacidade.","Residuos comprometem a higiene e a experiÃªncia do cliente.","Realize o descarte sempre que necessario."),
+      criterion("crit_clean_12","Embalagens ou materiais espalhados","Caixas, plasticos, papeloes e embalagens nÃ£o devem permanecer no salao de vendas.","Geram aspecto de desorganizacao e aumentam riscos de acidentes.","Mantenha apenas os materiais necessarios durante a operacao."),
       criterion("crit_clean_13","Vidros, espelhos ou superficies com manchas","Vidros, espelhos e superficies brilhantes devem permanecer limpos.","Sao pontos que chamam muita atencao do cliente.","Realize limpeza frequente utilizando os materiais adequados."),
       criterion("crit_clean_14","Equipamentos ou estruturas sem conservacao","Foi identificada falta de zelo na conservacao dos equipamentos ou estruturas do setor.","A falta de conservacao reduz a vida util dos equipamentos e prejudica a imagem da empresa.","Zele pelos equipamentos como patrimonio da empresa, comunicando qualquer necessidade de manutencao."),
-      criterion("crit_clean_15","Setor abaixo do padrão de limpeza e conservacao","O conjunto do setor não atende ao padrão esperado de limpeza, organizacao e conservacao.","A primeira impressao do cliente e formada pela aparencia do ambiente, influenciando diretamente sua confianca na empresa.","Adote uma rotina continua de inspecao, limpeza e conservacao, mantendo o setor sempre preparado para receber o cliente.")
+      criterion("crit_clean_15","Setor abaixo do padrÃ£o de limpeza e conservacao","O conjunto do setor nÃ£o atende ao padrÃ£o esperado de limpeza, organizacao e conservacao.","A primeira impressao do cliente e formada pela aparencia do ambiente, influenciando diretamente sua confianca na empresa.","Adote uma rotina continua de inspecao, limpeza e conservacao, mantendo o setor sempre preparado para receber o cliente.")
     ]},
     {id:"cat_service",name:"Atendimento e Pos-Venda",description:"Avalia se o colaborador presta atendimento consultivo, cordial e comprometido, acompanhando o cliente do primeiro contato ao pos-venda.",active:true,criteria:[
-      criterion("crit_service_1","Nao realizou a abordagem inicial do cliente","Todo cliente deve ser recebido com cordialidade e atencao logo ao chegar ao setor.","A ausencia de abordagem reduz as oportunidades de venda e compromete a experiência do cliente.","Mantenha atencao constante ao fluxo de clientes e realize uma abordagem natural, cordial e no tempo adequado."),
+      criterion("crit_service_1","Nao realizou a abordagem inicial do cliente","Todo cliente deve ser recebido com cordialidade e atencao logo ao chegar ao setor.","A ausencia de abordagem reduz as oportunidades de venda e compromete a experiÃªncia do cliente.","Mantenha atencao constante ao fluxo de clientes e realize uma abordagem natural, cordial e no tempo adequado."),
       criterion("crit_service_2","Atendimento realizado sem cordialidade","O atendimento deve demonstrar educacao, respeito, simpatia e interesse genuino em ajudar.","A postura do vendedor influencia diretamente a percepcao do cliente sobre a empresa.","Pratique uma comunicacao acolhedora e mantenha uma postura positiva durante todo o atendimento."),
-      criterion("crit_service_3","Nao identificou corretamente a necessidade do cliente","Antes de apresentar produtos, e necessario compreender o que realmente o cliente procura.","Sem entender a necessidade, aumentam as chances de oferecer uma solucao inadequada.","Faca perguntas, escute atentamente e confirme as informações antes de apresentar alternativas."),
+      criterion("crit_service_3","Nao identificou corretamente a necessidade do cliente","Antes de apresentar produtos, e necessario compreender o que realmente o cliente procura.","Sem entender a necessidade, aumentam as chances de oferecer uma solucao inadequada.","Faca perguntas, escute atentamente e confirme as informaÃ§Ãµes antes de apresentar alternativas."),
       criterion("crit_service_4","Nao apresentou corretamente os beneficios do produto","O cliente deve compreender as principais caracteristicas, diferenciais e vantagens do produto.","A falta de demonstracao reduz o valor percebido da solucao apresentada.","Conheca profundamente os produtos e apresente seus beneficios de forma clara e objetiva."),
-      criterion("crit_service_5","Nao ofertou os servicos disponiveis","Sempre que aplicavel, devem ser apresentados garantia estendida, seguros, assistencia e demais servicos da empresa.","Alem de reduzir os resultados da empresa, o cliente deixa de conhecer soluções que podem beneficia-lo.","Inclua naturalmente a apresentacao dos servicos durante o processo de venda."),
-      criterion("crit_service_6","Forneceu informacao incorreta ao cliente","Todas as informações sobre preco, prazo, garantia, entrega, montagem e condicoes comerciais devem seguir os padroes oficiais da empresa.","Informações incorretas geram retrabalho, reclamações e perda de credibilidade.","Sempre confirme as informações antes de repassa-las ao cliente."),
-      criterion("crit_service_7","Informou prazo de entrega ou montagem diferente do padrão","Nunca criar expectativas diferentes daquelas definidas oficialmente.","Promessas incorretas geram frustracao e aumentam as reclamações.","Informe somente prazos oficiais e atualizados."),
+      criterion("crit_service_5","Nao ofertou os servicos disponiveis","Sempre que aplicavel, devem ser apresentados garantia estendida, seguros, assistencia e demais servicos da empresa.","Alem de reduzir os resultados da empresa, o cliente deixa de conhecer soluÃ§Ãµes que podem beneficia-lo.","Inclua naturalmente a apresentacao dos servicos durante o processo de venda."),
+      criterion("crit_service_6","Forneceu informacao incorreta ao cliente","Todas as informaÃ§Ãµes sobre preco, prazo, garantia, entrega, montagem e condicoes comerciais devem seguir os padroes oficiais da empresa.","InformaÃ§Ãµes incorretas geram retrabalho, reclamaÃ§Ãµes e perda de credibilidade.","Sempre confirme as informaÃ§Ãµes antes de repassa-las ao cliente."),
+      criterion("crit_service_7","Informou prazo de entrega ou montagem diferente do padrÃ£o","Nunca criar expectativas diferentes daquelas definidas oficialmente.","Promessas incorretas geram frustracao e aumentam as reclamaÃ§Ãµes.","Informe somente prazos oficiais e atualizados."),
       criterion("crit_service_8","Nao realizou o retorno prometido ao cliente","Todo compromisso assumido deve ser cumprido dentro do prazo informado.","A falta de retorno transmite desorganizacao e reduz a confianca do cliente.","Organize sua agenda e acompanhe todos os retornos pendentes."),
       criterion("crit_service_9","Nao acompanhou o pos-venda","Quando necessario, o vendedor deve acompanhar a entrega, montagem ou solucao de problemas ate sua conclusao.","O cliente percebe falta de comprometimento apos a venda.","Acompanhe o cliente ate que todo o processo seja concluido."),
       criterion("crit_service_10","Transferiu responsabilidade sem acompanhar a solucao","Mesmo quando outro setor assume a demanda, o vendedor continua sendo referencia para o cliente.","O cliente sente abandono e perde confianca na empresa.","Acompanhe o andamento da solicitacao e mantenha o cliente informado."),
@@ -94,24 +94,24 @@ function coreCategoryTemplates(){
       criterion("crit_service_12","Utilizou celular para fins pessoais no expediente","O uso do celular deve estar relacionado as atividades profissionais.","Reduz produtividade e pode comprometer o atendimento.","Utilize o celular prioritariamente para atividades relacionadas ao trabalho."),
       criterion("crit_service_13","Utilizou celular durante o atendimento ao cliente","Durante o atendimento, a atencao deve estar totalmente voltada ao cliente.","O cliente pode interpretar a atitude como falta de interesse ou respeito.","Evite qualquer distracao enquanto estiver atendendo."),
       criterion("crit_service_14","Nao utilizou o telefone como ferramenta de relacionamento","Quando aplicavel, o celular deve ser utilizado para acompanhar clientes, enviar propostas e fortalecer o relacionamento comercial.","Perde-se oportunidade de fidelizacao e geracao de novas vendas.","Reserve momentos da rotina para contatos ativos com clientes."),
-      criterion("crit_service_15","Cliente retornou com reclamacao sobre atendimento ou pos-venda","Foi registrada reclamacao relacionada a qualidade do atendimento, acompanhamento ou suporte prestado.","Reclamações impactam diretamente a imagem da empresa, a fidelizacao dos clientes e os resultados da filial.","Analise a situacao, identifique a causa da reclamacao e adote ações para evitar novas ocorrencias.")
+      criterion("crit_service_15","Cliente retornou com reclamacao sobre atendimento ou pos-venda","Foi registrada reclamacao relacionada a qualidade do atendimento, acompanhamento ou suporte prestado.","ReclamaÃ§Ãµes impactam diretamente a imagem da empresa, a fidelizacao dos clientes e os resultados da filial.","Analise a situacao, identifique a causa da reclamacao e adote aÃ§Ãµes para evitar novas ocorrencias.")
     ]},
     {id:"cat_disc",name:"Disciplina",description:"Avalia o cumprimento das normas internas, postura profissional, responsabilidade individual e comprometimento com regras e padroes.",active:true,criteria:[
       criterion("crit_disc_1","Atraso sem justificativa","O colaborador deve cumprir rigorosamente seu horario de entrada, retornos de intervalos e demais compromissos de jornada.","Atrasos prejudicam a operacao, sobrecarregam a equipe e comprometem a organizacao da loja.","Organize sua rotina para chegar com antecedencia e comunique imediatamente qualquer imprevisto."),
-      criterion("crit_disc_2","Ausencia do setor sem comunicacao","Sempre que precisar se ausentar do setor, o colaborador deve comunicar seu lider ou equipe.","A ausencia sem comunicacao compromete o atendimento e prejudica a experiência do cliente.","Antes de deixar seu setor, informe sua equipe e garanta que o atendimento continuara normalmente."),
-      criterion("crit_disc_3","Descumprimento de orientacao da lideranca","As orientações da lideranca devem ser executadas dentro do prazo e conforme solicitado.","O não cumprimento prejudica o alinhamento da equipe e o alcance dos resultados.","Caso tenha duvidas ou dificuldades, converse com a lideranca antes de executar a atividade."),
-      criterion("crit_disc_4","Nao executou atividade solicitada","As atividades delegadas fazem parte das responsabilidades do cargo.","O não cumprimento gera retrabalho e sobrecarga para a equipe.","Priorize as atividades recebidas e informe imediatamente qualquer impedimento."),
+      criterion("crit_disc_2","Ausencia do setor sem comunicacao","Sempre que precisar se ausentar do setor, o colaborador deve comunicar seu lider ou equipe.","A ausencia sem comunicacao compromete o atendimento e prejudica a experiÃªncia do cliente.","Antes de deixar seu setor, informe sua equipe e garanta que o atendimento continuara normalmente."),
+      criterion("crit_disc_3","Descumprimento de orientacao da lideranca","As orientaÃ§Ãµes da lideranca devem ser executadas dentro do prazo e conforme solicitado.","O nÃ£o cumprimento prejudica o alinhamento da equipe e o alcance dos resultados.","Caso tenha duvidas ou dificuldades, converse com a lideranca antes de executar a atividade."),
+      criterion("crit_disc_4","Nao executou atividade solicitada","As atividades delegadas fazem parte das responsabilidades do cargo.","O nÃ£o cumprimento gera retrabalho e sobrecarga para a equipe.","Priorize as atividades recebidas e informe imediatamente qualquer impedimento."),
       criterion("crit_disc_5","Uso inadequado do celular durante o expediente","O telefone celular deve ser utilizado prioritariamente como ferramenta de trabalho.","O uso inadequado reduz produtividade e prejudica o foco nas atividades.","Evite redes sociais e assuntos particulares durante o horario de trabalho."),
-      criterion("crit_disc_6","Uniforme ou apresentacao pessoal fora do padrão","Uniforme, cracha e apresentacao pessoal devem seguir o padrão definido pela empresa.","A apresentacao influencia diretamente a imagem profissional da equipe.","Mantenha diariamente sua apresentacao conforme os padroes da empresa."),
-      criterion("crit_disc_7","Descumprimento de procedimentos internos","Todos os processos operacionais devem ser executados conforme orientacao da empresa.","O descumprimento aumenta riscos, retrabalho e perda de qualidade.","Revise os procedimentos e execute cada etapa conforme o padrão estabelecido."),
-      criterion("crit_disc_8","Conversas paralelas comprometeram atendimento ou produtividade","Conversas entre colaboradores não devem interferir no atendimento ao cliente nem nas atividades da loja.","Distrações reduzem produtividade e prejudicam a experiência do cliente.","Priorize o atendimento e utilize momentos apropriados para conversas informais."),
+      criterion("crit_disc_6","Uniforme ou apresentacao pessoal fora do padrÃ£o","Uniforme, cracha e apresentacao pessoal devem seguir o padrÃ£o definido pela empresa.","A apresentacao influencia diretamente a imagem profissional da equipe.","Mantenha diariamente sua apresentacao conforme os padroes da empresa."),
+      criterion("crit_disc_7","Descumprimento de procedimentos internos","Todos os processos operacionais devem ser executados conforme orientacao da empresa.","O descumprimento aumenta riscos, retrabalho e perda de qualidade.","Revise os procedimentos e execute cada etapa conforme o padrÃ£o estabelecido."),
+      criterion("crit_disc_8","Conversas paralelas comprometeram atendimento ou produtividade","Conversas entre colaboradores nÃ£o devem interferir no atendimento ao cliente nem nas atividades da loja.","DistraÃ§Ãµes reduzem produtividade e prejudicam a experiÃªncia do cliente.","Priorize o atendimento e utilize momentos apropriados para conversas informais."),
       criterion("crit_disc_9","Baixo comprometimento com as atividades da rotina","Espera-se iniciativa e responsabilidade na execucao das tarefas diarias.","A falta de comprometimento compromete o desempenho individual e coletivo.","Mantenha postura proativa e execute suas responsabilidades com atencao e qualidade."),
-      criterion("crit_disc_10","Reincidencia em ocorrencia ja orientada anteriormente","O colaborador voltou a apresentar uma não conformidade que ja havia sido objeto de orientacao ou feedback.","A reincidencia demonstra dificuldade na aplicação dos feedbacks e compromete a evolucao profissional.","Transforme os feedbacks recebidos em ações praticas de melhoria continua."),
+      criterion("crit_disc_10","Reincidencia em ocorrencia ja orientada anteriormente","O colaborador voltou a apresentar uma nÃ£o conformidade que ja havia sido objeto de orientacao ou feedback.","A reincidencia demonstra dificuldade na aplicaÃ§Ã£o dos feedbacks e compromete a evolucao profissional.","Transforme os feedbacks recebidos em aÃ§Ãµes praticas de melhoria continua."),
       criterion("crit_disc_11","Descumprimento das normas de seguranca","As normas de seguranca devem ser respeitadas em todas as atividades.","O descumprimento pode colocar em risco colaboradores, clientes e patrimonio.","Siga rigorosamente os procedimentos de seguranca e comunique qualquer situacao de risco."),
-      criterion("crit_disc_12","Postura incompativel com o ambiente profissional","Espera-se respeito, etica, equilibrio emocional e profissionalismo durante toda a jornada.","Comportamentos inadequados prejudicam o clima organizacional e a imagem da empresa.","Mantenha uma postura respeitosa e profissional em todas as situações."),
-      criterion("crit_disc_13","Resistencia as orientações ou feedbacks","O colaborador deve receber orientações de forma respeitosa e utiliza-las para seu desenvolvimento.","A resistencia dificulta a evolucao profissional e o alinhamento da equipe.","Receba os feedbacks como oportunidade de aprendizado e melhoria continua."),
-      criterion("crit_disc_14","Falta de responsabilidade sobre o proprio setor","Cada colaborador e responsavel pelo acompanhamento e conservacao do setor sob sua responsabilidade.","A falta de responsabilidade compromete a organizacao, a imagem da loja e a experiência do cliente.","Adote postura de dono do setor, acompanhando continuamente tudo o que estiver sob sua responsabilidade."),
-      criterion("crit_disc_15","Descumprimento dos padroes da empresa","Foi identificada uma ou mais condutas incompativeis com os padroes internos estabelecidos pela empresa.","O descumprimento afeta diretamente a qualidade da operacao, a experiência do cliente e os resultados da equipe.","Conheca os padroes da empresa, siga as orientações da lideranca e mantenha disciplina na execucao das atividades diarias.")
+      criterion("crit_disc_12","Postura incompativel com o ambiente profissional","Espera-se respeito, etica, equilibrio emocional e profissionalismo durante toda a jornada.","Comportamentos inadequados prejudicam o clima organizacional e a imagem da empresa.","Mantenha uma postura respeitosa e profissional em todas as situaÃ§Ãµes."),
+      criterion("crit_disc_13","Resistencia as orientaÃ§Ãµes ou feedbacks","O colaborador deve receber orientaÃ§Ãµes de forma respeitosa e utiliza-las para seu desenvolvimento.","A resistencia dificulta a evolucao profissional e o alinhamento da equipe.","Receba os feedbacks como oportunidade de aprendizado e melhoria continua."),
+      criterion("crit_disc_14","Falta de responsabilidade sobre o proprio setor","Cada colaborador e responsavel pelo acompanhamento e conservacao do setor sob sua responsabilidade.","A falta de responsabilidade compromete a organizacao, a imagem da loja e a experiÃªncia do cliente.","Adote postura de dono do setor, acompanhando continuamente tudo o que estiver sob sua responsabilidade."),
+      criterion("crit_disc_15","Descumprimento dos padroes da empresa","Foi identificada uma ou mais condutas incompativeis com os padroes internos estabelecidos pela empresa.","O descumprimento afeta diretamente a qualidade da operacao, a experiÃªncia do cliente e os resultados da equipe.","Conheca os padroes da empresa, siga as orientaÃ§Ãµes da lideranca e mantenha disciplina na execucao das atividades diarias.")
     ]}
   ];
 }
@@ -120,22 +120,22 @@ function quickCriteria(prefix, names, topic){
   return names.map((name, index) => criterion(
     `${prefix}_${index + 1}`,
     name,
-    `Verificar esta não conformidade dentro de ${topic}, registrando somente quando for identificada durante a avaliação.`,
-    `Impacta a qualidade de ${topic}, gera retrabalho, reduz a eficiencia operacional e pode comprometer a experiência do cliente e os resultados da equipe.`,
+    `Verificar esta nÃ£o conformidade dentro de ${topic}, registrando somente quando for identificada durante a avaliaÃ§Ã£o.`,
+    `Impacta a qualidade de ${topic}, gera retrabalho, reduz a eficiencia operacional e pode comprometer a experiÃªncia do cliente e os resultados da equipe.`,
     `Corrigir a situacao, alinhar o procedimento esperado com o colaborador e acompanhar a evolucao no proximo ciclo.`
   ));
 }
 
 function supplementalCategoryTemplates(){
   return [
-    {id:"cat_register",name:"Cadastro e Continuidade do Atendimento",description:"Avalia a qualidade do cadastro, das informações prestadas ao cliente e do acompanhamento das demandas apos a venda.",active:true,criteria:quickCriteria("crit_register",[
-      "Cadastro realizado com informações incompletas",
-      "Cadastro realizado com informações incorretas",
+    {id:"cat_register",name:"Cadastro e Continuidade do Atendimento",description:"Avalia a qualidade do cadastro, das informaÃ§Ãµes prestadas ao cliente e do acompanhamento das demandas apos a venda.",active:true,criteria:quickCriteria("crit_register",[
+      "Cadastro realizado com informaÃ§Ãµes incompletas",
+      "Cadastro realizado com informaÃ§Ãµes incorretas",
       "Telefone ou contato informado incorretamente",
       "Endereco ou ponto de referencia preenchido inadequadamente",
-      "Nao registrou observações importantes no cadastro",
-      "Informou prazo de entrega diferente do padrão da empresa",
-      "Informou prazo de montagem diferente do padrão da empresa",
+      "Nao registrou observaÃ§Ãµes importantes no cadastro",
+      "Informou prazo de entrega diferente do padrÃ£o da empresa",
+      "Informou prazo de montagem diferente do padrÃ£o da empresa",
       "Nao orientou corretamente o cliente sobre entrega e montagem",
       "Cliente retornou por falta de informacao prestada na venda",
       "Nao acompanhou a solucao apos retorno do cliente",
@@ -143,26 +143,26 @@ function supplementalCategoryTemplates(){
       "Nao registrou corretamente a solicitacao do cliente",
       "Cliente retornou por falha no processo de venda",
       "Nao realizou acompanhamento quando solicitado pela lideranca",
-      "Processo de cadastro e continuidade abaixo do padrão esperado"
+      "Processo de cadastro e continuidade abaixo do padrÃ£o esperado"
     ],"cadastro e continuidade do atendimento")},
-    {id:"cat_stock",name:"Gestão do Estoque e Patrimônio",description:"Avalia o cuidado com patrimonio, conferencia dos produtos, organizacao do estoque do setor e prevencao de perdas.",active:true,criteria:quickCriteria("crit_stock",[
+    {id:"cat_stock",name:"GestÃ£o do Estoque e PatrimÃ´nio",description:"Avalia o cuidado com patrimonio, conferencia dos produtos, organizacao do estoque do setor e prevencao de perdas.",active:true,criteria:quickCriteria("crit_stock",[
       "Nao realizou conferencia do estoque do setor",
-      "Divergencia de estoque não comunicada",
+      "Divergencia de estoque nÃ£o comunicada",
       "Produto armazenado em local inadequado",
       "Produto avariado sem identificacao ou comunicacao",
       "Produto reservado sem identificacao",
       "Produto indisponivel por falta de acompanhamento",
       "Estoque do setor desorganizado",
       "Nao comunicou falta de produto",
-      "Patrimônio da empresa sem conservacao",
+      "PatrimÃ´nio da empresa sem conservacao",
       "Equipamentos utilizados de forma inadequada",
       "Nao participou da conferencia quando solicitado",
       "Falta de zelo pelos produtos expostos",
       "Nao comunicou necessidade de manutencao",
       "Descuido com materiais da empresa",
-      "Gestão do estoque e patrimonio abaixo do padrão esperado"
+      "GestÃ£o do estoque e patrimonio abaixo do padrÃ£o esperado"
     ],"gestao do estoque e patrimonio")},
-    {id:"cat_products",name:"Produtos e Serviços",description:"Avalia o conhecimento tecnico sobre produtos e servicos e a capacidade de apresentar soluções completas ao cliente.",active:true,criteria:quickCriteria("crit_products",[
+    {id:"cat_products",name:"Produtos e ServiÃ§os",description:"Avalia o conhecimento tecnico sobre produtos e servicos e a capacidade de apresentar soluÃ§Ãµes completas ao cliente.",active:true,criteria:quickCriteria("crit_products",[
       "Demonstrou pouco conhecimento sobre o produto",
       "Nao apresentou os principais beneficios do produto",
       "Nao apresentou produtos complementares",
@@ -177,15 +177,15 @@ function supplementalCategoryTemplates(){
       "Nao aproveitou oportunidade de agregar valor a venda",
       "Nao apresentou diferenciais da empresa",
       "Nao utilizou materiais de apoio disponiveis",
-      "Apresentacao de produtos e servicos abaixo do padrão esperado"
+      "Apresentacao de produtos e servicos abaixo do padrÃ£o esperado"
     ],"produtos e servicos")},
-    {id:"cat_goals",name:"Gestão de Metas e Resultados",description:"Avalia se o colaborador conhece indicadores, acompanha metas, divulga campanhas e cria ações para alcançar resultados.",active:true,criteria:quickCriteria("crit_goals",[
+    {id:"cat_goals",name:"GestÃ£o de Metas e Resultados",description:"Avalia se o colaborador conhece indicadores, acompanha metas, divulga campanhas e cria aÃ§Ãµes para alcanÃ§ar resultados.",active:true,criteria:quickCriteria("crit_goals",[
       "Nao conhece sua meta mensal",
       "Nao acompanha sua meta diaria",
       "Nao conhece seu resultado atual",
       "Nao conhece seu Ticket Medio",
       "Nao conhece sua Taxa de Conversao",
-      "Nao conhece sua Eficiencia em Serviços",
+      "Nao conhece sua Eficiencia em ServiÃ§os",
       "Nao realiza prospeccao em momentos de baixo fluxo",
       "Nao utiliza o WhatsApp como ferramenta comercial",
       "Nao divulga campanhas da empresa",
@@ -194,12 +194,12 @@ function supplementalCategoryTemplates(){
       "Nao utiliza os materiais de divulgacao",
       "Nao acompanha seus indicadores diariamente",
       "Nao desenvolve plano de acao para melhorar os resultados",
-      "Gestão de metas e resultados abaixo do padrão esperado"
+      "GestÃ£o de metas e resultados abaixo do padrÃ£o esperado"
     ],"gestao de metas e resultados")},
     {id:"cat_team",name:"Trabalho em Equipe e Colaboracao",description:"Avalia relacionamento interpessoal, espirito de equipe, colaboracao entre setores e compromisso com resultados coletivos.",active:true,criteria:quickCriteria("crit_team",[
       "Nao colaborou com a equipe quando solicitado",
       "Demonstrou resistencia em trabalhar em equipe",
-      "Nao compartilhou informações importantes com a equipe",
+      "Nao compartilhou informaÃ§Ãµes importantes com a equipe",
       "Nao prestou apoio a outro setor quando necessario",
       "Gerou conflitos desnecessarios",
       "Demonstrou falta de respeito com colegas",
@@ -211,15 +211,15 @@ function supplementalCategoryTemplates(){
       "Nao demonstrou comprometimento com os objetivos da loja",
       "Nao demonstrou disponibilidade para colaborar",
       "Comunicacao inadequada com a equipe",
-      "Trabalho em equipe abaixo do padrão esperado"
+      "Trabalho em equipe abaixo do padrÃ£o esperado"
     ],"trabalho em equipe e colaboracao")},
-    {id:"cat_proactivity",name:"Proatividade e Iniciativa",description:"Avalia capacidade de agir antecipadamente, buscar soluções, gerar negocios e contribuir espontaneamente para resultados.",active:true,criteria:quickCriteria("crit_proactivity",[
+    {id:"cat_proactivity",name:"Proatividade e Iniciativa",description:"Avalia capacidade de agir antecipadamente, buscar soluÃ§Ãµes, gerar negocios e contribuir espontaneamente para resultados.",active:true,criteria:quickCriteria("crit_proactivity",[
       "Nao demonstrou iniciativa durante o expediente",
       "Aguardou ordens para executar atividades simples",
       "Nao buscou clientes em momentos de baixo movimento",
-      "Nao realizou ações de prospeccao",
+      "Nao realizou aÃ§Ãµes de prospeccao",
       "Nao apresentou sugestoes de melhoria",
-      "Identificou problema e não comunicou",
+      "Identificou problema e nÃ£o comunicou",
       "Nao acompanhou oportunidades de venda",
       "Demonstrou pouca iniciativa para resolver problemas",
       "Nao aproveitou oportunidades para melhorar o setor",
@@ -228,41 +228,41 @@ function supplementalCategoryTemplates(){
       "Nao buscou conhecimento para melhorar seu desempenho",
       "Nao demonstrou atitude de dono do negocio",
       "Nao contribuiu para melhoria dos resultados da filial",
-      "Proatividade e iniciativa abaixo do padrão esperado"
+      "Proatividade e iniciativa abaixo do padrÃ£o esperado"
     ],"proatividade e iniciativa")},
     {id:"cat_communication",name:"Comunicacao",description:"Avalia a qualidade da comunicacao com clientes, colegas, lideranca e demais setores, garantindo clareza e alinhamento.",active:true,criteria:quickCriteria("crit_communication",[
-      "Nao comunicou informações importantes a lideranca",
-      "Nao comunicou informações importantes aos colegas",
+      "Nao comunicou informaÃ§Ãµes importantes a lideranca",
+      "Nao comunicou informaÃ§Ãµes importantes aos colegas",
       "Passou informacao incorreta ao cliente",
       "Comunicacao inadequada com o cliente",
-      "Nao respondeu solicitações no prazo esperado",
-      "Nao registrou informações importantes",
-      "Nao acompanhou as comunicações oficiais da empresa",
+      "Nao respondeu solicitaÃ§Ãµes no prazo esperado",
+      "Nao registrou informaÃ§Ãµes importantes",
+      "Nao acompanhou as comunicaÃ§Ãµes oficiais da empresa",
       "Nao compartilhou campanhas ou comunicados quando orientado",
       "Comunicacao inadequada nos grupos corporativos",
-      "Nao confirmou o entendimento das orientações recebidas",
+      "Nao confirmou o entendimento das orientaÃ§Ãµes recebidas",
       "Falta de clareza na comunicacao",
       "Nao manteve a lideranca atualizada sobre ocorrencias",
       "Demonstrou pouca transparencia na comunicacao",
       "Nao utilizou os canais corretos de comunicacao",
-      "Comunicacao abaixo do padrão esperado"
+      "Comunicacao abaixo do padrÃ£o esperado"
     ],"comunicacao")},
-    {id:"cat_development",name:"Desenvolvimento Profissional",description:"Avalia comprometimento com desenvolvimento profissional, aplicação de feedbacks, aprendizado continuo e adaptação a mudanças.",active:true,criteria:quickCriteria("crit_development",[
+    {id:"cat_development",name:"Desenvolvimento Profissional",description:"Avalia comprometimento com desenvolvimento profissional, aplicaÃ§Ã£o de feedbacks, aprendizado continuo e adaptaÃ§Ã£o a mudanÃ§as.",active:true,criteria:quickCriteria("crit_development",[
       "Nao aplicou feedbacks recebidos anteriormente",
-      "Demonstrou resistencia as mudanças",
+      "Demonstrou resistencia as mudanÃ§as",
       "Nao participou dos treinamentos disponibilizados",
       "Participou do treinamento sem demonstrar interesse",
       "Nao buscou atualizacao sobre produtos, processos ou campanhas",
       "Demonstrou pouco interesse pelo proprio desenvolvimento",
       "Nao colocou em pratica os conhecimentos adquiridos",
       "Demonstrou dificuldade em adaptar-se aos novos processos",
-      "Nao demonstrou evolucao apos orientações",
+      "Nao demonstrou evolucao apos orientaÃ§Ãµes",
       "Nao buscou solucionar duvidas",
       "Nao demonstrou interesse em aprender novas atividades",
       "Nao compartilhou conhecimentos com a equipe",
       "Nao demonstrou comprometimento com sua evolucao",
       "Nao assumiu responsabilidade pelo proprio desenvolvimento",
-      "Desenvolvimento profissional abaixo do padrão esperado"
+      "Desenvolvimento profissional abaixo do padrÃ£o esperado"
     ],"desenvolvimento profissional")}
   ];
 }
@@ -300,17 +300,17 @@ function loadState(){
 
 function migrateCoreCategories(targetState){
   const aliases = {
-    cat_org:["organizacao","organizaçao","organização"],
-    cat_clean:["limpeza","limpeza e conservacao do setor","limpeza e conservação do setor"],
-    cat_service:["atendimento","atendimento e pos-venda","atendimento e pós-venda"],
+    cat_org:["organizacao","organizaÃ§ao","organizaÃ§Ã£o"],
+    cat_clean:["limpeza","limpeza e conservacao do setor","limpeza e conservaÃ§Ã£o do setor"],
+    cat_service:["atendimento","atendimento e pos-venda","atendimento e pÃ³s-venda"],
     cat_disc:["disciplina"],
     cat_register:["cadastro","cadastro e continuidade do atendimento"],
-    cat_stock:["gestao do estoque e patrimonio","gestão do estoque e patrimônio","estoque","patrimonio","patrimônio"],
-    cat_products:["produtos e servicos","produtos e serviços"],
-    cat_goals:["gestao de metas e resultados","gestão de metas e resultados","metas","resultados"],
-    cat_team:["trabalho em equipe","trabalho em equipe e colaboracao","trabalho em equipe e colaboração"],
+    cat_stock:["gestao do estoque e patrimonio","gestÃ£o do estoque e patrimÃ´nio","estoque","patrimonio","patrimÃ´nio"],
+    cat_products:["produtos e servicos","produtos e serviÃ§os"],
+    cat_goals:["gestao de metas e resultados","gestÃ£o de metas e resultados","metas","resultados"],
+    cat_team:["trabalho em equipe","trabalho em equipe e colaboracao","trabalho em equipe e colaboraÃ§Ã£o"],
     cat_proactivity:["proatividade","proatividade e iniciativa"],
-    cat_communication:["comunicacao","comunicação"],
+    cat_communication:["comunicacao","comunicaÃ§Ã£o"],
     cat_development:["desenvolvimento profissional"]
   };
   [...coreCategoryTemplates(), ...supplementalCategoryTemplates()].forEach(template => {
@@ -432,8 +432,8 @@ function feedbackBucket(score){
 function performanceFeedback(score, seed="", occurrenceCount=0){
   const messages = {
     excellent:[
-      "Desempenho excelente. Manter o padrão, reconhecer as boas praticas e compartilhar atitudes que possam inspirar a equipe.",
-      "Resultado de referencia. O colaborador demonstra consistencia, cuidado com a rotina e forte alinhamento com o padrão esperado.",
+      "Desempenho excelente. Manter o padrÃ£o, reconhecer as boas praticas e compartilhar atitudes que possam inspirar a equipe.",
+      "Resultado de referencia. O colaborador demonstra consistencia, cuidado com a rotina e forte alinhamento com o padrÃ£o esperado.",
       "Performance muito acima do esperado. Reforcar o reconhecimento e manter acompanhamento para preservar esse nivel de entrega.",
       "Excelente resultado. O foco agora e sustentar a regularidade, valorizar os pontos fortes e transformar boas praticas em exemplo.",
       "Atuacao de alto impacto. Manter a disciplina operacional e estimular que esse comportamento positivo seja replicado no setor.",
@@ -443,12 +443,12 @@ function performanceFeedback(score, seed="", occurrenceCount=0){
       "Resultado muito bom. Reforcar os acertos e acompanhar pequenos ajustes para transformar a boa entrega em excelencia.",
       "Performance consistente. O colaborador apresenta bom dominio da rotina e deve manter atencao aos detalhes para evoluir ainda mais.",
       "Muito bom desempenho. Valorizar a evolucao apresentada e direcionar as oportunidades pontuais com clareza.",
-      "Resultado positivo e bem sustentado. Manter feedbacks curtos, objetivos e frequentes para consolidar o padrão.",
+      "Resultado positivo e bem sustentado. Manter feedbacks curtos, objetivos e frequentes para consolidar o padrÃ£o.",
       "Boa consistencia operacional. O proximo passo e reduzir pequenas reincidencias e ampliar o protagonismo no setor.",
       "Desempenho forte. Reforcar comportamentos positivos e acompanhar indicadores para preservar o ritmo de evolucao."
     ],
     good:[
-      "Resultado bom. Existem oportunidades pontuais de melhoria, mas o desempenho geral permanece dentro de um padrão positivo.",
+      "Resultado bom. Existem oportunidades pontuais de melhoria, mas o desempenho geral permanece dentro de um padrÃ£o positivo.",
       "Bom desempenho no periodo. Corrigir os pontos observados e manter disciplina para evitar que pequenas falhas se repitam.",
       "Entrega satisfatoria. O colaborador tem boa base e deve focar nos detalhes que ainda limitam uma nota mais alta.",
       "Resultado regular positivo. Manter acompanhamento, alinhar prioridades e transformar oportunidades em evolucao pratica.",
@@ -456,19 +456,19 @@ function performanceFeedback(score, seed="", occurrenceCount=0){
       "Desempenho adequado. O foco deve ser reduzir ocorrencias pontuais e fortalecer os comportamentos que ja funcionam bem."
     ],
     attention:[
-      "Desempenho em desenvolvimento. Priorizar as ocorrencias mais recorrentes e acompanhar a execucao das ações corretivas.",
+      "Desempenho em desenvolvimento. Priorizar as ocorrencias mais recorrentes e acompanhar a execucao das aÃ§Ãµes corretivas.",
       "Resultado exige atencao. Definir combinados claros, prazos curtos e validar se as correcoes foram aplicadas na rotina.",
       "Ha pontos relevantes a corrigir. O colaborador deve receber direcionamento objetivo e acompanhamento proximo no proximo ciclo.",
       "Performance abaixo do potencial. Organizar plano de acao simples, com foco nas falhas que mais impactam cliente e setor.",
       "Resultado pede acompanhamento. Reconhecer avancos, mas cobrar consistencia nas rotinas basicas e nas responsabilidades do cargo.",
-      "Evolução necessaria. O gestor deve alinhar expectativas, registrar evidencias e revisar o progresso com frequencia."
+      "EvoluÃ§Ã£o necessaria. O gestor deve alinhar expectativas, registrar evidencias e revisar o progresso com frequencia."
     ],
     critical:[
       "Necessita atencao imediata. Definir plano de acao, acompanhar de perto e registrar evidencias de melhoria no proximo ciclo.",
       "Resultado critico para o periodo. Priorizar orientacao direta, combinados formais e acompanhamento frequente da lideranca.",
-      "Desempenho abaixo do esperado. E necessario agir rapidamente para corrigir falhas, reduzir reincidencias e recuperar o padrão.",
+      "Desempenho abaixo do esperado. E necessario agir rapidamente para corrigir falhas, reduzir reincidencias e recuperar o padrÃ£o.",
       "Situacao de alerta. O colaborador precisa de direcionamento claro, prazo de regularizacao e validacao constante da evolucao.",
-      "Performance insuficiente. Focar nas causas principais, registrar ações corretivas e acompanhar o cumprimento dos combinados.",
+      "Performance insuficiente. Focar nas causas principais, registrar aÃ§Ãµes corretivas e acompanhar o cumprimento dos combinados.",
       "Resultado requer intervencao gerencial. Trabalhar um plano objetivo e medir a evolucao com evidencias no ciclo seguinte."
     ]
   };
@@ -479,7 +479,7 @@ function performanceFeedback(score, seed="", occurrenceCount=0){
 }
 
 function positiveBadges(text){
-  const defaults = ["Organização","Comprometimento","Atendimento","Trabalho em equipe","Evolução"];
+  const defaults = ["OrganizaÃ§Ã£o","Comprometimento","Atendimento","Trabalho em equipe","EvoluÃ§Ã£o"];
   const items = String(text || "").split(/[,\n.;]+/).map(item => item.trim()).filter(Boolean);
   return (items.length ? items : defaults).slice(0,6);
 }
@@ -555,9 +555,9 @@ function averageResolutionTime(records){
 function quantitySeverity(quantity){
   const value = Number(quantity || 0);
   if(!value) return {key:"none", label:"Sem quantidade", short:"Sem quantidade"};
-  if(value <= 2) return {key:"low", label:"🟢 Baixa ocorrência", short:"Baixa"};
-  if(value <= 5) return {key:"attention", label:"🟡 Atenção", short:"Atenção"};
-  return {key:"critical", label:"🔴 Crítico", short:"Crítico"};
+  if(value <= 2) return {key:"low", label:"ðŸŸ¢ Baixa ocorrÃªncia", short:"Baixa"};
+  if(value <= 5) return {key:"attention", label:"ðŸŸ¡ AtenÃ§Ã£o", short:"AtenÃ§Ã£o"};
+  return {key:"critical", label:"ðŸ”´ CrÃ­tico", short:"CrÃ­tico"};
 }
 
 function statusLabel(status){
@@ -586,70 +586,70 @@ function feedbackByCriterion(criteriaName="", categoryName="", occurrence={}){
   const n = normalize(criteriaName);
   const c = normalize(categoryName);
   const q = Number(occurrence?.quantity || 0);
-  const qtdText = q > 1 ? ` Como houve ${q} registros, trate como prioridade e acompanhe até estabilizar.` : "";
+  const qtdText = q > 1 ? ` Como houve ${q} registros, trate como prioridade e acompanhe atÃ© estabilizar.` : "";
 
   const rules = [
-    [/produto sem preco|sem preco/, "Preço visível é respeito ao cliente e proteção para a venda. Revise etiquetas na abertura, após reposições e antes de iniciar atendimentos para evitar dúvida, preço incorreto e retrabalho."],
-    [/etiqueta divergente|preco ou descricao incorreta|descrição incorreta/, "Preço, descrição e código precisam conversar entre si. Divergência reduz confiança, gera conflito e pode comprometer a margem; confira a etiqueta antes de expor e corrija no mesmo momento."],
-    [/fora da localizacao|localizacao definida|localização definida/, "Produto no lugar certo facilita a jornada do cliente e ajuda os colegas a venderem melhor. Reposicione o item no espaço definido e mantenha o setor fácil de localizar."],
-    [/desalinhad|mal organizado/, "Exposição alinhada vende antes mesmo da abordagem. Ajuste frente, volume e sequência dos produtos durante o dia para transmitir cuidado e padrão de loja."],
-    [/exposicao fora do padrao|padrão visual|padrao visual/, "O padrão visual valoriza o produto e deixa a loja mais profissional. Corrija excessos, organize a comunicação e mantenha a apresentação combinada pela liderança."],
-    [/comunicacao visual|comunicação visual|material promocional|promocional/, "Comunicação visual clara evita dúvida e fortalece a oferta. Retire material vencido, corrija cartazes e garanta que preço e condição estejam fáceis de entender."],
-    [/mercadorias armazenadas|armazenad/, "Armazenamento correto preserva patrimônio e evita perda. Mantenha produtos protegidos, identificados e fora de áreas de circulação."],
-    [/corredor|circulacao obstruida|circulação obstruída/, "Corredor livre melhora segurança, atendimento e circulação. Remova volumes, embalagens ou produtos fora do fluxo para deixar a loja pronta para receber o cliente."],
-    [/avariado|avaria/, "Produto avariado exposto prejudica a imagem da loja. Separe, sinalize ao responsável e acompanhe a solução antes que gere reclamação ou venda inadequada."],
-    [/reposicao|reposição/, "Setor abastecido aumenta chance de venda. Observe espaços vazios, antecipe reposição e avise a liderança quando faltar produto para completar a exposição."],
-    [/mistura de produtos|categorias/, "Produtos misturados confundem o cliente e atrasam o atendimento. Separe por categoria, uso e padrão definido para facilitar escolha e comparação."],
-    [/sujeira|limpeza|conservacao|conservação/, "Limpeza mostra cuidado com o cliente e com o patrimônio. Verifique produtos, expositores e áreas inferiores antes da abertura e durante a rotina."],
-    [/abordagem inicial|nao realizou a abordagem|não realizou a abordagem/, "A primeira abordagem abre a venda. Cumprimente, esteja disponível e conduza a conversa com leveza para identificar a necessidade sem pressionar."],
-    [/cordialidade|sem cordialidade/, "Cordialidade transforma atendimento comum em experiência positiva. Mantenha educação, escuta ativa e disposição para ajudar em qualquer situação."],
-    [/necessidade do cliente|identificou corretamente/, "Venda consultiva começa pela necessidade. Faça perguntas simples, escute com atenção e apresente a solução mais adequada ao cliente."],
-    [/beneficios do produto|benefícios do produto/, "Benefício bem explicado aumenta valor percebido. Conecte características do produto à rotina do cliente e mostre por que aquela solução faz sentido."],
-    [/informacao incorreta|informação incorreta/, "Informação segura evita reclamação. Antes de orientar, confirme preço, condição, prazo, estoque e regra comercial nos canais corretos."],
-    [/retorno prometido|pos-venda|pós-venda/, "Retorno prometido é compromisso assumido. Registre o combinado, defina prazo realista e dê resposta ao cliente mesmo quando a solução ainda estiver em andamento."],
-    [/procedimentos internos|descumprimento/, "Procedimento protege a operação e evita retrabalho. Siga a rotina definida, peça orientação quando houver dúvida e mantenha o padrão combinado."],
-    [/celular/, "Celular fora do contexto tira foco e passa desatenção. Use apenas para necessidade do trabalho e mantenha prioridade total no cliente e no setor."],
-    [/apresentacao pessoal|apresentação pessoal|uniforme/, "Apresentação pessoal comunica profissionalismo. Mantenha uniforme, identificação e postura alinhados ao padrão da empresa."],
-    [/atraso|justificativa/, "Pontualidade sustenta a rotina da equipe. Organize-se para chegar no horário e comunique imprevistos com antecedência, evitando impacto no atendimento."],
-    [/ausencia do setor|ausência do setor|sem comunicacao|sem comunicação/, "Setor descoberto prejudica cliente e colegas. Avise antes de se ausentar e garanta que alguém acompanhe o atendimento ou a organização do espaço."],
-    [/cadastro.*incomplet|informacoes incompletas|informações incompletas/, "Cadastro completo dá continuidade ao atendimento, crédito e entrega. Confira dados essenciais com o cliente antes de finalizar."],
-    [/cadastro.*incorret|informacoes incorretas|informações incorretas/, "Cadastro correto evita retrabalho e falhas no pós-venda. Revise informações com o cliente e corrija divergências no ato."],
-    [/estoque|patrimonio|patrimônio/, "Cuidar do estoque é cuidar do resultado. Confira movimentações, registre divergências e mantenha organização preventiva para reduzir perdas."],
-    [/meta|resultado|indicador/, "Indicador acompanhado diariamente orienta a ação. Consulte sua média, ajuste abordagem e peça apoio cedo quando perceber risco de não atingir o resultado."],
-    [/campanha|comunicados|comunicacoes oficiais|comunicações oficiais/, "Campanha só gera resultado quando chega ao atendimento. Leia os comunicados, entenda a oferta e aplique a informação com o cliente."],
-    [/equipe|colaboracao|colaboração/, "Resultado coletivo nasce da colaboração. Apoie colegas, compartilhe informação útil e ajude o setor a funcionar melhor nos momentos de movimento."],
-    [/iniciativa|proatividade|ordens para executar/, "Proatividade evita cobrança e melhora a operação. Antecipe pendências simples, proponha soluções e aja antes que o problema cresça."],
-    [/feedbacks recebidos|resistencia|resistência/, "Feedback precisa virar atitude prática. Aplique a orientação recebida, registre a melhoria e demonstre evolução no próximo acompanhamento."],
+    [/produto sem preco|sem preco/, "PreÃ§o visÃ­vel Ã© respeito ao cliente e proteÃ§Ã£o para a venda. Revise etiquetas na abertura, apÃ³s reposiÃ§Ãµes e antes de iniciar atendimentos para evitar dÃºvida, preÃ§o incorreto e retrabalho."],
+    [/etiqueta divergente|preco ou descricao incorreta|descriÃ§Ã£o incorreta/, "PreÃ§o, descriÃ§Ã£o e cÃ³digo precisam conversar entre si. DivergÃªncia reduz confianÃ§a, gera conflito e pode comprometer a margem; confira a etiqueta antes de expor e corrija no mesmo momento."],
+    [/fora da localizacao|localizacao definida|localizaÃ§Ã£o definida/, "Produto no lugar certo facilita a jornada do cliente e ajuda os colegas a venderem melhor. Reposicione o item no espaÃ§o definido e mantenha o setor fÃ¡cil de localizar."],
+    [/desalinhad|mal organizado/, "ExposiÃ§Ã£o alinhada vende antes mesmo da abordagem. Ajuste frente, volume e sequÃªncia dos produtos durante o dia para transmitir cuidado e padrÃ£o de loja."],
+    [/exposicao fora do padrao|padrÃ£o visual|padrao visual/, "O padrÃ£o visual valoriza o produto e deixa a loja mais profissional. Corrija excessos, organize a comunicaÃ§Ã£o e mantenha a apresentaÃ§Ã£o combinada pela lideranÃ§a."],
+    [/comunicacao visual|comunicaÃ§Ã£o visual|material promocional|promocional/, "ComunicaÃ§Ã£o visual clara evita dÃºvida e fortalece a oferta. Retire material vencido, corrija cartazes e garanta que preÃ§o e condiÃ§Ã£o estejam fÃ¡ceis de entender."],
+    [/mercadorias armazenadas|armazenad/, "Armazenamento correto preserva patrimÃ´nio e evita perda. Mantenha produtos protegidos, identificados e fora de Ã¡reas de circulaÃ§Ã£o."],
+    [/corredor|circulacao obstruida|circulaÃ§Ã£o obstruÃ­da/, "Corredor livre melhora seguranÃ§a, atendimento e circulaÃ§Ã£o. Remova volumes, embalagens ou produtos fora do fluxo para deixar a loja pronta para receber o cliente."],
+    [/avariado|avaria/, "Produto avariado exposto prejudica a imagem da loja. Separe, sinalize ao responsÃ¡vel e acompanhe a soluÃ§Ã£o antes que gere reclamaÃ§Ã£o ou venda inadequada."],
+    [/reposicao|reposiÃ§Ã£o/, "Setor abastecido aumenta chance de venda. Observe espaÃ§os vazios, antecipe reposiÃ§Ã£o e avise a lideranÃ§a quando faltar produto para completar a exposiÃ§Ã£o."],
+    [/mistura de produtos|categorias/, "Produtos misturados confundem o cliente e atrasam o atendimento. Separe por categoria, uso e padrÃ£o definido para facilitar escolha e comparaÃ§Ã£o."],
+    [/sujeira|limpeza|conservacao|conservaÃ§Ã£o/, "Limpeza mostra cuidado com o cliente e com o patrimÃ´nio. Verifique produtos, expositores e Ã¡reas inferiores antes da abertura e durante a rotina."],
+    [/abordagem inicial|nao realizou a abordagem|nÃ£o realizou a abordagem/, "A primeira abordagem abre a venda. Cumprimente, esteja disponÃ­vel e conduza a conversa com leveza para identificar a necessidade sem pressionar."],
+    [/cordialidade|sem cordialidade/, "Cordialidade transforma atendimento comum em experiÃªncia positiva. Mantenha educaÃ§Ã£o, escuta ativa e disposiÃ§Ã£o para ajudar em qualquer situaÃ§Ã£o."],
+    [/necessidade do cliente|identificou corretamente/, "Venda consultiva comeÃ§a pela necessidade. FaÃ§a perguntas simples, escute com atenÃ§Ã£o e apresente a soluÃ§Ã£o mais adequada ao cliente."],
+    [/beneficios do produto|benefÃ­cios do produto/, "BenefÃ­cio bem explicado aumenta valor percebido. Conecte caracterÃ­sticas do produto Ã  rotina do cliente e mostre por que aquela soluÃ§Ã£o faz sentido."],
+    [/informacao incorreta|informaÃ§Ã£o incorreta/, "InformaÃ§Ã£o segura evita reclamaÃ§Ã£o. Antes de orientar, confirme preÃ§o, condiÃ§Ã£o, prazo, estoque e regra comercial nos canais corretos."],
+    [/retorno prometido|pos-venda|pÃ³s-venda/, "Retorno prometido Ã© compromisso assumido. Registre o combinado, defina prazo realista e dÃª resposta ao cliente mesmo quando a soluÃ§Ã£o ainda estiver em andamento."],
+    [/procedimentos internos|descumprimento/, "Procedimento protege a operaÃ§Ã£o e evita retrabalho. Siga a rotina definida, peÃ§a orientaÃ§Ã£o quando houver dÃºvida e mantenha o padrÃ£o combinado."],
+    [/celular/, "Celular fora do contexto tira foco e passa desatenÃ§Ã£o. Use apenas para necessidade do trabalho e mantenha prioridade total no cliente e no setor."],
+    [/apresentacao pessoal|apresentaÃ§Ã£o pessoal|uniforme/, "ApresentaÃ§Ã£o pessoal comunica profissionalismo. Mantenha uniforme, identificaÃ§Ã£o e postura alinhados ao padrÃ£o da empresa."],
+    [/atraso|justificativa/, "Pontualidade sustenta a rotina da equipe. Organize-se para chegar no horÃ¡rio e comunique imprevistos com antecedÃªncia, evitando impacto no atendimento."],
+    [/ausencia do setor|ausÃªncia do setor|sem comunicacao|sem comunicaÃ§Ã£o/, "Setor descoberto prejudica cliente e colegas. Avise antes de se ausentar e garanta que alguÃ©m acompanhe o atendimento ou a organizaÃ§Ã£o do espaÃ§o."],
+    [/cadastro.*incomplet|informacoes incompletas|informaÃ§Ãµes incompletas/, "Cadastro completo dÃ¡ continuidade ao atendimento, crÃ©dito e entrega. Confira dados essenciais com o cliente antes de finalizar."],
+    [/cadastro.*incorret|informacoes incorretas|informaÃ§Ãµes incorretas/, "Cadastro correto evita retrabalho e falhas no pÃ³s-venda. Revise informaÃ§Ãµes com o cliente e corrija divergÃªncias no ato."],
+    [/estoque|patrimonio|patrimÃ´nio/, "Cuidar do estoque Ã© cuidar do resultado. Confira movimentaÃ§Ãµes, registre divergÃªncias e mantenha organizaÃ§Ã£o preventiva para reduzir perdas."],
+    [/meta|resultado|indicador/, "Indicador acompanhado diariamente orienta a aÃ§Ã£o. Consulte sua mÃ©dia, ajuste abordagem e peÃ§a apoio cedo quando perceber risco de nÃ£o atingir o resultado."],
+    [/campanha|comunicados|comunicacoes oficiais|comunicaÃ§Ãµes oficiais/, "Campanha sÃ³ gera resultado quando chega ao atendimento. Leia os comunicados, entenda a oferta e aplique a informaÃ§Ã£o com o cliente."],
+    [/equipe|colaboracao|colaboraÃ§Ã£o/, "Resultado coletivo nasce da colaboraÃ§Ã£o. Apoie colegas, compartilhe informaÃ§Ã£o Ãºtil e ajude o setor a funcionar melhor nos momentos de movimento."],
+    [/iniciativa|proatividade|ordens para executar/, "Proatividade evita cobranÃ§a e melhora a operaÃ§Ã£o. Antecipe pendÃªncias simples, proponha soluÃ§Ãµes e aja antes que o problema cresÃ§a."],
+    [/feedbacks recebidos|resistencia|resistÃªncia/, "Feedback precisa virar atitude prÃ¡tica. Aplique a orientaÃ§Ã£o recebida, registre a melhoria e demonstre evoluÃ§Ã£o no prÃ³ximo acompanhamento."],
   ];
   for(const [regex, message] of rules){
     if(regex.test(n) || regex.test(c)) return message + qtdText;
   }
-  return `Corrigir ${cleanCriterionText(criteriaName)} com foco no cliente, no padrão da loja e no resultado da equipe. Defina a ação, execute na rotina e acompanhe para não virar reincidência.${qtdText}`;
+  return `Corrigir ${cleanCriterionText(criteriaName)} com foco no cliente, no padrÃ£o da loja e no resultado da equipe. Defina a aÃ§Ã£o, execute na rotina e acompanhe para nÃ£o virar reincidÃªncia.${qtdText}`;
 }
 
 function actionPlanText(item){
   const criteria = cleanCriterionText(item?.criteriaName || item?.name);
   const n = normalize(criteria);
-  if(/produto sem preco|sem preco/.test(n)) return "Conferir etiquetas na abertura e após reposições, corrigindo ausências no mesmo dia.";
-  if(/etiqueta divergente|preco ou descricao/.test(n)) return "Validar preço, descrição e código antes da exposição e corrigir divergências imediatamente.";
-  if(/localizacao|desalinhad|exposicao|reposicao|mistura/.test(n)) return "Revisar o setor durante a rotina, realinhar produtos e manter o padrão visual definido.";
-  if(/limpeza|sujeira|conservacao/.test(n)) return "Realizar conferência visual diária e corrigir limpeza/conservação antes da abertura ou troca de turno.";
-  if(/abordagem|cordialidade|necessidade|beneficios|informacao|retorno/.test(n)) return "Praticar atendimento consultivo, registrar combinados e confirmar informações antes de orientar o cliente.";
-  if(/cadastro/.test(n)) return "Revisar dados com o cliente, corrigir pendências e validar informações antes de finalizar o atendimento.";
-  if(/atraso|ausencia|celular|procedimentos|uniforme|apresentacao/.test(n)) return "Alinhar conduta com a liderança e cumprir o padrão combinado nos próximos ciclos.";
-  if(/meta|resultado|campanha|comunic/.test(n)) return "Acompanhar indicadores e comunicados diariamente, aplicando as orientações nas abordagens.";
-  return "Definir ação corretiva objetiva, executar na rotina e apresentar evidência de melhoria no próximo acompanhamento.";
+  if(/produto sem preco|sem preco/.test(n)) return "Conferir etiquetas na abertura e apÃ³s reposiÃ§Ãµes, corrigindo ausÃªncias no mesmo dia.";
+  if(/etiqueta divergente|preco ou descricao/.test(n)) return "Validar preÃ§o, descriÃ§Ã£o e cÃ³digo antes da exposiÃ§Ã£o e corrigir divergÃªncias imediatamente.";
+  if(/localizacao|desalinhad|exposicao|reposicao|mistura/.test(n)) return "Revisar o setor durante a rotina, realinhar produtos e manter o padrÃ£o visual definido.";
+  if(/limpeza|sujeira|conservacao/.test(n)) return "Realizar conferÃªncia visual diÃ¡ria e corrigir limpeza/conservaÃ§Ã£o antes da abertura ou troca de turno.";
+  if(/abordagem|cordialidade|necessidade|beneficios|informacao|retorno/.test(n)) return "Praticar atendimento consultivo, registrar combinados e confirmar informaÃ§Ãµes antes de orientar o cliente.";
+  if(/cadastro/.test(n)) return "Revisar dados com o cliente, corrigir pendÃªncias e validar informaÃ§Ãµes antes de finalizar o atendimento.";
+  if(/atraso|ausencia|celular|procedimentos|uniforme|apresentacao/.test(n)) return "Alinhar conduta com a lideranÃ§a e cumprir o padrÃ£o combinado nos prÃ³ximos ciclos.";
+  if(/meta|resultado|campanha|comunic/.test(n)) return "Acompanhar indicadores e comunicados diariamente, aplicando as orientaÃ§Ãµes nas abordagens.";
+  return "Definir aÃ§Ã£o corretiva objetiva, executar na rotina e apresentar evidÃªncia de melhoria no prÃ³ximo acompanhamento.";
 }
 
 function automaticFeedback(occurrence, categoryName="", criteriaName=""){
   const status = occurrence?.status || "";
   const criteria = cleanCriterionText(criteriaName);
   if(status === "resolved"){
-    return `Resolvido em ${formatDuration(resolutionDuration(occurrence))}. Manter o padrão e observar reincidência no próximo ciclo.`;
+    return `Resolvido em ${formatDuration(resolutionDuration(occurrence))}. Manter o padrÃ£o e observar reincidÃªncia no prÃ³ximo ciclo.`;
   }
-  if(status === "canceled") return "Registro cancelado para este ciclo. Manter acompanhamento para confirmar que o padrão permaneceu adequado.";
-  if(status === "justified") return "Justificativa registrada. Validar a situação com equilíbrio e manter acompanhamento do padrão esperado.";
-  if(!occurrence?.checked) return "Item dentro do padrão neste ciclo. Manter rotina de conferência e boas práticas.";
+  if(status === "canceled") return "Registro cancelado para este ciclo. Manter acompanhamento para confirmar que o padrÃ£o permaneceu adequado.";
+  if(status === "justified") return "Justificativa registrada. Validar a situaÃ§Ã£o com equilÃ­brio e manter acompanhamento do padrÃ£o esperado.";
+  if(!occurrence?.checked) return "Item dentro do padrÃ£o neste ciclo. Manter rotina de conferÃªncia e boas prÃ¡ticas.";
   if(status === "confirmed" && occurrence?.correctiveAction) return occurrence.correctiveAction;
   return feedbackByCriterion(criteria, categoryName, occurrence);
 }
@@ -715,7 +715,7 @@ function renderEmployees(){
         <div><h3>${esc(employee.name)}</h3><p>${esc(employee.role)}</p><p>${esc(employee.sector)}</p></div>
         <strong class="employee-score">${score}</strong>
       </header>
-      <div class="employee-meta"><span class="${statusClass}">${employee.active ? "Ativo" : "Inativo"}</span><span>${last ? `${dateText(last.date)} • ${classification(last.score)}` : "Sem avaliação salva"}</span></div>
+      <div class="employee-meta"><span class="${statusClass}">${employee.active ? "Ativo" : "Inativo"}</span><span>${last ? `${dateText(last.date)} â€¢ ${classification(last.score)}` : "Sem avaliaÃ§Ã£o salva"}</span></div>
       <div class="actions">
         <button class="button secondary" data-edit-employee="${employee.id}" type="button">Editar</button>
         <button class="button secondary" data-toggle-employee="${employee.id}" type="button">${employee.active ? "Inativar" : "Ativar"}</button>
@@ -777,19 +777,19 @@ function updateCategoryVisual(categoryId){
   element.classList.toggle("is-edited", edited);
   const badge = element.querySelector(".category-count");
   if(badge){
-    badge.innerHTML = edited ? `${badge.dataset.count || badge.textContent.replace(" ✓", "")} <span class="category-done">✓</span>` : (badge.dataset.count || badge.textContent.replace(" ✓", ""));
+    badge.innerHTML = edited ? `${badge.dataset.count || badge.textContent.replace(" âœ“", "")} <span class="category-done">âœ“</span>` : (badge.dataset.count || badge.textContent.replace(" âœ“", ""));
   }
 }
 
 function renderChecklist(){
   $("checklist").innerHTML = state.categories.filter(category => category.active).map(category => {
     const edited = categoryWasEdited(category.id);
-    const count = `${category.criteria.filter(c => c.active).length} critérios`;
+    const count = `${category.criteria.filter(c => c.active).length} critÃ©rios`;
     return `
     <article class="category ${edited ? "is-edited" : ""}" data-category="${category.id}">
       <button class="category-head" type="button" data-toggle-category="${category.id}">
         <span class="category-title-block"><strong>${esc(category.name)}</strong><small>${esc(category.description || "")}</small></span>
-        <span class="category-count" data-count="${esc(count)}">${esc(count)}${edited ? ` <span class="category-done">✓</span>` : ""}</span>
+        <span class="category-count" data-count="${esc(count)}">${esc(count)}${edited ? ` <span class="category-done">âœ“</span>` : ""}</span>
       </button>
       <div class="category-body">
         ${category.criteria.filter(c => c.active).map(criteria => criterionRow(category, criteria)).join("")}
@@ -810,11 +810,11 @@ function criterionRow(category, criteria){
     <div class="criterion-name"><strong>${esc(criteria.name)}</strong></div>
     <span class="deduction">-${pointsText(criteria.points)}</span>
     ${criteria.description ? `<button class="info-button" type="button" data-info="${criteria.id}" aria-expanded="false" aria-label="Orientacao do criterio">i</button>` : `<span class="info-spacer"></span>`}
-    <button class="icon-note" type="button" data-note="${criteria.id}" title="Observacao">${hasNote ? "📝" : "✏️"}</button>
+    <button class="icon-note" type="button" data-note="${criteria.id}" title="Observacao">${hasNote ? "ðŸ“" : "âœï¸"}</button>
     ${criteria.description ? `<div class="orientation-panel" data-info-panel="${criteria.id}" hidden>
-      <strong>Orientação:</strong>
+      <strong>OrientaÃ§Ã£o:</strong>
       <p>${esc(criteria.description)}</p>
-      <strong>Feedback automático:</strong>
+      <strong>Feedback automÃ¡tico:</strong>
       <p>${esc(automaticFeedback(occurrence, category.name, criteria.name))}</p>
     </div>` : ""}
     ${hasNote ? `<div class="evidence-list">
@@ -860,7 +860,7 @@ function refreshScore(){
   const checked = Object.values(currentEval.occurrences || {}).filter(item => item.checked).length;
   const total = activeCriteria().length || 1;
   pill.textContent = `Nota ${scoreText(score)}`;
-  pill.title = `${checked} ocorrência(s) marcada(s) em ${total} critérios ativos`;
+  pill.title = `${checked} ocorrÃªncia(s) marcada(s) em ${total} critÃ©rios ativos`;
   pill.className = `score-pill ${scoreClass(score)}`;
   document.documentElement.style.setProperty("--eval-progress", `${Math.min(100, Math.round((checked / total) * 100))}%`);
 }
@@ -890,7 +890,7 @@ async function saveNote(event){
   const beforeEvidence = normalizeEvidenceList(occurrence.evidence);
   const mergedEvidence = [...beforeEvidence];
   for(const ev of uploaded){
-    // Acumula evidências no mesmo critério. Não substitui fotos anteriores.
+    // Acumula evidÃªncias no mesmo critÃ©rio. NÃ£o substitui fotos anteriores.
     mergedEvidence.push(ev);
   }
   occurrence.evidence = mergedEvidence;
@@ -905,7 +905,7 @@ async function saveNote(event){
     correctiveAction:occurrence.correctiveAction
   });
   $("noteDialog").close();
-  if(uploaded.length) notify(`${uploaded.length} evidência(s) adicionada(s). Total neste critério: ${occurrence.evidence.length}.`);
+  if(uploaded.length) notify(`${uploaded.length} evidÃªncia(s) adicionada(s). Total neste critÃ©rio: ${occurrence.evidence.length}.`);
   renderChecklist();
 }
 
@@ -941,7 +941,7 @@ function saveEvaluation(){
   const data = collectEvaluation();
   const editingExisting = Boolean(currentEval.id);
   if(editingExisting){
-    state.evaluations = state.evaluations.map(item => item.id === data.id ? {...item, ...data, editAudit:[...(item.editAudit || []), {at:new Date().toISOString(), manager:data.manager, action:"Avaliação editada"}]} : item);
+    state.evaluations = state.evaluations.map(item => item.id === data.id ? {...item, ...data, editAudit:[...(item.editAudit || []), {at:new Date().toISOString(), manager:data.manager, action:"AvaliaÃ§Ã£o editada"}]} : item);
   }else{
     state.evaluations.push(data);
   }
@@ -956,7 +956,7 @@ function saveEvaluation(){
   renderReportSelectors();
   if($("reportEvaluation")) $("reportEvaluation").value = data.id;
   renderSelectedReport();
-  notify(editingExisting ? "Avaliação atualizada e relatório aberto." : "Avaliação salva e relatório aberto.");
+  notify(editingExisting ? "AvaliaÃ§Ã£o atualizada e relatÃ³rio aberto." : "AvaliaÃ§Ã£o salva e relatÃ³rio aberto.");
   window.scrollTo({top:0, behavior:"smooth"});
   setTimeout(() => {
     setView("reports");
@@ -980,20 +980,20 @@ function renderDashboard(){
   const topQuantity = topByQuantity(occurrences);
   $("dashboardKpis").innerHTML = [
     ["Colaboradores", state.employees.length, "people"],
-    ["Avaliações", state.evaluations.filter(e => state.employees.some(emp => emp.id === e.employeeId)).length, "evals"],
-    ["Média atual", scoreText(avg(filtered.map(e => e.score))), "score"],
-    ["Ocorrências", occurrences.length, "warn"],
+    ["AvaliaÃ§Ãµes", state.evaluations.filter(e => state.employees.some(emp => emp.id === e.employeeId)).length, "evals"],
+    ["MÃ©dia atual", scoreText(avg(filtered.map(e => e.score))), "score"],
+    ["OcorrÃªncias", occurrences.length, "warn"],
     ["Maior qtd.", topQuantity ? `${topQuantity.quantity}` : "0", "qty"],
-    ["Sem preço/mês", priceQtyMonth, "price"],
-    ["Qtd. média", scoreText(avg(quantityOccurrences.map(item => Number(item.quantity || 0)))).replace(",0",""), "avg"],
-    ["Críticos", quantityOccurrences.filter(item => quantitySeverity(item.quantity).key === "critical").length, "critical"]
+    ["Sem preÃ§o/mÃªs", priceQtyMonth, "price"],
+    ["Qtd. mÃ©dia", scoreText(avg(quantityOccurrences.map(item => Number(item.quantity || 0)))).replace(",0",""), "avg"],
+    ["CrÃ­ticos", quantityOccurrences.filter(item => quantitySeverity(item.quantity).key === "critical").length, "critical"]
   ].map(([label,value,type])=>`<div class="kpi kpi-${type}"><span>${label}</span><strong>${value}</strong></div>`).join("");
   const sortedLatest = latestAll.sort((a,b)=>b.score-a.score);
   $("rankingGeneral").innerHTML = rankingRows(sortedLatest);
   $("rankingSector").innerHTML = sectors.map(sector => {
     const values = latestAll.filter(item => item.employeeSnapshot.sector === sector);
     return `<div class="ranking-row"><span class="ranking-icon">${displayIconForLabel(sector)}</span><div><strong>${esc(sector)}</strong><small>${values.length} colaborador(es)</small></div><strong>${scoreText(avg(values.map(v => v.score)))}</strong></div>`;
-  }).join("") || `<div class="empty">Sem avaliações.</div>`;
+  }).join("") || `<div class="empty">Sem avaliaÃ§Ãµes.</div>`;
   renderCategoryRanking(filtered);
   renderEvolution(filtered);
   renderTopOccurrences(occurrences);
@@ -1016,7 +1016,7 @@ function rankingRows(items){
     <img src="${item.employeeSnapshot.photo || defaultPhoto}" alt="">
     <div><strong>${index + 1}. ${esc(item.employeeSnapshot.name)}</strong><small>${esc(item.employeeSnapshot.role)} - ${esc(item.employeeSnapshot.sector)}</small></div>
     <strong>${scoreText(item.score)}</strong>
-  </div>`).join("") : `<div class="empty">Sem avaliações salvas.</div>`;
+  </div>`).join("") : `<div class="empty">Sem avaliaÃ§Ãµes salvas.</div>`;
 }
 
 function renderCategoryRanking(items){
@@ -1039,11 +1039,11 @@ function renderEvolution(items){
   const rows = [...Object.entries(byWeek).slice(-4), ...Object.entries(byMonth).slice(-4).map(([label,values]) => [monthLabel(label), values])].map(([label,values]) => [label, avg(values)]);
   $("evolutionCharts").innerHTML = rows.length ? `<div class="bars">
     ${rows.map(([label,value]) => `<div class="bar-row"><span>${esc(label)}</span><div class="bar"><i style="width:${Math.max(0, Math.min(100, value*10))}%"></i></div><strong>${scoreText(value)}</strong></div>`).join("")}
-  </div>` : `<div class="empty">Sem evolução registrada.</div>`;
+  </div>` : `<div class="empty">Sem evoluÃ§Ã£o registrada.</div>`;
 }
 
 function monthName(index){
-  return ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"][index] || "mês";
+  return ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"][index] || "mÃªs";
 }
 
 function monthLabel(value){
@@ -1061,7 +1061,7 @@ function renderTopOccurrences(occurrences){
   });
   const topRecurrent = Object.entries(groups).sort((a,b)=>b[1].count-a[1].count || b[1].quantity-a[1].quantity)[0];
   const recurrent = Object.entries(groups).sort((a,b)=>b[1].count-a[1].count || b[1].quantity-a[1].quantity).slice(0,6).map(([name,data]) => `<div class="ranking-row"><span class="ranking-icon">${displayIconForLabel(name)}</span><div><strong>${esc(name)}</strong><small>${data.count} ocorrencia(s) | qtd. ${data.quantity}</small></div><strong>${data.count}</strong></div>`).join("");
-  $("topOccurrences").innerHTML = topRecurrent ? `<div class="ranking-row highlight-row"><span class="ranking-icon">${displayIconForLabel(topRecurrent[0])}</span><div><strong>Mais recorrente: ${esc(topRecurrent[0])}</strong><small>Registros encontrados: ${topRecurrent[1].count}</small></div><strong>${topRecurrent[1].count}</strong></div>${recurrent}` : `<div class="empty">Nenhuma ocorrência.</div>`;
+  $("topOccurrences").innerHTML = topRecurrent ? `<div class="ranking-row highlight-row"><span class="ranking-icon">${displayIconForLabel(topRecurrent[0])}</span><div><strong>Mais recorrente: ${esc(topRecurrent[0])}</strong><small>Registros encontrados: ${topRecurrent[1].count}</small></div><strong>${topRecurrent[1].count}</strong></div>${recurrent}` : `<div class="empty">Nenhuma ocorrÃªncia.</div>`;
 }
 
 function renderTopEvolution(){
@@ -1069,7 +1069,7 @@ function renderTopEvolution(){
     const values = state.evaluations.filter(e => e.employeeId === employee.id).sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt));
     return values.length >= 2 ? {employee,delta:values.at(-1).score - values[0].score,latest:values.at(-1)} : null;
   }).filter(Boolean).sort((a,b)=>b.delta-a.delta);
-  $("topEvolution").innerHTML = rows.slice(0,6).map(row => `<div class="ranking-row"><img src="${row.employee.photo || defaultPhoto}" alt=""><div><strong>${esc(row.employee.name)}</strong><small>Evolução desde a primeira avaliação</small></div><strong>${row.delta >= 0 ? "+" : ""}${scoreText(row.delta)}</strong></div>`).join("") || `<div class="empty">Evolução exige pelo menos duas avaliações.</div>`;
+  $("topEvolution").innerHTML = rows.slice(0,6).map(row => `<div class="ranking-row"><img src="${row.employee.photo || defaultPhoto}" alt=""><div><strong>${esc(row.employee.name)}</strong><small>EvoluÃ§Ã£o desde a primeira avaliaÃ§Ã£o</small></div><strong>${row.delta >= 0 ? "+" : ""}${scoreText(row.delta)}</strong></div>`).join("") || `<div class="empty">EvoluÃ§Ã£o exige pelo menos duas avaliaÃ§Ãµes.</div>`;
 }
 
 function renderTimeline(){
@@ -1120,7 +1120,7 @@ function timelineEvaluationCard(item){
         ${item.justification ? `<p><strong>Justificativa:</strong> ${esc(item.justification)}</p>` : ""}
         ${audited.length ? `<details class="audit-details"><summary>${audited.length} ajuste${audited.length === 1 ? "" : "s"} preservado${audited.length === 1 ? "" : "s"} para auditoria</summary>${audited.map(o => `<p><strong>${esc(o.categoryName)} / ${esc(o.criteriaName)}</strong> - ${esc(statusLabel(o.status))}${o.status === "resolved" ? ` em ${esc(dateTimeText(o.resolvedAt))} (${esc(formatDuration(resolutionDuration(o)))})` : ""}</p>`).join("")}</details>` : ""}
         <div class="actions">
-          <button class="button primary" data-edit-evaluation="${item.id}" type="button">Editar avaliação</button>
+          <button class="button primary" data-edit-evaluation="${item.id}" type="button">Editar avaliaÃ§Ã£o</button>
           <button class="button secondary" data-report-id="${item.id}" type="button">Abrir relatorio</button>
         </div>
       </div>
@@ -1147,7 +1147,7 @@ function resolveOpportunity(encoded){
   const evaluation = state.evaluations.find(item => item.id === evaluationId);
   const occurrence = evaluation?.occurrences?.[criteriaId];
   if(!evaluation || !occurrence) return;
-  if(!confirm("Marcar esta oportunidade como resolvida, restaurar a nota e manter o registro no histórico?")) return;
+  if(!confirm("Marcar esta oportunidade como resolvida, restaurar a nota e manter o registro no histÃ³rico?")) return;
   const now = new Date().toISOString();
   const resolutionNote = prompt("Como foi resolvido? (opcional)", occurrence.resolutionNote || "") || "Ajuste validado pelo gestor.";
   occurrence.status = "resolved";
@@ -1227,8 +1227,13 @@ function renderSettings(){
       <header>
         <label>Categoria<input value="${esc(category.name)}" data-cat-name="${category.id}"></label>
         <label>Status<select data-cat-active="${category.id}"><option value="true" ${category.active ? "selected" : ""}>Ativa</option><option value="false" ${!category.active ? "selected" : ""}>Inativa</option></select></label>
+        <div class="admin-category-actions">
+          <span>${category.criteria.length} critÃ©rios</span>
+          <button class="button secondary admin-toggle-button" data-toggle-admin-category="${category.id}" type="button" aria-expanded="false">Abrir</button>
+        </div>
         <button class="button danger" data-delete-category="${category.id}" type="button">Excluir</button>
       </header>
+      <div class="admin-category-body">
       ${category.criteria.map(criteria => `<div class="admin-criterion">
         <label>Criterio<input value="${esc(criteria.name)}" data-crit-name="${criteria.id}"></label>
         <label>Pontos automaticos<input value="${pointsText(criteria.points)}" data-crit-points="${criteria.id}" readonly></label>
@@ -1238,11 +1243,12 @@ function renderSettings(){
         </div>
         <button class="button danger" data-delete-criteria="${category.id}|${criteria.id}" type="button">Excluir</button>
         <details class="orientation-editor">
-          <summary>Orientação</summary>
-          <label>Orientação<input value="${esc(criteria.description || "")}" data-crit-desc="${criteria.id}"></label>
+          <summary>OrientaÃ§Ã£o</summary>
+          <label>OrientaÃ§Ã£o<input value="${esc(criteria.description || "")}" data-crit-desc="${criteria.id}"></label>
         </details>
       </div>`).join("")}
       <button class="button secondary add-criterion-button" data-add-criteria="${category.id}" type="button">+ Adicionar criterio nesta categoria</button>
+      </div>
     </article>`).join("");
 }
 
@@ -1294,35 +1300,35 @@ function reportHtml(type, evaluation){
   const titleMap = {weekly:"Parcial semanal",fortnight:"Parcial quinzenal",monthly:"Fechamento mensal",compare:"Comparativo entre meses",pdi:"Plano de desenvolvimento individual"};
   if(type === "compare"){
     const rows = state.evaluations.filter(item => item.employeeId === evaluation.employeeId).sort((a,b)=>a.month.localeCompare(b.month));
-    return `<div class="exec-report"><div class="exec-report-top"><div><span>MÉTODO SOBRAL</span><h3>Comparativo entre meses</h3><p>${esc(evaluation.employeeSnapshot.name)} | ${esc(evaluation.employeeSnapshot.sector)}</p></div></div><div class="exec-block"><table class="exec-table"><tr><th>Mes</th><th>Nota</th><th>Ocorrências</th><th>Quantidade</th><th>Classificacao</th></tr>${rows.map(item => `<tr><td>${esc(item.month)}</td><td>${scoreText(item.score)}</td><td>${occurrenceList(item).length}</td><td>${occurrenceList(item).reduce((sum,o)=>sum+Number(o.quantity || 0),0)}</td><td>${classification(item.score)}</td></tr>`).join("")}</table></div></div>`;
+    return `<div class="exec-report"><div class="exec-report-top"><div><span>MÃ‰TODO SOBRAL</span><h3>Comparativo entre meses</h3><p>${esc(evaluation.employeeSnapshot.name)} | ${esc(evaluation.employeeSnapshot.sector)}</p></div></div><div class="exec-block"><table class="exec-table"><tr><th>Mes</th><th>Nota</th><th>OcorrÃªncias</th><th>Quantidade</th><th>Classificacao</th></tr>${rows.map(item => `<tr><td>${esc(item.month)}</td><td>${scoreText(item.score)}</td><td>${occurrenceList(item).length}</td><td>${occurrenceList(item).reduce((sum,o)=>sum+Number(o.quantity || 0),0)}</td><td>${classification(item.score)}</td></tr>`).join("")}</table></div></div>`;
   }
-  const pdi = occs.slice(0,4).map(item => `<tr><td>${esc(item.categoryName)}</td><td>${esc(item.criteriaName)}</td><td>${esc(item.correctiveAction || actionPlanText(item))}</td><td>Próximo ciclo</td><td>Foto, checklist ou validação do gestor.</td></tr>`).join("");
+  const pdi = occs.slice(0,4).map(item => `<tr><td>${esc(item.categoryName)}</td><td>${esc(item.criteriaName)}</td><td>${esc(item.correctiveAction || actionPlanText(item))}</td><td>PrÃ³ximo ciclo</td><td>Foto, checklist ou validaÃ§Ã£o do gestor.</td></tr>`).join("");
   const stats = reportStats(evaluation);
   const exec = executiveClassification(evaluation.score);
   const feedback = performanceFeedback(evaluation.score, `${evaluation.employeeId}|${evaluation.employeeSnapshot.name}|${evaluation.date}`, stats.active.length);
   return `<div class="exec-report">
     <div class="exec-report-top">
-      <div><span>MÉTODO SOBRAL</span><h3>Performance Individual 360</h3><p>Relatório Executivo de Desenvolvimento</p></div>
-      <div class="exec-meta"><img class="exec-brand-logo" src="${zenirLogo}" alt="Zenir"><strong>${esc(state.settings.company || "Empresa")}</strong><small>Filial: ${esc(evaluation.employeeSnapshot.sector || "-")}</small><small>Data: ${dateText(evaluation.date)}</small><small>Período: ${esc(evaluation.month || "-")}</small></div>
+      <div><span>MÃ‰TODO SOBRAL</span><h3>Performance Individual 360</h3><p>RelatÃ³rio Executivo de Desenvolvimento</p></div>
+      <div class="exec-meta"><img class="exec-brand-logo" src="${zenirLogo}" alt="Zenir"><strong>${esc(state.settings.company || "Empresa")}</strong><small>Filial: ${esc(evaluation.employeeSnapshot.sector || "-")}</small><small>Data: ${dateText(evaluation.date)}</small><small>PerÃ­odo: ${esc(evaluation.month || "-")}</small></div>
     </div>
     <div class="exec-hero">
       <div class="exec-person">
         <img src="${evaluation.employeeSnapshot.photo || defaultPhoto}" alt="">
-        <div><span>Colaborador</span><h2>${esc(evaluation.employeeSnapshot.name)}</h2><p>${esc(evaluation.employeeSnapshot.role)} | ${esc(evaluation.employeeSnapshot.sector)}</p><p>Gestor responsável: ${esc(evaluation.manager)}</p></div>
+        <div><span>Colaborador</span><h2>${esc(evaluation.employeeSnapshot.name)}</h2><p>${esc(evaluation.employeeSnapshot.role)} | ${esc(evaluation.employeeSnapshot.sector)}</p><p>Gestor responsÃ¡vel: ${esc(evaluation.manager)}</p></div>
       </div>
       <div class="exec-score" style="--score-color:${exec.color};--score-soft:${exec.soft}">
         <span>NOTA FINAL</span><strong>${scoreText(evaluation.score)}</strong><small>${exec.stars} ${exec.label}</small><p>${esc(feedback)}</p>
       </div>
     </div>
     <div class="exec-summary">
-      ${[["Ocorrências",stats.active.length],["Pontos descontados",pointsText(stats.discount)],["Qtd. registros",stats.totalQuantity],["Resolvidas",stats.resolved],["Pendentes",stats.pending],["Tempo médio",stats.avgRegularization]].map(([label,value])=>`<div><span>${label}</span><strong>${value}</strong></div>`).join("")}
+      ${[["OcorrÃªncias",stats.active.length],["Pontos descontados",pointsText(stats.discount)],["Qtd. registros",stats.totalQuantity],["Resolvidas",stats.resolved],["Pendentes",stats.pending],["Tempo mÃ©dio",stats.avgRegularization]].map(([label,value])=>`<div><span>${label}</span><strong>${value}</strong></div>`).join("")}
     </div>
-    <section class="exec-block"><h4>Resumo Executivo</h4><p>Este relatório consolida desempenho, ocorrências, ações corretivas e oportunidades de evolução do colaborador no período avaliado.</p></section>
-    <section class="exec-block"><h4>Pontos Fortes</h4><div class="positive-badges">${positiveCategoryBadges(evaluation).map(item=>`<span>✓ OK ${esc(item)}</span>`).join("") || `<span>Foco total nas oportunidades registradas neste ciclo.</span>`}</div></section>
-    <section class="exec-block"><h4>Oportunidades de Melhoria</h4><table class="exec-table exec-opportunity-table"><tr><th>Categoria</th><th>Critério</th><th>Qtd</th><th>Status</th><th>Feedback</th></tr>${stats.records.map(item => `<tr><td>${esc(item.categoryName)}</td><td>${esc(item.criteriaName)}</td><td>${Number(item.quantity || 0) || "-"}</td><td>${esc(statusShort(item.status))}</td><td>${esc(automaticFeedback(item, item.categoryName, item.criteriaName))}</td></tr>`).join("") || `<tr><td colspan="5">Nenhuma ocorrência registrada.</td></tr>`}</table></section>
-    <section class="exec-block"><h4>Observação do Gestor</h4><p>${esc(evaluation.generalNote || "Sem observação geral registrada.")}</p></section>
+    <section class="exec-block"><h4>Resumo Executivo</h4><p>Este relatÃ³rio consolida desempenho, ocorrÃªncias, aÃ§Ãµes corretivas e oportunidades de evoluÃ§Ã£o do colaborador no perÃ­odo avaliado.</p></section>
+    <section class="exec-block"><h4>Pontos Fortes</h4><div class="positive-badges">${positiveCategoryBadges(evaluation).map(item=>`<span>âœ“ OK ${esc(item)}</span>`).join("") || `<span>Foco total nas oportunidades registradas neste ciclo.</span>`}</div></section>
+    <section class="exec-block"><h4>Oportunidades de Melhoria</h4><table class="exec-table exec-opportunity-table"><tr><th>Categoria</th><th>CritÃ©rio</th><th>Qtd</th><th>Status</th><th>Feedback</th></tr>${stats.records.map(item => `<tr><td>${esc(item.categoryName)}</td><td>${esc(item.criteriaName)}</td><td>${Number(item.quantity || 0) || "-"}</td><td>${esc(statusShort(item.status))}</td><td>${esc(automaticFeedback(item, item.categoryName, item.criteriaName))}</td></tr>`).join("") || `<tr><td colspan="5">Nenhuma ocorrÃªncia registrada.</td></tr>`}</table></section>
+    <section class="exec-block"><h4>ObservaÃ§Ã£o do Gestor</h4><p>${esc(evaluation.generalNote || "Sem observaÃ§Ã£o geral registrada.")}</p></section>
     <section class="exec-block"><h4>Justificativa do Colaborador</h4><p>${esc(evaluation.justification || "Sem justificativa registrada.")}</p></section>
-    <section class="exec-block"><h4>Plano de Desenvolvimento</h4><table class="exec-table"><tr><th>Área</th><th>Foco</th><th>Ação</th><th>Prazo</th><th>Evidência</th></tr>${pdi || `<tr><td colspan="5">Manter desempenho e registrar boas práticas.</td></tr>`}</table></section>
+    <section class="exec-block"><h4>Plano de Desenvolvimento</h4><table class="exec-table"><tr><th>Ãrea</th><th>Foco</th><th>AÃ§Ã£o</th><th>Prazo</th><th>EvidÃªncia</th></tr>${pdi || `<tr><td colspan="5">Manter desempenho e registrar boas prÃ¡ticas.</td></tr>`}</table></section>
   </div>`;
 }
 
@@ -1370,16 +1376,16 @@ function drawContainImage(ctx,img,x,y,w,h){
 
 function canvasText(value){
   return String(value ?? "")
-    .replaceAll("✓", "OK")
-    .replaceAll("★", "*")
-    .replaceAll("☆", "-")
-    .replaceAll("Á", "A").replaceAll("É", "E").replaceAll("Í", "I").replaceAll("Ó", "O").replaceAll("Ú", "U")
-    .replaceAll("á", "a").replaceAll("é", "e").replaceAll("í", "i").replaceAll("ó", "o").replaceAll("ú", "u")
-    .replaceAll("â", "a").replaceAll("ê", "e").replaceAll("ô", "o")
-    .replaceAll("ã", "a").replaceAll("õ", "o")
-    .replaceAll("ç", "c").replaceAll("Ç", "C")
-    .replaceAll("Ã", "A")
-    .replaceAll("�", "");
+    .replaceAll("âœ“", "OK")
+    .replaceAll("â˜…", "*")
+    .replaceAll("â˜†", "-")
+    .replaceAll("Ã", "A").replaceAll("Ã‰", "E").replaceAll("Ã", "I").replaceAll("Ã“", "O").replaceAll("Ãš", "U")
+    .replaceAll("Ã¡", "a").replaceAll("Ã©", "e").replaceAll("Ã­", "i").replaceAll("Ã³", "o").replaceAll("Ãº", "u")
+    .replaceAll("Ã¢", "a").replaceAll("Ãª", "e").replaceAll("Ã´", "o")
+    .replaceAll("Ã£", "a").replaceAll("Ãµ", "o")
+    .replaceAll("Ã§", "c").replaceAll("Ã‡", "C")
+    .replaceAll("Ãƒ", "A")
+    .replaceAll("ï¿½", "");
 }
 
 function drawWrappedText(ctx,text,x,y,maxWidth,lineHeight,maxLines){
@@ -1498,7 +1504,7 @@ async function drawShareArt(evaluation, width=1240, height=1754){
     };
   });
 
-  // Altura dinâmica em formato retrato, pensado para A4/impressão e WhatsApp.
+  // Altura dinÃ¢mica em formato retrato, pensado para A4/impressÃ£o e WhatsApp.
   setFont(700,15);
   let rowsHeight = 46;
   rowData.forEach(row => {
@@ -1512,7 +1518,7 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   ctx.fillStyle = "#f2f5f9";
   ctx.fillRect(0,0,width,height);
 
-  // Cabeçalho
+  // CabeÃ§alho
   ctx.fillStyle = "#101827";
   ctx.fillRect(0,0,width,sx(142));
   ctx.fillStyle = "#dbeafe";
@@ -1544,7 +1550,7 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   setFont(800,22,exec.color); ctx.fillText(exec.stars, sx(955), sx(272));
   setFont(600,13,"#475467"); textBlock(feedback,955,302,190,16,2);
 
-  const summary = [["Ocorrências",stats.active.length],["Pontos descontados",pointsText(stats.discount)],["Qtd. registros",stats.totalQuantity],["Resolvidas",stats.resolved],["Pendentes",stats.pending],["Tempo médio",stats.avgRegularization]];
+  const summary = [["OcorrÃªncias",stats.active.length],["Pontos descontados",pointsText(stats.discount)],["Qtd. registros",stats.totalQuantity],["Resolvidas",stats.resolved],["Pendentes",stats.pending],["Tempo mÃ©dio",stats.avgRegularization]];
   summary.forEach(([label,value],index)=>{
     const x = 50 + index*190;
     fillCard(x,370,168,78,16,"#fff",false);
@@ -1554,11 +1560,11 @@ async function drawShareArt(evaluation, width=1240, height=1754){
     ctx.fillText(valueText, sx(x+16), sx(430));
   });
 
-  // Ocorrências primeiro, com texto completo e feedback/ação.
+  // OcorrÃªncias primeiro, com texto completo e feedback/aÃ§Ã£o.
   let y = 482;
   const tableX = 50, tableW = 1140;
   fillCard(tableX,y,tableW,rowsHeight + 38,24,"#fff");
-  setFont(900,24,"#101827"); ctx.fillText("Ocorrências e Status", sx(tableX+28), sx(y+42));
+  setFont(900,24,"#101827"); ctx.fillText("OcorrÃªncias e Status", sx(tableX+28), sx(y+42));
   const startY = y + 70;
   ctx.fillStyle = "#eef2f7"; roundRect(ctx,sx(tableX+28),sx(startY),sx(tableW-56),sx(30),sx(8)); ctx.fill();
   setFont(800,11,"#475467");
@@ -1566,11 +1572,11 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   ctx.fillText("CRITERIO / OPORTUNIDADE", sx(tableX+220), sx(startY+20));
   ctx.fillText("QTD", sx(tableX+602), sx(startY+20));
   ctx.fillText("STATUS", sx(tableX+656), sx(startY+20));
-  ctx.fillText("AÇÃO / FEEDBACK", sx(tableX+780), sx(startY+20));
+  ctx.fillText("AÃ‡ÃƒO / FEEDBACK", sx(tableX+780), sx(startY+20));
 
   let rowY = startY + 46;
   if(!rowData.length){
-    setFont(700,16,"#667085"); ctx.fillText("Nenhuma ocorrência registrada.", sx(tableX+44), sx(rowY));
+    setFont(700,16,"#667085"); ctx.fillText("Nenhuma ocorrÃªncia registrada.", sx(tableX+44), sx(rowY));
     rowY += 42;
   }else{
     rowData.forEach((row,index)=>{
@@ -1590,13 +1596,13 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   }
   y = rowY + 34;
 
-  // Evidências fotográficas das ocorrências.
+  // EvidÃªncias fotogrÃ¡ficas das ocorrÃªncias.
   if(photoEvidence.length){
     const thumbs = photoEvidence.slice(0,12);
     const rows = Math.ceil(thumbs.length / 6);
     const cardH = 82 + rows * 158;
     fillCard(50,y,1140,cardH,24,"#fff");
-    setFont(900,22,"#101827"); ctx.fillText("Evidências fotográficas", sx(78), sx(y+42));
+    setFont(900,22,"#101827"); ctx.fillText("EvidÃªncias fotogrÃ¡ficas", sx(78), sx(y+42));
     for(let i=0;i<thumbs.length;i++){
       const evImg = await loadImage(thumbs[i].data);
       const col = i % 6;
@@ -1610,7 +1616,7 @@ async function drawShareArt(evaluation, width=1240, height=1754){
     y += cardH + 26;
   }
 
-  // Pontos fortes e mensagem motivacional depois das ocorrências.
+  // Pontos fortes e mensagem motivacional depois das ocorrÃªncias.
   fillCard(50,y,540,220,24,"#fff");
   setFont(900,22,"#101827"); ctx.fillText("Pontos Fortes", sx(78), sx(y+42));
   const badges = positiveCategoryBadges(evaluation).slice(0,6);
@@ -1628,18 +1634,18 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   fillCard(620,y,570,220,24,"#fff");
   setFont(900,22,"#101827"); ctx.fillText("Mensagem ao colaborador", sx(648), sx(y+42));
   const message = stats.active.length
-    ? "Cada ponto registrado representa uma oportunidade clara de evolução. Ajuste a rotina, acompanhe as ações e transforme melhoria em resultado consistente."
-    : "Excelente entrega neste ciclo. Mantenha a disciplina, registre boas práticas e continue sendo referência positiva para a equipe.";
+    ? "Cada ponto registrado representa uma oportunidade clara de evoluÃ§Ã£o. Ajuste a rotina, acompanhe as aÃ§Ãµes e transforme melhoria em resultado consistente."
+    : "Excelente entrega neste ciclo. Mantenha a disciplina, registre boas prÃ¡ticas e continue sendo referÃªncia positiva para a equipe.";
   setFont(600,18,"#475467"); textBlock(message,648,y+82,488,28,5);
 
   setFont(700,12,"#98a2b3"); ctx.fillText("Gerado pelo Metodo Sobral Performance 360", sx(50), sx(height/s - 32));
 }
 async function downloadArt(scale){
   const evaluation = selectedEvaluation();
-  if(!evaluation) return alert("Selecione uma avaliação para baixar.");
+  if(!evaluation) return alert("Selecione uma avaliaÃ§Ã£o para baixar.");
   await drawShareArt(evaluation, scale === 8 ? 4960 : 2480, scale === 8 ? 7016 : 3508);
   const canvas = $("shareCanvas");
-  const fileName = `performance-${evaluation?.employeeSnapshot?.name || "avaliação"}-${scale}k.png`.replace(/\s+/g,"-").toLowerCase();
+  const fileName = `performance-${evaluation?.employeeSnapshot?.name || "avaliaÃ§Ã£o"}-${scale}k.png`.replace(/\s+/g,"-").toLowerCase();
   let blob = null;
   try{
     blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png", 1));
@@ -1664,7 +1670,7 @@ async function downloadArt(scale){
 
 function sendEvaluationWhatsApp(){
   const evaluation = selectedEvaluation();
-  if(!evaluation) return alert("Selecione uma avaliação para enviar.");
+  if(!evaluation) return alert("Selecione uma avaliaÃ§Ã£o para enviar.");
   const typed = prompt("Informe o WhatsApp do colaborador com DDD. O codigo do Brasil (55) sera aplicado automaticamente.", "");
   if(!typed) return;
   const digits = typed.replace(/\D/g, "");
@@ -1672,7 +1678,7 @@ function sendEvaluationWhatsApp(){
   const number = digits.startsWith("55") ? digits : `55${digits}`;
   const message = [
     `Ola ${evaluation.employeeSnapshot.name}.`,
-    `Segue sua avaliação de desempenho.`,
+    `Segue sua avaliaÃ§Ã£o de desempenho.`,
     `Nota final: ${scoreText(evaluation.score)} - ${executiveClassification(evaluation.score).label}.`,
     performanceFeedback(evaluation.score, `${evaluation.employeeId}|${evaluation.employeeSnapshot.name}|${evaluation.date}`, occurrenceList(evaluation).length),
     location.href
@@ -1709,7 +1715,7 @@ function importBackup(file){
 
 function editEvaluation(evaluationId){
   const evaluation = state.evaluations.find(item => item.id === evaluationId);
-  if(!evaluation) return alert("Avaliação não encontrada.");
+  if(!evaluation) return alert("AvaliaÃ§Ã£o nÃ£o encontrada.");
   currentEval = {
     id:evaluation.id,
     editing:true,
@@ -1751,14 +1757,14 @@ function renderAll(){
 function displayIconForLabel(label){
   const text = normalize(String(label || ""));
   const rules = [
-    ["camas", "🛏️"], ["colch", "🛏️"], ["eletro", "📺"], ["move", "🛋️"], ["celular", "📱"], ["telefon", "📱"], ["bicic", "🚲"],
-    ["organiz", "🗂️"], ["preco", "🏷️"], ["etiqueta", "🏷️"], ["localizacao", "📍"], ["exposicao", "🖼️"], ["visual", "🖼️"],
-    ["limpeza", "🧽"], ["sujeira", "🧹"], ["conservacao", "🧼"], ["atendimento", "🤝"], ["cliente", "👤"], ["pos venda", "📞"],
-    ["disciplina", "✅"], ["cadastro", "📝"], ["estoque", "📦"], ["produto", "🏷️"], ["servico", "🛡️"], ["meta", "🎯"],
-    ["resultado", "📊"], ["equipe", "👥"], ["comunicacao", "💬"], ["desenvolvimento", "🚀"], ["proatividade", "⚡"]
+    ["camas", "ðŸ›ï¸"], ["colch", "ðŸ›ï¸"], ["eletro", "ðŸ“º"], ["move", "ðŸ›‹ï¸"], ["celular", "ðŸ“±"], ["telefon", "ðŸ“±"], ["bicic", "ðŸš²"],
+    ["organiz", "ðŸ—‚ï¸"], ["preco", "ðŸ·ï¸"], ["etiqueta", "ðŸ·ï¸"], ["localizacao", "ðŸ“"], ["exposicao", "ðŸ–¼ï¸"], ["visual", "ðŸ–¼ï¸"],
+    ["limpeza", "ðŸ§½"], ["sujeira", "ðŸ§¹"], ["conservacao", "ðŸ§¼"], ["atendimento", "ðŸ¤"], ["cliente", "ðŸ‘¤"], ["pos venda", "ðŸ“ž"],
+    ["disciplina", "âœ…"], ["cadastro", "ðŸ“"], ["estoque", "ðŸ“¦"], ["produto", "ðŸ·ï¸"], ["servico", "ðŸ›¡ï¸"], ["meta", "ðŸŽ¯"],
+    ["resultado", "ðŸ“Š"], ["equipe", "ðŸ‘¥"], ["comunicacao", "ðŸ’¬"], ["desenvolvimento", "ðŸš€"], ["proatividade", "âš¡"]
   ];
   const found = rules.find(([key]) => text.includes(key));
-  return found ? found[1] : "📌";
+  return found ? found[1] : "ðŸ“Œ";
 }
 
 function plainChartLabel(label){
@@ -1772,7 +1778,7 @@ function chartRows(type){
   if(type === "general") return {title:"Ranking geral", metric:"Nota", rows: latest.sort((a,b)=>b.score-a.score).map((item,i)=>({label:`${i+1}. ${item.employeeSnapshot.name}`, sub:`${item.employeeSnapshot.role} - ${item.employeeSnapshot.sector}`, value:item.score, text:scoreText(item.score)}))};
   if(type === "sector"){
     const sectors = [...new Set(state.employees.map(e => e.sector).filter(Boolean))];
-    return {title:"Ranking por setor", metric:"Média", rows: sectors.map(sector => {
+    return {title:"Ranking por setor", metric:"MÃ©dia", rows: sectors.map(sector => {
       const values = latestAll.filter(item => item.employeeSnapshot.sector === sector);
       const v = avg(values.map(x => x.score));
       return {label:sector, icon:displayIconForLabel(sector), sub:`${values.length} colaborador(es)`, value:v, text:scoreText(v)};
@@ -1781,7 +1787,7 @@ function chartRows(type){
   if(type === "category"){
     const groups = {};
     latest.flatMap(occurrenceList).forEach(item => groups[item.categoryName] = (groups[item.categoryName] || 0) + 1);
-    return {title:"Ranking por categoria", metric:"Ocorrências", rows:Object.entries(groups).map(([label,value])=>({label, icon:displayIconForLabel(label), sub:"Categoria", value, text:String(value)})).sort((a,b)=>b.value-a.value)};
+    return {title:"Ranking por categoria", metric:"OcorrÃªncias", rows:Object.entries(groups).map(([label,value])=>({label, icon:displayIconForLabel(label), sub:"Categoria", value, text:String(value)})).sort((a,b)=>b.value-a.value)};
   }
   if(type === "evolution"){
     const byWeek = {}, byMonth = {};
@@ -1791,8 +1797,8 @@ function chartRows(type){
       byWeek[week] = [...(byWeek[week] || []), item.score];
       byMonth[item.month] = [...(byMonth[item.month] || []), item.score];
     });
-    const rows = [...Object.entries(byWeek).slice(-6), ...Object.entries(byMonth).slice(-6).map(([k,v])=>[monthLabel(k),v])].map(([label,values])=>({label, sub:"Média do período", value:avg(values), text:scoreText(avg(values))}));
-    return {title:"Evolução semanal e mensal", metric:"Nota", rows};
+    const rows = [...Object.entries(byWeek).slice(-6), ...Object.entries(byMonth).slice(-6).map(([k,v])=>[monthLabel(k),v])].map(([label,values])=>({label, sub:"MÃ©dia do perÃ­odo", value:avg(values), text:scoreText(avg(values))}));
+    return {title:"EvoluÃ§Ã£o semanal e mensal", metric:"Nota", rows};
   }
   const groups = {};
   latest.flatMap(occurrenceList).forEach(item => {
@@ -1800,7 +1806,7 @@ function chartRows(type){
     groups[item.criteriaName].count += 1;
     groups[item.criteriaName].quantity += Number(item.quantity || 0);
   });
-  return {title:"Principais ocorrências", metric:"Registros", rows:Object.entries(groups).map(([label,data])=>({label, icon:displayIconForLabel(label), sub:`Qtd. informada: ${data.quantity}`, value:data.count, text:String(data.count)})).sort((a,b)=>b.value-a.value).slice(0,10)};
+  return {title:"Principais ocorrÃªncias", metric:"Registros", rows:Object.entries(groups).map(([label,data])=>({label, icon:displayIconForLabel(label), sub:`Qtd. informada: ${data.quantity}`, value:data.count, text:String(data.count)})).sort((a,b)=>b.value-a.value).slice(0,10)};
 }
 
 function attachDashboardChartButtons(){
@@ -1812,7 +1818,7 @@ function attachDashboardChartButtons(){
     ["topOccurrences","occurrences"]
   ];
 
-  // Limpa botões antigos que ficaram no cabeçalho do Dashboard ou sobre os dados.
+  // Limpa botÃµes antigos que ficaram no cabeÃ§alho do Dashboard ou sobre os dados.
   document.querySelectorAll("#view-dashboard .chart-toggle").forEach(btn => btn.remove());
   document.querySelectorAll("#view-dashboard .chart-heading").forEach(h => h.classList.remove("chart-heading"));
 
@@ -1820,8 +1826,8 @@ function attachDashboardChartButtons(){
     const node = $(id);
     if(!node) return;
 
-    // O botão fica somente no cabeçalho do card/painel dono daquele ranking.
-    // Nunca usa section, porque section pega a tela inteira e joga vários ícones perto do título Dashboard.
+    // O botÃ£o fica somente no cabeÃ§alho do card/painel dono daquele ranking.
+    // Nunca usa section, porque section pega a tela inteira e joga vÃ¡rios Ã­cones perto do tÃ­tulo Dashboard.
     const card = node.closest("article.panel, .panel, article, .dashboard-card");
     if(!card) return;
 
@@ -1835,9 +1841,9 @@ function attachDashboardChartButtons(){
     btn.type = "button";
     btn.className = "chart-toggle";
     btn.dataset.openChart = type;
-    btn.innerHTML = "📈";
-    btn.title = "Abrir gráfico";
-    btn.setAttribute("aria-label", `Abrir gráfico: ${heading.textContent.trim() || type}`);
+    btn.innerHTML = "ðŸ“ˆ";
+    btn.title = "Abrir grÃ¡fico";
+    btn.setAttribute("aria-label", `Abrir grÃ¡fico: ${heading.textContent.trim() || type}`);
     heading.appendChild(btn);
   });
 }
@@ -1849,9 +1855,9 @@ function ensureChartDialog(){
   dialog.id = "chartDialog";
   dialog.className = "chart-dialog";
   dialog.innerHTML = `<form method="dialog" class="chart-dialog-shell">
-    <button class="chart-close" value="close" aria-label="Fechar">×</button>
+    <button class="chart-close" value="close" aria-label="Fechar">Ã—</button>
     <div id="chartPrintable" class="chart-printable"></div>
-    <div class="chart-actions"><button type="button" class="button primary" id="downloadChartButton">Baixar gráfico</button><button class="button" value="close">Fechar</button></div>
+    <div class="chart-actions"><button type="button" class="button primary" id="downloadChartButton">Baixar grÃ¡fico</button><button class="button" value="close">Fechar</button></div>
   </form>`;
   document.body.appendChild(dialog);
   dialog.querySelector("#downloadChartButton").addEventListener("click", downloadChartImage);
@@ -1860,11 +1866,11 @@ function ensureChartDialog(){
 
 function openDashboardChart(type){
   const data = chartRows(type);
-  const scoreMetric = data.metric === "Nota" || data.metric === "Média";
-  const rows = data.rows.length ? data.rows : [{label:"Sem dados", sub:"", value:0, text:"0", icon:"📌"}];
+  const scoreMetric = data.metric === "Nota" || data.metric === "MÃ©dia";
+  const rows = data.rows.length ? data.rows : [{label:"Sem dados", sub:"", value:0, text:"0", icon:"ðŸ“Œ"}];
   const max = Math.max(...rows.map(r => Number(r.value) || 0), scoreMetric ? 10 : 1);
   const printable = ensureChartDialog().querySelector("#chartPrintable");
-  printable.innerHTML = `<header><span>MÉTODO SOBRAL</span><h2>${esc(data.title)}</h2><p>${esc(data.metric)} • ${dateText(new Date().toISOString().slice(0,10))}</p></header>
+  printable.innerHTML = `<header><span>MÃ‰TODO SOBRAL</span><h2>${esc(data.title)}</h2><p>${esc(data.metric)} â€¢ ${dateText(new Date().toISOString().slice(0,10))}</p></header>
   <div class="mini-chart-table modern-chart-table">
     ${rows.map((row,index)=>{
       const numeric = Number(row.value) || 0;
@@ -1901,13 +1907,13 @@ function downloadChartImage(){
   ctx.fillStyle = "#eef2f7"; ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.fillStyle = "#101827"; ctx.fillRect(0,0,canvas.width,136);
   ctx.fillStyle = "#fff"; ctx.font = "700 38px Arial"; ctx.fillText(title,70,72);
-  ctx.font = "500 20px Arial"; ctx.fillText("Método Sobral • Performance Individual 360",70,106);
+  ctx.font = "500 20px Arial"; ctx.fillText("MÃ©todo Sobral â€¢ Performance Individual 360",70,106);
   let y = 188;
   data.forEach((row,i)=>{
     ctx.fillStyle = "#fff"; roundRect(ctx,58,y-42,1284,70,20,true,false);
     ctx.fillStyle = "#101827"; ctx.beginPath(); ctx.arc(98,y-8,22,0,Math.PI*2); ctx.fill();
     ctx.fillStyle = "#fff"; ctx.font = "800 18px Arial"; ctx.textAlign = "center"; ctx.fillText(String(i+1),98,y-2); ctx.textAlign = "left";
-    ctx.fillStyle = "#111827"; ctx.font = "24px Arial"; ctx.fillText(row.icon || "📌",135,y-3);
+    ctx.fillStyle = "#111827"; ctx.font = "24px Arial"; ctx.fillText(row.icon || "ðŸ“Œ",135,y-3);
     ctx.font = "700 22px Arial"; ctx.fillText(row.label.slice(0,42),180,y-14);
     ctx.fillStyle = "#667085"; ctx.font = "17px Arial"; if(row.sub) ctx.fillText(row.sub.slice(0,54),180,y+13);
     ctx.fillStyle = "#e5e7eb"; roundRect(ctx,660,y-19,520,18,9,true,false);
@@ -1961,7 +1967,7 @@ function setupEvents(){
     const toggle = event.target.closest("[data-toggle-employee]");
     if(toggle){ const e = employeeById(toggle.dataset.toggleEmployee); if(e){e.active = !e.active; saveState(); renderAll();} }
     const del = event.target.closest("[data-delete-employee]");
-    if(del && confirm("Excluir colaborador e apagar todos os dados vinculados a ele (avaliações, relatórios, histórico e ranking)?")){
+    if(del && confirm("Excluir colaborador e apagar todos os dados vinculados a ele (avaliaÃ§Ãµes, relatÃ³rios, histÃ³rico e ranking)?")){
       const employeeId = del.dataset.deleteEmployee;
       state.employees = state.employees.filter(e => e.id !== employeeId);
       state.evaluations = state.evaluations.filter(e => e.employeeId !== employeeId);
@@ -1997,6 +2003,25 @@ function setupEvents(){
     if(resolve) resolveOpportunity(resolve.dataset.resolveOpportunity);
     const contest = event.target.closest("[data-contest]");
     if(contest) contestOccurrence(contest.dataset.contest);
+    const toggleAdminCategory = event.target.closest("[data-toggle-admin-category]");
+    if(toggleAdminCategory){
+      const categoryCard = toggleAdminCategory.closest(".admin-category");
+      const willOpen = !categoryCard?.classList.contains("is-open");
+      document.querySelectorAll(".admin-category.is-open").forEach(card => {
+        if(card !== categoryCard){
+          card.classList.remove("is-open");
+          const button = card.querySelector("[data-toggle-admin-category]");
+          if(button){
+            button.textContent = "Abrir";
+            button.setAttribute("aria-expanded", "false");
+          }
+        }
+      });
+      categoryCard?.classList.toggle("is-open", willOpen);
+      const isOpen = categoryCard?.classList.contains("is-open");
+      toggleAdminCategory.textContent = isOpen ? "Fechar" : "Abrir";
+      toggleAdminCategory.setAttribute("aria-expanded", String(Boolean(isOpen)));
+    }
     const addCriteria = event.target.closest("[data-add-criteria]");
     if(addCriteria){ state.categories.find(c => c.id === addCriteria.dataset.addCriteria)?.criteria.push({id:uid("crit"),name:"Novo criterio",description:"Descreva a ocorrencia",points:0,active:true}); saveState(); renderAll(); }
     const addCat = event.target.closest("#addCategoryButton");
@@ -2027,7 +2052,7 @@ function setupEvents(){
   $("noteForm").addEventListener("submit", saveNote);
   $("cancelNoteButton").addEventListener("click", () => $("noteDialog").close());
   $("saveEvalButton").addEventListener("click", saveEvaluation);
-  $("clearEvalButton").addEventListener("click", () => { if(confirm("Limpar avaliação atual?")){ currentEval = emptyEvaluation(); currentEval.employeeId = $("evalEmployee").value; $("evalPositive").value = $("evalGeneralNote").value = $("evalJustification").value = ""; renderChecklist(); } });
+  $("clearEvalButton").addEventListener("click", () => { if(confirm("Limpar avaliaÃ§Ã£o atual?")){ currentEval = emptyEvaluation(); currentEval.employeeId = $("evalEmployee").value; $("evalPositive").value = $("evalGeneralNote").value = $("evalJustification").value = ""; renderChecklist(); } });
   $("previewImageButton").addEventListener("click", () => { const data = collectEvaluation(); drawShareArt(data); setView("reports"); });
   $("weeklyReportButton").addEventListener("click", () => renderSelectedReport("weekly"));
   $("fortnightReportButton").addEventListener("click", () => renderSelectedReport("fortnight"));
@@ -2049,9 +2074,9 @@ function injectSobralPolish(){
   const style = document.createElement("style");
   style.id = "sobralPolishStyle";
   style.textContent = `
-    [data-view="dashboard"]::before{content:"📊 ";} [data-view="team"]::before{content:"👥 ";}
-    [data-view="evaluate"]::before{content:"✅ ";} [data-view="history"]::before{content:"🕒 ";}
-    [data-view="reports"]::before{content:"📄 ";} [data-view="settings"]::before{content:"⚙️ ";}
+    [data-view="dashboard"]::before{content:"ðŸ“Š ";} [data-view="team"]::before{content:"ðŸ‘¥ ";}
+    [data-view="evaluate"]::before{content:"âœ… ";} [data-view="history"]::before{content:"ðŸ•’ ";}
+    [data-view="reports"]::before{content:"ðŸ“„ ";} [data-view="settings"]::before{content:"âš™ï¸ ";}
     .admin-category{border-radius:26px!important;overflow:hidden!important;border:1px solid rgba(148,163,184,.22)!important;background:#fff!important;box-shadow:0 12px 30px rgba(15,23,42,.07)!important;margin-bottom:18px!important;}
     .admin-category>header{display:grid!important;grid-template-columns:1.5fr .7fr auto!important;gap:12px!important;align-items:end!important;background:linear-gradient(135deg,#101827,#183d35)!important;padding:18px!important;}
     .admin-category>header label{color:#e5edf8!important;font-weight:800!important;letter-spacing:.05em!important;text-transform:uppercase!important;font-size:12px!important;}
@@ -2187,29 +2212,29 @@ else init();
 
 
 /* =========================================================
-   AJUSTE EXECUTIVO FINAL - Dashboard gráfico e cabeçalho Zenir
-   - Botão 📈 somente no cabeçalho dos cards
-   - Modal abre gráfico executivo, não lista duplicada
-   - Download gera arte gráfica limpa
+   AJUSTE EXECUTIVO FINAL - Dashboard grÃ¡fico e cabeÃ§alho Zenir
+   - BotÃ£o ðŸ“ˆ somente no cabeÃ§alho dos cards
+   - Modal abre grÃ¡fico executivo, nÃ£o lista duplicada
+   - Download gera arte grÃ¡fica limpa
    - Logo Zenir centralizada com empresa/data abaixo
    ========================================================= */
 (function(){
   function normTxt(v){ return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
   function setorIcon(nome){
     const n = normTxt(nome);
-    if(n.includes('cama')) return '🛏️';
-    if(n.includes('eletro') || n.includes('tv') || n.includes('audio') || n.includes('som')) return '📺';
-    if(n.includes('movel') || n.includes('moveis')) return '🪑';
-    if(n.includes('estof')) return '🛋️';
-    if(n.includes('telefon') || n.includes('celular')) return '📱';
-    if(n.includes('informat') || n.includes('comput')) return '💻';
-    if(n.includes('bicic')) return '🚲';
-    if(n.includes('cred')) return '💳';
-    if(n.includes('estoque')) return '📦';
-    if(n.includes('caixa')) return '💰';
-    if(n.includes('entrega') || n.includes('log')) return '🚚';
-    if(n.includes('ger')) return '👔';
-    return '🏷️';
+    if(n.includes('cama')) return 'ðŸ›ï¸';
+    if(n.includes('eletro') || n.includes('tv') || n.includes('audio') || n.includes('som')) return 'ðŸ“º';
+    if(n.includes('movel') || n.includes('moveis')) return 'ðŸª‘';
+    if(n.includes('estof')) return 'ðŸ›‹ï¸';
+    if(n.includes('telefon') || n.includes('celular')) return 'ðŸ“±';
+    if(n.includes('informat') || n.includes('comput')) return 'ðŸ’»';
+    if(n.includes('bicic')) return 'ðŸš²';
+    if(n.includes('cred')) return 'ðŸ’³';
+    if(n.includes('estoque')) return 'ðŸ“¦';
+    if(n.includes('caixa')) return 'ðŸ’°';
+    if(n.includes('entrega') || n.includes('log')) return 'ðŸšš';
+    if(n.includes('ger')) return 'ðŸ‘”';
+    return 'ðŸ·ï¸';
   }
   window.sectorEmoji360 = setorIcon;
 
@@ -2249,9 +2274,9 @@ else init();
       btn.type = 'button';
       btn.className = 'chart-toggle';
       btn.dataset.openChart = type;
-      btn.textContent = '📈';
-      btn.title = 'Abrir dashboard gráfico';
-      btn.setAttribute('aria-label','Abrir dashboard gráfico');
+      btn.textContent = 'ðŸ“ˆ';
+      btn.title = 'Abrir dashboard grÃ¡fico';
+      btn.setAttribute('aria-label','Abrir dashboard grÃ¡fico');
       heading.appendChild(btn);
     });
   };
@@ -2259,20 +2284,20 @@ else init();
   function chartMaxValue(data){
     if(!data || !data.rows || !data.rows.length) return 1;
     const max = Math.max(...data.rows.map(r => Number(r.value) || 0), 1);
-    return (data.metric === 'Nota' || data.metric === 'Média') ? 10 : max;
+    return (data.metric === 'Nota' || data.metric === 'MÃ©dia') ? 10 : max;
   }
 
   window.openDashboardChart = function(type){
     const data = chartRows(type);
     const rows = (data.rows && data.rows.length ? data.rows : [{label:'Sem dados', sub:'', value:0, text:'0'}]).slice(0,12);
     const max = chartMaxValue({...data, rows});
-    const isScore = data.metric === 'Nota' || data.metric === 'Média';
+    const isScore = data.metric === 'Nota' || data.metric === 'MÃ©dia';
     const printable = ensureChartDialog().querySelector('#chartPrintable');
     printable.innerHTML = `
       <header class="chart-exec-header">
-        <span>MÉTODO SOBRAL</span>
+        <span>MÃ‰TODO SOBRAL</span>
         <h2>${esc(data.title)}</h2>
-        <p>${esc(data.metric)} • ${dateText(new Date().toISOString().slice(0,10))}</p>
+        <p>${esc(data.metric)} â€¢ ${dateText(new Date().toISOString().slice(0,10))}</p>
       </header>
       <div class="chart-exec-body">
         <div class="chart-plot-card">
@@ -2317,9 +2342,9 @@ else init();
     ctx.fillStyle = '#eef2f7'; ctx.fillRect(0,0,1600,900);
     ctx.fillStyle = '#101827'; ctx.fillRect(0,0,1600,155);
     ctx.fillStyle = '#fff'; ctx.font = '700 44px Arial'; ctx.fillText(title,80,78);
-    ctx.font = '500 24px Arial'; ctx.fillText('Método Sobral • Performance Individual 360',80,118);
+    ctx.font = '500 24px Arial'; ctx.fillText('MÃ©todo Sobral â€¢ Performance Individual 360',80,118);
     ctx.fillStyle = '#fff'; roundRect(ctx,60,190,1480,600,28,true,false);
-    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.fillText('Dashboard gráfico',120,245);
+    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.fillText('Dashboard grÃ¡fico',120,245);
     ctx.strokeStyle = '#dbe3ee'; ctx.lineWidth = 2;
     [330,470,610].forEach(y=>{ctx.beginPath();ctx.moveTo(135,y);ctx.lineTo(1465,y);ctx.stroke();});
     const count = Math.max(data.length,1);
@@ -2407,47 +2432,47 @@ else init();
 
 
 /* =========================================================
-   AJUSTE FINAL V2 - Ícones, gráficos e acabamento dos relatórios
+   AJUSTE FINAL V2 - Ãcones, grÃ¡ficos e acabamento dos relatÃ³rios
    ========================================================= */
 (function(){
   function norm360(v){ return String(v || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
   function categoryEmoji360(name){
     const n = norm360(name);
-    if(n.includes('organiz')) return '🗂️';
-    if(n.includes('limpeza') || n.includes('conserv')) return '🧹';
-    if(n.includes('atendimento') || n.includes('pos-venda') || n.includes('venda')) return '🤝';
-    if(n.includes('disciplina')) return '⏱️';
-    if(n.includes('cadastro') || n.includes('continuidade')) return '📝';
-    if(n.includes('estoque') || n.includes('patrimonio')) return '📦';
-    if(n.includes('produto') || n.includes('servico')) return '🛒';
-    if(n.includes('meta') || n.includes('resultado')) return '🎯';
-    if(n.includes('equipe') || n.includes('colabor')) return '👥';
-    if(n.includes('proatividade') || n.includes('iniciativa')) return '⚡';
-    if(n.includes('comunic')) return '💬';
-    if(n.includes('desenvolv')) return '📚';
-    return '✅';
+    if(n.includes('organiz')) return 'ðŸ—‚ï¸';
+    if(n.includes('limpeza') || n.includes('conserv')) return 'ðŸ§¹';
+    if(n.includes('atendimento') || n.includes('pos-venda') || n.includes('venda')) return 'ðŸ¤';
+    if(n.includes('disciplina')) return 'â±ï¸';
+    if(n.includes('cadastro') || n.includes('continuidade')) return 'ðŸ“';
+    if(n.includes('estoque') || n.includes('patrimonio')) return 'ðŸ“¦';
+    if(n.includes('produto') || n.includes('servico')) return 'ðŸ›’';
+    if(n.includes('meta') || n.includes('resultado')) return 'ðŸŽ¯';
+    if(n.includes('equipe') || n.includes('colabor')) return 'ðŸ‘¥';
+    if(n.includes('proatividade') || n.includes('iniciativa')) return 'âš¡';
+    if(n.includes('comunic')) return 'ðŸ’¬';
+    if(n.includes('desenvolv')) return 'ðŸ“š';
+    return 'âœ…';
   }
   function occurrenceEmoji360(name){
     const n = norm360(name);
-    if(n.includes('preco') || n.includes('etiqueta')) return '🏷️';
-    if(n.includes('localizacao') || n.includes('local')) return '📍';
-    if(n.includes('exposicao') || n.includes('visual')) return '🖼️';
-    if(n.includes('comunicacao') || n.includes('informacao')) return '💬';
-    if(n.includes('sujeira') || n.includes('limpeza')) return '🧹';
-    if(n.includes('abordagem') || n.includes('cliente')) return '🤝';
-    if(n.includes('estoque') || n.includes('armazen')) return '📦';
-    if(n.includes('atraso') || n.includes('ausencia')) return '⏱️';
-    if(n.includes('celular')) return '📱';
-    return '⚠️';
+    if(n.includes('preco') || n.includes('etiqueta')) return 'ðŸ·ï¸';
+    if(n.includes('localizacao') || n.includes('local')) return 'ðŸ“';
+    if(n.includes('exposicao') || n.includes('visual')) return 'ðŸ–¼ï¸';
+    if(n.includes('comunicacao') || n.includes('informacao')) return 'ðŸ’¬';
+    if(n.includes('sujeira') || n.includes('limpeza')) return 'ðŸ§¹';
+    if(n.includes('abordagem') || n.includes('cliente')) return 'ðŸ¤';
+    if(n.includes('estoque') || n.includes('armazen')) return 'ðŸ“¦';
+    if(n.includes('atraso') || n.includes('ausencia')) return 'â±ï¸';
+    if(n.includes('celular')) return 'ðŸ“±';
+    return 'âš ï¸';
   }
   function setorIcon360(nome){
     if(typeof window.sectorEmoji360 === 'function') return window.sectorEmoji360(nome);
     const n = norm360(nome);
-    if(n.includes('cama')) return '🛏️';
-    if(n.includes('eletro') || n.includes('tv')) return '📺';
-    if(n.includes('movel')) return '🪑';
-    if(n.includes('telefon')) return '📱';
-    return '🏷️';
+    if(n.includes('cama')) return 'ðŸ›ï¸';
+    if(n.includes('eletro') || n.includes('tv')) return 'ðŸ“º';
+    if(n.includes('movel')) return 'ðŸª‘';
+    if(n.includes('telefon')) return 'ðŸ“±';
+    return 'ðŸ·ï¸';
   }
   window.categoryEmoji360 = categoryEmoji360;
   window.occurrenceEmoji360 = occurrenceEmoji360;
@@ -2501,18 +2526,18 @@ else init();
   window.openDashboardChart = function(type){
     const data = (window.chartRows || chartRows)(type);
     const rows = (data.rows && data.rows.length ? data.rows : [{label:'Sem dados', sub:'', value:0, text:'0'}]).slice(0,12);
-    const isScore = data.metric === 'Nota' || data.metric === 'Média';
+    const isScore = data.metric === 'Nota' || data.metric === 'MÃ©dia';
     const max = isScore ? 10 : Math.max(...rows.map(r=>Number(r.value)||0),1);
     const printable = ensureChartDialog().querySelector('#chartPrintable');
     printable.innerHTML = `
       <header class="chart-exec-header">
-        <span>MÉTODO SOBRAL</span>
+        <span>MÃ‰TODO SOBRAL</span>
         <h2>${esc(data.title)}</h2>
-        <p>${esc(data.metric)} • ${dateText(new Date().toISOString().slice(0,10))}</p>
+        <p>${esc(data.metric)} â€¢ ${dateText(new Date().toISOString().slice(0,10))}</p>
       </header>
       <div class="chart-exec-body">
         <div class="chart-plot-card">
-          <h3>Dashboard gráfico</h3>
+          <h3>Dashboard grÃ¡fico</h3>
           <p>Barras ordenadas do maior para o menor</p>
           <div class="vertical-chart ${rows.length > 7 ? 'is-many' : ''}">
             <div class="axis-line y100">${isScore ? '10' : max}</div>
@@ -2535,7 +2560,7 @@ else init();
     ensureChartDialog().showModal();
   };
 
-  // Download do gráfico com nomes legíveis e centralizados.
+  // Download do grÃ¡fico com nomes legÃ­veis e centralizados.
   window.downloadChartImage = function(){
     const printable = document.getElementById('chartPrintable');
     const title = printable?.querySelector('h2')?.textContent || 'grafico';
@@ -2553,9 +2578,9 @@ else init();
     ctx.fillStyle = '#eef2f7'; ctx.fillRect(0,0,1600,900);
     ctx.fillStyle = '#101827'; ctx.fillRect(0,0,1600,155);
     ctx.fillStyle = '#fff'; ctx.font = '700 44px Arial'; ctx.fillText(title,80,78);
-    ctx.font = '500 24px Arial'; ctx.fillText('Método Sobral • Performance Individual 360',80,118);
+    ctx.font = '500 24px Arial'; ctx.fillText('MÃ©todo Sobral â€¢ Performance Individual 360',80,118);
     ctx.fillStyle = '#fff'; roundRect(ctx,60,190,1480,600,28); ctx.fill();
-    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.fillText('Dashboard gráfico',120,245);
+    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.fillText('Dashboard grÃ¡fico',120,245);
     ctx.strokeStyle = '#dbe3ee'; ctx.lineWidth = 2;
     [330,470,610].forEach(y=>{ctx.beginPath();ctx.moveTo(135,y);ctx.lineTo(1465,y);ctx.stroke();});
     const count = Math.max(data.length,1);
@@ -2614,7 +2639,7 @@ else init();
 })();
 
 /* ============================================================
-   AJUSTE FINAL v5 - gráficos: labels, emojis e evolução mensal
+   AJUSTE FINAL v5 - grÃ¡ficos: labels, emojis e evoluÃ§Ã£o mensal
    ============================================================ */
 (function(){
   function normText(v){
@@ -2624,17 +2649,17 @@ else init();
   window.displayIconForLabel = function(label){
     const text = normText(label);
     const rules = [
-      ['camas','🛏️'], ['colch','🛏️'], ['eletro','📺'], ['televis','📺'], ['tv','📺'], ['move','🛋️'], ['sofa','🛋️'], ['celular','📱'], ['telefon','📱'], ['bicic','🚲'],
-      ['organiz','🗂️'], ['preco','🏷️'], ['etiqueta','🏷️'], ['localizacao','📍'], ['local','📍'], ['exposicao','🖼️'], ['visual','🖼️'],
-      ['limpeza','🧽'], ['sujeira','🧹'], ['conservacao','🧼'], ['atendimento','🤝'], ['cliente','👤'], ['pos venda','📞'],
-      ['disciplina','✅'], ['cadastro','📝'], ['estoque','📦'], ['patrimonio','📦'], ['produto','🏷️'], ['servico','🛡️'], ['meta','🎯'],
-      ['resultado','📊'], ['equipe','👥'], ['comunicacao','💬'], ['desenvolvimento','🚀'], ['proatividade','⚡']
+      ['camas','ðŸ›ï¸'], ['colch','ðŸ›ï¸'], ['eletro','ðŸ“º'], ['televis','ðŸ“º'], ['tv','ðŸ“º'], ['move','ðŸ›‹ï¸'], ['sofa','ðŸ›‹ï¸'], ['celular','ðŸ“±'], ['telefon','ðŸ“±'], ['bicic','ðŸš²'],
+      ['organiz','ðŸ—‚ï¸'], ['preco','ðŸ·ï¸'], ['etiqueta','ðŸ·ï¸'], ['localizacao','ðŸ“'], ['local','ðŸ“'], ['exposicao','ðŸ–¼ï¸'], ['visual','ðŸ–¼ï¸'],
+      ['limpeza','ðŸ§½'], ['sujeira','ðŸ§¹'], ['conservacao','ðŸ§¼'], ['atendimento','ðŸ¤'], ['cliente','ðŸ‘¤'], ['pos venda','ðŸ“ž'],
+      ['disciplina','âœ…'], ['cadastro','ðŸ“'], ['estoque','ðŸ“¦'], ['patrimonio','ðŸ“¦'], ['produto','ðŸ·ï¸'], ['servico','ðŸ›¡ï¸'], ['meta','ðŸŽ¯'],
+      ['resultado','ðŸ“Š'], ['equipe','ðŸ‘¥'], ['comunicacao','ðŸ’¬'], ['desenvolvimento','ðŸš€'], ['proatividade','âš¡']
     ];
     const found = rules.find(([key]) => text.includes(key));
     return found ? found[1] : '';
   };
 
-  // Mantém compatibilidade com chamadas antigas.
+  // MantÃ©m compatibilidade com chamadas antigas.
   window.setorIcon = function(label){ return window.displayIconForLabel(label) || ''; };
 
   window.chartRows = function(type){
@@ -2654,7 +2679,7 @@ else init();
 
     if(type === 'sector'){
       const sectors = [...new Set(state.employees.map(e => e.sector).filter(Boolean))];
-      return {title:'Ranking por setor', metric:'Média', rows: sectors.map(sector => {
+      return {title:'Ranking por setor', metric:'MÃ©dia', rows: sectors.map(sector => {
         const values = latestAll.filter(item => item.employeeSnapshot.sector === sector);
         const v = avg(values.map(x => x.score));
         return {label:sector, icon:window.displayIconForLabel(sector), sub:`${values.length} colaborador(es)`, value:v, text:scoreText(v)};
@@ -2664,19 +2689,19 @@ else init();
     if(type === 'category'){
       const groups = {};
       latest.flatMap(occurrenceList).forEach(item => groups[item.categoryName] = (groups[item.categoryName] || 0) + 1);
-      return {title:'Ranking por categoria', metric:'Ocorrências', rows:Object.entries(groups).map(([label,value])=>({
+      return {title:'Ranking por categoria', metric:'OcorrÃªncias', rows:Object.entries(groups).map(([label,value])=>({
         label, icon:window.displayIconForLabel(label), sub:'Categoria', value, text:String(value)
       })).sort((a,b)=>b.value-a.value)};
     }
 
     if(type === 'evolution'){
-      // Para o gráfico executivo, exibe somente o mês. Evita repetir “Semana 1 de...” no eixo.
+      // Para o grÃ¡fico executivo, exibe somente o mÃªs. Evita repetir â€œSemana 1 de...â€ no eixo.
       const byMonth = {};
       latest.forEach(item => { byMonth[item.month] = [...(byMonth[item.month] || []), item.score]; });
       const rows = Object.entries(byMonth).slice(-12).map(([label,values])=>({
-        label: monthLabel(label), sub:'Média mensal', value:avg(values), text:scoreText(avg(values)), icon:''
+        label: monthLabel(label), sub:'MÃ©dia mensal', value:avg(values), text:scoreText(avg(values)), icon:''
       }));
-      return {title:'Evolução semanal e mensal', metric:'Nota', rows};
+      return {title:'EvoluÃ§Ã£o semanal e mensal', metric:'Nota', rows};
     }
 
     const groups = {};
@@ -2685,7 +2710,7 @@ else init();
       groups[item.criteriaName].count += 1;
       groups[item.criteriaName].quantity += Number(item.quantity || 0);
     });
-    return {title:'Principais ocorrências', metric:'Registros', rows:Object.entries(groups).map(([label,data])=>({
+    return {title:'Principais ocorrÃªncias', metric:'Registros', rows:Object.entries(groups).map(([label,data])=>({
       label, icon:window.displayIconForLabel(label), sub:`Qtd. informada: ${data.quantity}`, value:data.count, text:String(data.count)
     })).sort((a,b)=>b.value-a.value).slice(0,12)};
   };
@@ -2693,24 +2718,24 @@ else init();
   function chartMaxValueV5(data){
     if(!data || !data.rows || !data.rows.length) return 1;
     const max = Math.max(...data.rows.map(r => Number(r.value) || 0), 1);
-    return (data.metric === 'Nota' || data.metric === 'Média') ? 10 : max;
+    return (data.metric === 'Nota' || data.metric === 'MÃ©dia') ? 10 : max;
   }
 
   window.openDashboardChart = function(type){
     const data = window.chartRows(type);
     const rows = (data.rows && data.rows.length ? data.rows : [{label:'Sem dados', sub:'', value:0, text:'0', icon:''}]).slice(0,20);
     const max = chartMaxValueV5({...data, rows});
-    const isScore = data.metric === 'Nota' || data.metric === 'Média';
+    const isScore = data.metric === 'Nota' || data.metric === 'MÃ©dia';
     const printable = ensureChartDialog().querySelector('#chartPrintable');
     printable.innerHTML = `
       <header class="chart-exec-header">
-        <span>MÉTODO SOBRAL</span>
+        <span>MÃ‰TODO SOBRAL</span>
         <h2>${esc(data.title)}</h2>
-        <p>${esc(data.metric)} • ${dateText(new Date().toISOString().slice(0,10))}</p>
+        <p>${esc(data.metric)} â€¢ ${dateText(new Date().toISOString().slice(0,10))}</p>
       </header>
       <div class="chart-exec-body">
         <div class="chart-plot-card ${type === 'occurrences' ? 'occurrence-plot-card' : ''}">
-          <h3>Dashboard gráfico</h3>
+          <h3>Dashboard grÃ¡fico</h3>
           <p>Barras ordenadas do maior para o menor</p>
           <div class="vertical-chart v5-chart ${rows.length > 7 ? 'is-many' : ''} ${type === 'occurrences' ? 'is-occurrences' : ''}">
             <div class="axis-line y100">${isScore ? '10' : max}</div>
@@ -2750,9 +2775,9 @@ else init();
     ctx.fillStyle = '#eef2f7'; ctx.fillRect(0,0,1600,900);
     ctx.fillStyle = '#101827'; ctx.fillRect(0,0,1600,150);
     ctx.fillStyle = '#fff'; ctx.font = '700 44px Arial'; ctx.fillText(title,80,74);
-    ctx.font = '500 24px Arial'; ctx.fillText('Método Sobral • Performance Individual 360',80,116);
+    ctx.font = '500 24px Arial'; ctx.fillText('MÃ©todo Sobral â€¢ Performance Individual 360',80,116);
     ctx.fillStyle = '#fff'; roundRect(ctx,60,185,1480,620,28,true,false);
-    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.fillText('Dashboard gráfico',120,242);
+    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.fillText('Dashboard grÃ¡fico',120,242);
     ctx.strokeStyle = '#dbe3ee'; ctx.lineWidth = 2;
     [330,470,610].forEach(y=>{ctx.beginPath();ctx.moveTo(135,y);ctx.lineTo(1465,y);ctx.stroke();});
     const count = Math.max(data.length,1);
@@ -2810,7 +2835,7 @@ else init();
 })();
 
 /* ============================================================
-   AJUSTE FINAL v6 - filtros, rankings, gráficos e layout ajustes
+   AJUSTE FINAL v6 - filtros, rankings, grÃ¡ficos e layout ajustes
    ============================================================ */
 (function(){
   function n360(v){ return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
@@ -2823,10 +2848,10 @@ else init();
   function knownIcon(label){
     const t = n360(label);
     const rules = [
-      ['cama','🛏️'], ['colch','🛏️'], ['eletro','📺'], ['televis','📺'], ['tv','📺'], ['audio','🔊'], ['som','🔊'], ['move','🛋️'], ['sofa','🛋️'], ['estof','🛋️'], ['celular','📱'], ['telefon','📱'], ['bicic','🚲'], ['informat','💻'], ['comput','💻'],
-      ['organiz','🗂️'], ['preco','🏷️'], ['etiqueta','🏷️'], ['localizacao','📍'], ['local definido','📍'], ['exposicao','🖼️'], ['visual','🖼️'],
-      ['limpeza','🧽'], ['sujeira','🧹'], ['conservacao','🧼'], ['atendimento','🤝'], ['cliente','👤'], ['pos venda','📞'],
-      ['disciplina','⏱️'], ['cadastro','📝'], ['estoque','📦'], ['patrimonio','📦'], ['servico','🛡️'], ['meta','🎯'], ['resultado','📊'], ['equipe','👥'], ['comunicacao','💬'], ['desenvolvimento','🚀'], ['proatividade','⚡']
+      ['cama','ðŸ›ï¸'], ['colch','ðŸ›ï¸'], ['eletro','ðŸ“º'], ['televis','ðŸ“º'], ['tv','ðŸ“º'], ['audio','ðŸ”Š'], ['som','ðŸ”Š'], ['move','ðŸ›‹ï¸'], ['sofa','ðŸ›‹ï¸'], ['estof','ðŸ›‹ï¸'], ['celular','ðŸ“±'], ['telefon','ðŸ“±'], ['bicic','ðŸš²'], ['informat','ðŸ’»'], ['comput','ðŸ’»'],
+      ['organiz','ðŸ—‚ï¸'], ['preco','ðŸ·ï¸'], ['etiqueta','ðŸ·ï¸'], ['localizacao','ðŸ“'], ['local definido','ðŸ“'], ['exposicao','ðŸ–¼ï¸'], ['visual','ðŸ–¼ï¸'],
+      ['limpeza','ðŸ§½'], ['sujeira','ðŸ§¹'], ['conservacao','ðŸ§¼'], ['atendimento','ðŸ¤'], ['cliente','ðŸ‘¤'], ['pos venda','ðŸ“ž'],
+      ['disciplina','â±ï¸'], ['cadastro','ðŸ“'], ['estoque','ðŸ“¦'], ['patrimonio','ðŸ“¦'], ['servico','ðŸ›¡ï¸'], ['meta','ðŸŽ¯'], ['resultado','ðŸ“Š'], ['equipe','ðŸ‘¥'], ['comunicacao','ðŸ’¬'], ['desenvolvimento','ðŸš€'], ['proatividade','âš¡']
     ];
     const f = rules.find(([key]) => t.includes(key));
     return f ? f[1] : '';
@@ -2857,13 +2882,13 @@ else init();
     const topQuantity = topByQuantity(occurrences);
     document.getElementById('dashboardKpis').innerHTML = [
       ['Colaboradores', filteredEmployees.length, 'people'],
-      ['Avaliações', state.evaluations.filter(e => empExists(e.employeeId)).filter(e => !selectedSector || (employeeById(e.employeeId)?.sector || e.employeeSnapshot?.sector) === selectedSector).length, 'evals'],
-      ['Média atual', fmt360(avg(filtered.map(e => e.score))), 'score'],
-      ['Ocorrências', occurrences.length, 'warn'],
+      ['AvaliaÃ§Ãµes', state.evaluations.filter(e => empExists(e.employeeId)).filter(e => !selectedSector || (employeeById(e.employeeId)?.sector || e.employeeSnapshot?.sector) === selectedSector).length, 'evals'],
+      ['MÃ©dia atual', fmt360(avg(filtered.map(e => e.score))), 'score'],
+      ['OcorrÃªncias', occurrences.length, 'warn'],
       ['Maior qtd.', topQuantity ? `${topQuantity.quantity}` : '0', 'qty'],
-      ['Sem preço/mês', priceQtyMonth, 'price'],
-      ['Qtd. média', fmt360(avg(quantityOccurrences.map(item => Number(item.quantity || 0)))).replace(',0',''), 'avg'],
-      ['Críticos', quantityOccurrences.filter(item => quantitySeverity(item.quantity).key === 'critical').length, 'critical']
+      ['Sem preÃ§o/mÃªs', priceQtyMonth, 'price'],
+      ['Qtd. mÃ©dia', fmt360(avg(quantityOccurrences.map(item => Number(item.quantity || 0)))).replace(',0',''), 'avg'],
+      ['CrÃ­ticos', quantityOccurrences.filter(item => quantitySeverity(item.quantity).key === 'critical').length, 'critical']
     ].map(([label,value,type])=>`<div class="kpi kpi-${type}"><span>${label}</span><strong>${value}</strong></div>`).join('');
 
     const sortedLatest = filtered.sort((a,b)=>b.score-a.score);
@@ -2873,7 +2898,7 @@ else init();
       const values = latestAll.filter(item => item.employeeSnapshot.sector === sector);
       const icon = knownIcon(sector);
       return `<div class="ranking-row">${icon ? `<span class="ranking-icon">${icon}</span>` : ''}<div><strong>${esc(sector)}</strong><small>${values.length} colaborador(es)</small></div><strong>${fmt360(avg(values.map(v => v.score)))}</strong></div>`;
-    }).join('') || `<div class="empty">Sem avaliações.</div>`;
+    }).join('') || `<div class="empty">Sem avaliaÃ§Ãµes.</div>`;
     renderCategoryRanking(filtered);
     renderEvolution(filtered);
     renderTopOccurrences(occurrences);
@@ -2887,7 +2912,7 @@ else init();
     document.getElementById('rankingCategory').innerHTML = Object.entries(groups).sort((a,b)=>b[1]-a[1]).map(([name,count]) => {
       const icon = knownIcon(name);
       return `<div class="ranking-row">${icon ? `<span class="ranking-icon">${icon}</span>` : ''}<div><strong>${esc(name)}</strong><small>Categoria</small></div><strong>${count}</strong></div>`;
-    }).join('') || `<div class="empty">Sem ocorrências.</div>`;
+    }).join('') || `<div class="empty">Sem ocorrÃªncias.</div>`;
   };
 
   window.renderEvolution = function(items){
@@ -2899,7 +2924,7 @@ else init();
     const rows = Object.entries(byMonth).slice(-6).map(([label,values]) => [monthLabel(label), avg(values)]);
     document.getElementById('evolutionCharts').innerHTML = rows.length ? `<div class="bars">
       ${rows.map(([label,value]) => `<div class="bar-row"><span>${esc(label)}</span><div class="bar"><i style="width:${Math.max(0, Math.min(100, value*10))}%"></i></div><strong>${fmt360(value)}</strong></div>`).join('')}
-    </div>` : `<div class="empty">Sem evolução registrada.</div>`;
+    </div>` : `<div class="empty">Sem evoluÃ§Ã£o registrada.</div>`;
   };
 
   window.renderTopOccurrences = function(occurrences){
@@ -2910,10 +2935,10 @@ else init();
       groups[item.criteriaName].quantity += Number(item.quantity || 0);
     });
     const ordered = Object.entries(groups).sort((a,b)=>b[1].count-a[1].count || b[1].quantity-a[1].quantity).slice(0,6);
-    if(!ordered.length){ document.getElementById('topOccurrences').innerHTML = `<div class="empty">Nenhuma ocorrência.</div>`; return; }
+    if(!ordered.length){ document.getElementById('topOccurrences').innerHTML = `<div class="empty">Nenhuma ocorrÃªncia.</div>`; return; }
     const rows = ordered.map(([name,data], index) => {
       const icon = knownIcon(name);
-      return `<div class="ranking-row ${index===0?'highlight-row most-recurrent-row':''}">${icon ? `<span class="ranking-icon">${icon}</span>` : ''}<div><strong>${index===0 ? 'Mais recorrente: ' : ''}${esc(name)}</strong><small>${index===0 ? `Registros encontrados: ${data.count}` : `${data.count} ocorrência(s) | qtd. ${data.quantity}`}</small></div><strong>${data.count}</strong></div>`;
+      return `<div class="ranking-row ${index===0?'highlight-row most-recurrent-row':''}">${icon ? `<span class="ranking-icon">${icon}</span>` : ''}<div><strong>${index===0 ? 'Mais recorrente: ' : ''}${esc(name)}</strong><small>${index===0 ? `Registros encontrados: ${data.count}` : `${data.count} ocorrÃªncia(s) | qtd. ${data.quantity}`}</small></div><strong>${data.count}</strong></div>`;
     }).join('');
     document.getElementById('topOccurrences').innerHTML = rows;
   };
@@ -2929,7 +2954,7 @@ else init();
     }
     if(type === 'sector'){
       const sectors = selectedSector ? [selectedSector] : [...new Set(state.employees.map(e => e.sector).filter(Boolean))];
-      return {title:'Ranking por setor', metric:'Média', rows: sectors.map(sector => {
+      return {title:'Ranking por setor', metric:'MÃ©dia', rows: sectors.map(sector => {
         const values = latestAll.filter(item => item.employeeSnapshot.sector === sector);
         const v = avg(values.map(x => x.score));
         return {label:sector, icon:knownIcon(sector), sub:`${values.length} colaborador(es)`, value:v, text:fmt360(v)};
@@ -2938,15 +2963,15 @@ else init();
     if(type === 'category'){
       const groups = {};
       latest.flatMap(occurrenceList).forEach(item => groups[item.categoryName] = (groups[item.categoryName] || 0) + 1);
-      return {title:'Ranking por categoria', metric:'Ocorrências', rows:Object.entries(groups).map(([label,value])=>({
+      return {title:'Ranking por categoria', metric:'OcorrÃªncias', rows:Object.entries(groups).map(([label,value])=>({
         label, icon:knownIcon(label), sub:'Categoria', value, text:String(value)
       })).sort((a,b)=>b.value-a.value)};
     }
     if(type === 'evolution'){
       const byMonth = {};
       latest.forEach(item => { byMonth[item.month] = [...(byMonth[item.month] || []), item.score]; });
-      return {title:'Evolução mensal', metric:'Nota', rows:Object.entries(byMonth).slice(-12).map(([label,values])=>({
-        label:monthLabel(label), sub:'Média mensal', value:avg(values), text:fmt360(avg(values)), icon:''
+      return {title:'EvoluÃ§Ã£o mensal', metric:'Nota', rows:Object.entries(byMonth).slice(-12).map(([label,values])=>({
+        label:monthLabel(label), sub:'MÃ©dia mensal', value:avg(values), text:fmt360(avg(values)), icon:''
       }))};
     }
     const groups = {};
@@ -2955,23 +2980,23 @@ else init();
       groups[item.criteriaName].count += 1;
       groups[item.criteriaName].quantity += Number(item.quantity || 0);
     });
-    return {title:'Principais ocorrências', metric:'Registros', rows:Object.entries(groups).map(([label,data])=>({
+    return {title:'Principais ocorrÃªncias', metric:'Registros', rows:Object.entries(groups).map(([label,data])=>({
       label, icon:knownIcon(label), sub:`Qtd. informada: ${data.quantity}`, value:data.count, text:String(data.count)
     })).sort((a,b)=>b.value-a.value).slice(0,20)};
   };
 
   function chartMax(data){
     const max = Math.max(...(data.rows || []).map(r=>Number(r.value)||0),1);
-    return (data.metric === 'Nota' || data.metric === 'Média') ? 10 : max;
+    return (data.metric === 'Nota' || data.metric === 'MÃ©dia') ? 10 : max;
   }
   window.openDashboardChart = function(type){
     const data = window.chartRows(type);
     const rows = (data.rows && data.rows.length ? data.rows : [{label:'Sem dados', value:0, text:'0', icon:''}]).slice(0,30);
     const max = chartMax({...data, rows});
-    const isScore = data.metric === 'Nota' || data.metric === 'Média';
+    const isScore = data.metric === 'Nota' || data.metric === 'MÃ©dia';
     const printable = ensureChartDialog().querySelector('#chartPrintable');
-    printable.innerHTML = `<header class="chart-exec-header"><span>MÉTODO SOBRAL</span><h2>${esc(data.title)}</h2><p>${esc(data.metric)} • ${dateText(new Date().toISOString().slice(0,10))}</p></header>
-      <div class="chart-exec-body"><div class="chart-plot-card ${type==='occurrences'?'occurrence-plot-card':''}"><h3>Dashboard gráfico</h3><p>Barras ordenadas do maior para o menor</p>
+    printable.innerHTML = `<header class="chart-exec-header"><span>MÃ‰TODO SOBRAL</span><h2>${esc(data.title)}</h2><p>${esc(data.metric)} â€¢ ${dateText(new Date().toISOString().slice(0,10))}</p></header>
+      <div class="chart-exec-body"><div class="chart-plot-card ${type==='occurrences'?'occurrence-plot-card':''}"><h3>Dashboard grÃ¡fico</h3><p>Barras ordenadas do maior para o menor</p>
       <div class="vertical-chart v6-chart ${rows.length>10?'is-many':''}"><div class="axis-line y100">${isScore?'10':max}</div><div class="axis-line y50">${isScore?'5':Math.round(max/2)}</div><div class="axis-line y0">0</div>
       ${rows.map(row=>{
         const value = Number(row.value)||0;
@@ -2997,9 +3022,9 @@ else init();
     ctx.fillStyle = '#eef2f7'; ctx.fillRect(0,0,1600,900);
     ctx.fillStyle = '#101827'; ctx.fillRect(0,0,1500,150);
     ctx.fillStyle = '#fff'; ctx.font = '700 44px Arial'; ctx.fillText(title,80,74);
-    ctx.font = '500 24px Arial'; ctx.fillText('Método Sobral • Performance Individual 360',80,116);
+    ctx.font = '500 24px Arial'; ctx.fillText('MÃ©todo Sobral â€¢ Performance Individual 360',80,116);
     ctx.fillStyle = '#fff'; roundRect(ctx,60,185,1480,620,28,true,false);
-    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.fillText('Dashboard gráfico',120,242);
+    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.fillText('Dashboard grÃ¡fico',120,242);
     ctx.strokeStyle = '#dbe3ee'; ctx.lineWidth = 2; [330,470,610].forEach(y=>{ctx.beginPath();ctx.moveTo(135,y);ctx.lineTo(1465,y);ctx.stroke();});
     const count = Math.max(data.length,1); const gap = count > 14 ? 12 : 22; const barW = Math.max(22, Math.min(84, (1260 - (count-1)*gap)/count));
     let x = 180;
@@ -3062,7 +3087,7 @@ else init();
 
 
 /* ============================================================
-   AJUSTE FINAL v7 - filtro real por setor, gráficos legíveis e acabamento
+   AJUSTE FINAL v7 - filtro real por setor, grÃ¡ficos legÃ­veis e acabamento
    ============================================================ */
 (function(){
   function n(v){ return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
@@ -3074,10 +3099,10 @@ else init();
   function icon(label){
     const t = n(label);
     const rules = [
-      ['cama','🛏️'], ['colch','🛏️'], ['eletro','📺'], ['televis','📺'], ['tv','📺'], ['audio','🔊'], ['som','🔊'], ['moveis','🛋️'], ['movel','🛋️'], ['sofa','🛋️'], ['estof','🛋️'], ['celular','📱'], ['telefon','📱'], ['bicic','🚲'], ['informat','💻'], ['comput','💻'],
-      ['organiz','🗂️'], ['preco','🏷️'], ['etiqueta','🏷️'], ['localizacao','📍'], ['local definido','📍'], ['exposicao','🖼️'], ['visual','🖼️'],
-      ['limpeza','🧽'], ['sujeira','🧹'], ['conservacao','🧼'], ['atendimento','🤝'], ['cliente','👤'], ['pos venda','📞'],
-      ['disciplina','⏱️'], ['cadastro','📝'], ['estoque','📦'], ['patrimonio','📦'], ['servico','🛡️'], ['meta','🎯'], ['resultado','📊'], ['equipe','👥'], ['comunicacao','💬'], ['desenvolvimento','🚀'], ['proatividade','⚡']
+      ['cama','ðŸ›ï¸'], ['colch','ðŸ›ï¸'], ['eletro','ðŸ“º'], ['televis','ðŸ“º'], ['tv','ðŸ“º'], ['audio','ðŸ”Š'], ['som','ðŸ”Š'], ['moveis','ðŸ›‹ï¸'], ['movel','ðŸ›‹ï¸'], ['sofa','ðŸ›‹ï¸'], ['estof','ðŸ›‹ï¸'], ['celular','ðŸ“±'], ['telefon','ðŸ“±'], ['bicic','ðŸš²'], ['informat','ðŸ’»'], ['comput','ðŸ’»'],
+      ['organiz','ðŸ—‚ï¸'], ['preco','ðŸ·ï¸'], ['etiqueta','ðŸ·ï¸'], ['localizacao','ðŸ“'], ['local definido','ðŸ“'], ['exposicao','ðŸ–¼ï¸'], ['visual','ðŸ–¼ï¸'],
+      ['limpeza','ðŸ§½'], ['sujeira','ðŸ§¹'], ['conservacao','ðŸ§¼'], ['atendimento','ðŸ¤'], ['cliente','ðŸ‘¤'], ['pos venda','ðŸ“ž'],
+      ['disciplina','â±ï¸'], ['cadastro','ðŸ“'], ['estoque','ðŸ“¦'], ['patrimonio','ðŸ“¦'], ['servico','ðŸ›¡ï¸'], ['meta','ðŸŽ¯'], ['resultado','ðŸ“Š'], ['equipe','ðŸ‘¥'], ['comunicacao','ðŸ’¬'], ['desenvolvimento','ðŸš€'], ['proatividade','âš¡']
     ];
     const found = rules.find(([key]) => t.includes(key));
     return found ? found[1] : '';
@@ -3095,7 +3120,7 @@ else init();
     (items||[]).flatMap(occurrenceList).forEach(item => groups[item.categoryName] = (groups[item.categoryName] || 0) + 1);
     document.getElementById('rankingCategory').innerHTML = Object.entries(groups).sort((a,b)=>b[1]-a[1]).map(([name,count]) =>
       `<div class="ranking-row">${rowIcon(name)}<div><strong>${esc(name)}</strong><small>Categoria</small></div><strong>${count}</strong></div>`
-    ).join('') || `<div class="empty">Sem ocorrências.</div>`;
+    ).join('') || `<div class="empty">Sem ocorrÃªncias.</div>`;
   };
 
   window.renderEvolution = function(items){
@@ -3104,7 +3129,7 @@ else init();
     const rows = Object.entries(byMonth).slice(-6).map(([label,values]) => [monthLabel(label), avg(values)]);
     document.getElementById('evolutionCharts').innerHTML = rows.length ? `<div class="bars">
       ${rows.map(([label,value]) => `<div class="bar-row"><span>${esc(label)}</span><div class="bar"><i style="width:${Math.max(0, Math.min(100, value*10))}%"></i></div><strong>${fmt(value)}</strong></div>`).join('')}
-    </div>` : `<div class="empty">Sem evolução registrada.</div>`;
+    </div>` : `<div class="empty">Sem evoluÃ§Ã£o registrada.</div>`;
   };
 
   window.renderTopOccurrences = function(occurrences){
@@ -3115,9 +3140,9 @@ else init();
       groups[item.criteriaName].quantity += Number(item.quantity || 0);
     });
     const ordered = Object.entries(groups).sort((a,b)=>b[1].count-a[1].count || b[1].quantity-a[1].quantity).slice(0,6);
-    if(!ordered.length){ document.getElementById('topOccurrences').innerHTML = `<div class="empty">Nenhuma ocorrência.</div>`; return; }
+    if(!ordered.length){ document.getElementById('topOccurrences').innerHTML = `<div class="empty">Nenhuma ocorrÃªncia.</div>`; return; }
     document.getElementById('topOccurrences').innerHTML = ordered.map(([name,data], index) =>
-      `<div class="ranking-row ${index===0?'highlight-row most-recurrent-row':''}">${rowIcon(name)}<div><strong>${index===0 ? 'Mais recorrente: ' : ''}${esc(name)}</strong><small>${index===0 ? `Registros encontrados: ${data.count}` : `${data.count} ocorrência(s) | qtd. ${data.quantity}`}</small></div><strong>${data.count}</strong></div>`
+      `<div class="ranking-row ${index===0?'highlight-row most-recurrent-row':''}">${rowIcon(name)}<div><strong>${index===0 ? 'Mais recorrente: ' : ''}${esc(name)}</strong><small>${index===0 ? `Registros encontrados: ${data.count}` : `${data.count} ocorrÃªncia(s) | qtd. ${data.quantity}`}</small></div><strong>${data.count}</strong></div>`
     ).join('');
   };
 
@@ -3141,20 +3166,20 @@ else init();
     const topQuantity = topByQuantity(occurrences);
     document.getElementById('dashboardKpis').innerHTML = [
       ['Colaboradores', employees.length, 'people'],
-      ['Avaliações', state.evaluations.filter(e => exists(e.employeeId) && (!s || sectorOfEval(e) === s)).length, 'evals'],
-      ['Média atual', fmt(avg(latest.map(e => e.score))), 'score'],
-      ['Ocorrências', occurrences.length, 'warn'],
+      ['AvaliaÃ§Ãµes', state.evaluations.filter(e => exists(e.employeeId) && (!s || sectorOfEval(e) === s)).length, 'evals'],
+      ['MÃ©dia atual', fmt(avg(latest.map(e => e.score))), 'score'],
+      ['OcorrÃªncias', occurrences.length, 'warn'],
       ['Maior qtd.', topQuantity ? `${topQuantity.quantity}` : '0', 'qty'],
-      ['Sem preço/mês', priceQtyMonth, 'price'],
-      ['Qtd. média', fmt(avg(quantityOccurrences.map(item => Number(item.quantity || 0)))).replace(',0',''), 'avg'],
-      ['Críticos', quantityOccurrences.filter(item => quantitySeverity(item.quantity).key === 'critical').length, 'critical']
+      ['Sem preÃ§o/mÃªs', priceQtyMonth, 'price'],
+      ['Qtd. mÃ©dia', fmt(avg(quantityOccurrences.map(item => Number(item.quantity || 0)))).replace(',0',''), 'avg'],
+      ['CrÃ­ticos', quantityOccurrences.filter(item => quantitySeverity(item.quantity).key === 'critical').length, 'critical']
     ].map(([label,value,type])=>`<div class="kpi kpi-${type}"><span>${label}</span><strong>${value}</strong></div>`).join('');
     document.getElementById('rankingGeneral').innerHTML = rankingRows([...latest].sort((a,b)=>b.score-a.score));
     const sectorList = s ? [s] : sectors;
     document.getElementById('rankingSector').innerHTML = sectorList.map(sector => {
       const values = latestAll.filter(item => sectorOfEval(item) === sector);
       return `<div class="ranking-row">${rowIcon(sector)}<div><strong>${esc(sector)}</strong><small>${values.length} colaborador(es)</small></div><strong>${fmt(avg(values.map(v => v.score)))}</strong></div>`;
-    }).join('') || `<div class="empty">Sem avaliações.</div>`;
+    }).join('') || `<div class="empty">Sem avaliaÃ§Ãµes.</div>`;
     renderCategoryRanking(latest);
     renderEvolution(latest);
     renderTopOccurrences(occurrences);
@@ -3169,30 +3194,30 @@ else init();
     if(type === 'general') return {title:'Ranking geral', metric:'Nota', rows:[...latest].sort((a,b)=>b.score-a.score).map((item,i)=>({label:`${i+1}. ${item.employeeSnapshot.name}`, sub:`${item.employeeSnapshot.role} - ${item.employeeSnapshot.sector}`, value:item.score, text:fmt(item.score), icon:''}))};
     if(type === 'sector'){
       const sectorList = s ? [s] : [...new Set(state.employees.map(e => e.sector).filter(Boolean))];
-      return {title:'Ranking por setor', metric:'Média', rows:sectorList.map(sector => { const values = latestAll.filter(item => sectorOfEval(item) === sector); const v = avg(values.map(x => x.score)); return {label:sector, icon:icon(sector), sub:`${values.length} colaborador(es)`, value:v, text:fmt(v)}; }).sort((a,b)=>b.value-a.value)};
+      return {title:'Ranking por setor', metric:'MÃ©dia', rows:sectorList.map(sector => { const values = latestAll.filter(item => sectorOfEval(item) === sector); const v = avg(values.map(x => x.score)); return {label:sector, icon:icon(sector), sub:`${values.length} colaborador(es)`, value:v, text:fmt(v)}; }).sort((a,b)=>b.value-a.value)};
     }
     if(type === 'category'){
       const groups = {}; latest.flatMap(occurrenceList).forEach(item => groups[item.categoryName] = (groups[item.categoryName] || 0) + 1);
-      return {title:'Ranking por categoria', metric:'Ocorrências', rows:Object.entries(groups).map(([label,value])=>({label, icon:icon(label), sub:'Categoria', value, text:String(value)})).sort((a,b)=>b.value-a.value)};
+      return {title:'Ranking por categoria', metric:'OcorrÃªncias', rows:Object.entries(groups).map(([label,value])=>({label, icon:icon(label), sub:'Categoria', value, text:String(value)})).sort((a,b)=>b.value-a.value)};
     }
     if(type === 'evolution'){
       const byMonth = {}; latest.forEach(item => { const key = item.month || monthISO(); byMonth[key] = [...(byMonth[key] || []), item.score]; });
-      return {title:'Evolução mensal', metric:'Nota', rows:Object.entries(byMonth).slice(-12).map(([label,values])=>({label:monthLabel(label), sub:'Média mensal', value:avg(values), text:fmt(avg(values)), icon:''}))};
+      return {title:'EvoluÃ§Ã£o mensal', metric:'Nota', rows:Object.entries(byMonth).slice(-12).map(([label,values])=>({label:monthLabel(label), sub:'MÃ©dia mensal', value:avg(values), text:fmt(avg(values)), icon:''}))};
     }
     const groups = {}; latest.flatMap(occurrenceList).forEach(item => { groups[item.criteriaName] = groups[item.criteriaName] || {count:0, quantity:0}; groups[item.criteriaName].count += 1; groups[item.criteriaName].quantity += Number(item.quantity || 0); });
-    return {title:'Principais ocorrências', metric:'Registros', rows:Object.entries(groups).map(([label,data])=>({label, icon:icon(label), sub:`Qtd. informada: ${data.quantity}`, value:data.count, text:String(data.count)})).sort((a,b)=>b.value-a.value).slice(0,30)};
+    return {title:'Principais ocorrÃªncias', metric:'Registros', rows:Object.entries(groups).map(([label,data])=>({label, icon:icon(label), sub:`Qtd. informada: ${data.quantity}`, value:data.count, text:String(data.count)})).sort((a,b)=>b.value-a.value).slice(0,30)};
   };
 
-  function maxFor(data){ const max = Math.max(...(data.rows || []).map(r=>Number(r.value)||0),1); return (data.metric === 'Nota' || data.metric === 'Média') ? 10 : max; }
+  function maxFor(data){ const max = Math.max(...(data.rows || []).map(r=>Number(r.value)||0),1); return (data.metric === 'Nota' || data.metric === 'MÃ©dia') ? 10 : max; }
   function cleanLabel(label){ return (typeof plainChartLabel === 'function') ? plainChartLabel(label) : String(label||''); }
   window.openDashboardChart = function(type){
     const data = window.chartRows(type);
     const rows = (data.rows && data.rows.length ? data.rows : [{label:'Sem dados', value:0, text:'0', icon:''}]).slice(0,30);
     const max = maxFor({...data, rows});
-    const isScore = data.metric === 'Nota' || data.metric === 'Média';
+    const isScore = data.metric === 'Nota' || data.metric === 'MÃ©dia';
     const printable = ensureChartDialog().querySelector('#chartPrintable');
-    printable.innerHTML = `<header class="chart-exec-header"><span>MÉTODO SOBRAL</span><h2>${esc(data.title)}</h2><p>${esc(data.metric)} • ${dateText(new Date().toISOString().slice(0,10))}</p></header>
-      <div class="chart-exec-body"><div class="chart-plot-card ${type==='occurrences'?'occurrence-plot-card':''}"><h3>Dashboard gráfico</h3><p>Barras ordenadas do maior para o menor</p>
+    printable.innerHTML = `<header class="chart-exec-header"><span>MÃ‰TODO SOBRAL</span><h2>${esc(data.title)}</h2><p>${esc(data.metric)} â€¢ ${dateText(new Date().toISOString().slice(0,10))}</p></header>
+      <div class="chart-exec-body"><div class="chart-plot-card ${type==='occurrences'?'occurrence-plot-card':''}"><h3>Dashboard grÃ¡fico</h3><p>Barras ordenadas do maior para o menor</p>
       <div class="vertical-chart v7-chart ${rows.length>10?'is-many':''}"><div class="axis-line y100">${isScore?'10':max}</div><div class="axis-line y50">${isScore?'5':Math.round(max/2)}</div><div class="axis-line y0">0</div>
       ${rows.map(row=>{ const value = Number(row.value)||0; const h = Math.max(value ? 6 : 2, Math.min(100,(value/max)*100)); const ic = row.icon || icon(row.label); const label = `${ic ? ic + ' ' : ''}${cleanLabel(row.label)}`; return `<div class="vbar-item" style="--h:${h}%"><b>${esc(row.text)}</b><i></i><strong title="${esc(label)}">${esc(label)}</strong></div>`; }).join('')}</div></div></div>`;
     ensureChartDialog().showModal();
@@ -3208,9 +3233,9 @@ else init();
     ctx.fillStyle = '#eef2f7'; ctx.fillRect(0,0,1600,900);
     ctx.fillStyle = '#101827'; ctx.fillRect(0,0,1600,150);
     ctx.fillStyle = '#fff'; ctx.font = '700 44px Arial'; ctx.fillText(title,80,74);
-    ctx.font = '500 24px Arial'; ctx.fillText('Método Sobral • Performance Individual 360',80,116);
+    ctx.font = '500 24px Arial'; ctx.fillText('MÃ©todo Sobral â€¢ Performance Individual 360',80,116);
     ctx.fillStyle = '#fff'; roundRect(ctx,60,185,1480,630,28,true,false);
-    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.fillText('Dashboard gráfico',120,242);
+    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.fillText('Dashboard grÃ¡fico',120,242);
     ctx.strokeStyle = '#dbe3ee'; ctx.lineWidth = 2; [330,470,610].forEach(y=>{ctx.beginPath();ctx.moveTo(135,y);ctx.lineTo(1465,y);ctx.stroke();});
     const count = Math.max(data.length,1); const gap = count > 14 ? 12 : 24; const barW = Math.max(22, Math.min(86, (1260 - (count-1)*gap)/count)); let x = 180;
     data.forEach(item=>{ const h = Math.max(8, 320*(item.h/100)); const y = 650-h; ctx.fillStyle = '#2563eb'; roundRect(ctx,x,y,barW,h,12,true,false); ctx.fillStyle = '#0f172a'; ctx.font = '700 20px Arial'; ctx.textAlign='center'; ctx.fillText(item.value,x+barW/2,y-12); ctx.save(); ctx.translate(x+barW/2,730); ctx.rotate(-Math.PI/4); ctx.font='700 17px Arial'; ctx.textAlign='right'; ctx.fillText(item.label.slice(0,34),0,0); ctx.restore(); x += barW + gap; });
@@ -3267,11 +3292,11 @@ else init();
 
 /* ============================================================
    AJUSTE FINAL v8 - acabamento solicitado
-   - filtro por setor reforçado
-   - gráficos com nomes inclinados legíveis e dentro da imagem
-   - sem ícone vazio quando não houver emoji
-   - área de configurações mais compacta
-   - cabeçalho Zenir mais alinhado
+   - filtro por setor reforÃ§ado
+   - grÃ¡ficos com nomes inclinados legÃ­veis e dentro da imagem
+   - sem Ã­cone vazio quando nÃ£o houver emoji
+   - Ã¡rea de configuraÃ§Ãµes mais compacta
+   - cabeÃ§alho Zenir mais alinhado
    ============================================================ */
 (function(){
   function n(v){ return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
@@ -3284,10 +3309,10 @@ else init();
   function icon(label){
     const t = n(label);
     const rules = [
-      ['cama','🛏️'], ['colch','🛏️'], ['eletro','📺'], ['televis','📺'], ['tv','📺'], ['audio','🔊'], ['som','🔊'], ['move','🛋️'], ['sofa','🛋️'], ['estof','🛋️'], ['celular','📱'], ['telefon','📱'], ['bicic','🚲'], ['informat','💻'], ['comput','💻'],
-      ['organiz','🗂️'], ['preco','🏷️'], ['etiqueta','🏷️'], ['localizacao','📍'], ['local definido','📍'], ['exposicao','🖼️'], ['visual','🖼️'],
-      ['limpeza','🧽'], ['sujeira','🧹'], ['conservacao','🧼'], ['atendimento','🤝'], ['cliente','👤'], ['pos venda','📞'],
-      ['disciplina','⏱️'], ['cadastro','📝'], ['estoque','📦'], ['patrimonio','📦'], ['servico','🛡️'], ['meta','🎯'], ['resultado','📊'], ['equipe','👥'], ['comunicacao','💬'], ['desenvolvimento','🚀'], ['proatividade','⚡']
+      ['cama','ðŸ›ï¸'], ['colch','ðŸ›ï¸'], ['eletro','ðŸ“º'], ['televis','ðŸ“º'], ['tv','ðŸ“º'], ['audio','ðŸ”Š'], ['som','ðŸ”Š'], ['move','ðŸ›‹ï¸'], ['sofa','ðŸ›‹ï¸'], ['estof','ðŸ›‹ï¸'], ['celular','ðŸ“±'], ['telefon','ðŸ“±'], ['bicic','ðŸš²'], ['informat','ðŸ’»'], ['comput','ðŸ’»'],
+      ['organiz','ðŸ—‚ï¸'], ['preco','ðŸ·ï¸'], ['etiqueta','ðŸ·ï¸'], ['localizacao','ðŸ“'], ['local definido','ðŸ“'], ['exposicao','ðŸ–¼ï¸'], ['visual','ðŸ–¼ï¸'],
+      ['limpeza','ðŸ§½'], ['sujeira','ðŸ§¹'], ['conservacao','ðŸ§¼'], ['atendimento','ðŸ¤'], ['cliente','ðŸ‘¤'], ['pos venda','ðŸ“ž'],
+      ['disciplina','â±ï¸'], ['cadastro','ðŸ“'], ['estoque','ðŸ“¦'], ['patrimonio','ðŸ“¦'], ['servico','ðŸ›¡ï¸'], ['meta','ðŸŽ¯'], ['resultado','ðŸ“Š'], ['equipe','ðŸ‘¥'], ['comunicacao','ðŸ’¬'], ['desenvolvimento','ðŸš€'], ['proatividade','âš¡']
     ];
     const found = rules.find(([key]) => t.includes(key));
     return found ? found[1] : '';
@@ -3299,7 +3324,7 @@ else init();
   function cleanLabel(label){ return (typeof plainChartLabel === 'function') ? plainChartLabel(label) : String(label||''); }
   function sectorsList(){ return [...new Set((state.employees || []).map(e => e.sector).filter(Boolean))]; }
 
-  // Reforça o filtro do dashboard sem misturar setores quando selecionar Camas/Eletros/etc.
+  // ReforÃ§a o filtro do dashboard sem misturar setores quando selecionar Camas/Eletros/etc.
   window.renderDashboard = function(){
     const latestAll = validLatest();
     const previousSector = selectedSector();
@@ -3325,13 +3350,13 @@ else init();
     if(kpis){
       kpis.innerHTML = [
         ['Colaboradores', employees.length, 'people'],
-        ['Avaliações', (state.evaluations || []).filter(e => exists(e.employeeId)).filter(e => !s || sectorOfEval(e) === s).length, 'evals'],
-        ['Média atual', fmt(safeAvg(latest.map(e => e.score))), 'score'],
-        ['Ocorrências', occurrences.length, 'warn'],
+        ['AvaliaÃ§Ãµes', (state.evaluations || []).filter(e => exists(e.employeeId)).filter(e => !s || sectorOfEval(e) === s).length, 'evals'],
+        ['MÃ©dia atual', fmt(safeAvg(latest.map(e => e.score))), 'score'],
+        ['OcorrÃªncias', occurrences.length, 'warn'],
         ['Maior qtd.', topQuantity ? `${topQuantity.quantity}` : '0', 'qty'],
-        ['Sem preço/mês', priceQtyMonth, 'price'],
-        ['Qtd. média', fmt(safeAvg(quantityOccurrences.map(item => Number(item.quantity || 0)))).replace(',0',''), 'avg'],
-        ['Críticos', quantityOccurrences.filter(item => typeof quantitySeverity === 'function' && quantitySeverity(item.quantity).key === 'critical').length, 'critical']
+        ['Sem preÃ§o/mÃªs', priceQtyMonth, 'price'],
+        ['Qtd. mÃ©dia', fmt(safeAvg(quantityOccurrences.map(item => Number(item.quantity || 0)))).replace(',0',''), 'avg'],
+        ['CrÃ­ticos', quantityOccurrences.filter(item => typeof quantitySeverity === 'function' && quantitySeverity(item.quantity).key === 'critical').length, 'critical']
       ].map(([label,value,type])=>`<div class="kpi kpi-${type}"><span>${label}</span><strong>${value}</strong></div>`).join('');
     }
     const rg = document.getElementById('rankingGeneral');
@@ -3342,7 +3367,7 @@ else init();
       rs.innerHTML = sectorList.map(sector => {
         const values = latestAll.filter(item => sectorOfEval(item) === sector);
         return `<div class="ranking-row">${rowIcon(sector)}<div><strong>${esc(sector)}</strong><small>${values.length} colaborador(es)</small></div><strong>${fmt(safeAvg(values.map(v => v.score)))}</strong></div>`;
-      }).join('') || `<div class="empty">Sem avaliações.</div>`;
+      }).join('') || `<div class="empty">Sem avaliaÃ§Ãµes.</div>`;
     }
     if(typeof renderCategoryRanking === 'function') renderCategoryRanking(latest);
     if(typeof renderEvolution === 'function') renderEvolution(latest);
@@ -3358,7 +3383,7 @@ else init();
     if(!el) return;
     el.innerHTML = Object.entries(groups).sort((a,b)=>b[1]-a[1]).map(([name,count]) =>
       `<div class="ranking-row">${rowIcon(name)}<div><strong>${esc(name)}</strong><small>Categoria</small></div><strong>${count}</strong></div>`
-    ).join('') || `<div class="empty">Sem ocorrências.</div>`;
+    ).join('') || `<div class="empty">Sem ocorrÃªncias.</div>`;
   };
 
   window.renderEvolution = function(items){
@@ -3369,7 +3394,7 @@ else init();
     if(!el) return;
     el.innerHTML = rows.length ? `<div class="bars">
       ${rows.map(([label,value]) => `<div class="bar-row"><span>${esc(label)}</span><div class="bar"><i style="width:${Math.max(0, Math.min(100, value*10))}%"></i></div><strong>${fmt(value)}</strong></div>`).join('')}
-    </div>` : `<div class="empty">Sem evolução registrada.</div>`;
+    </div>` : `<div class="empty">Sem evoluÃ§Ã£o registrada.</div>`;
   };
 
   window.renderTopOccurrences = function(occurrences){
@@ -3382,9 +3407,9 @@ else init();
     const ordered = Object.entries(groups).sort((a,b)=>b[1].count-a[1].count || b[1].quantity-a[1].quantity).slice(0,6);
     const el = document.getElementById('topOccurrences');
     if(!el) return;
-    if(!ordered.length){ el.innerHTML = `<div class="empty">Nenhuma ocorrência.</div>`; return; }
+    if(!ordered.length){ el.innerHTML = `<div class="empty">Nenhuma ocorrÃªncia.</div>`; return; }
     el.innerHTML = ordered.map(([name,data], index) =>
-      `<div class="ranking-row ${index===0?'highlight-row most-recurrent-row':''}">${rowIcon(name)}<div><strong>${index===0 ? 'Mais recorrente: ' : ''}${esc(name)}</strong><small>${index===0 ? `Registros encontrados: ${data.count}` : `${data.count} ocorrência(s) | qtd. ${data.quantity}`}</small></div><strong>${data.count}</strong></div>`
+      `<div class="ranking-row ${index===0?'highlight-row most-recurrent-row':''}">${rowIcon(name)}<div><strong>${index===0 ? 'Mais recorrente: ' : ''}${esc(name)}</strong><small>${index===0 ? `Registros encontrados: ${data.count}` : `${data.count} ocorrÃªncia(s) | qtd. ${data.quantity}`}</small></div><strong>${data.count}</strong></div>`
     ).join('');
   };
 
@@ -3395,31 +3420,31 @@ else init();
     if(type === 'general') return {title:'Ranking geral', metric:'Nota', rows:[...latest].sort((a,b)=>b.score-a.score).map((item,i)=>({label:`${i+1}. ${item.employeeSnapshot.name}`, sub:`${item.employeeSnapshot.role} - ${item.employeeSnapshot.sector}`, value:item.score, text:fmt(item.score), icon:''}))};
     if(type === 'sector'){
       const sectorList = s ? [s] : sectorsList();
-      return {title:'Ranking por setor', metric:'Média', rows:sectorList.map(sector => { const values = latestAll.filter(item => sectorOfEval(item) === sector); const v = safeAvg(values.map(x => x.score)); return {label:sector, icon:icon(sector), sub:`${values.length} colaborador(es)`, value:v, text:fmt(v)}; }).sort((a,b)=>b.value-a.value)};
+      return {title:'Ranking por setor', metric:'MÃ©dia', rows:sectorList.map(sector => { const values = latestAll.filter(item => sectorOfEval(item) === sector); const v = safeAvg(values.map(x => x.score)); return {label:sector, icon:icon(sector), sub:`${values.length} colaborador(es)`, value:v, text:fmt(v)}; }).sort((a,b)=>b.value-a.value)};
     }
     if(type === 'category'){
       const groups = {}; latest.flatMap(occurrenceList).forEach(item => groups[item.categoryName] = (groups[item.categoryName] || 0) + 1);
-      return {title:'Ranking por categoria', metric:'Ocorrências', rows:Object.entries(groups).map(([label,value])=>({label, icon:icon(label), sub:'Categoria', value, text:String(value)})).sort((a,b)=>b.value-a.value)};
+      return {title:'Ranking por categoria', metric:'OcorrÃªncias', rows:Object.entries(groups).map(([label,value])=>({label, icon:icon(label), sub:'Categoria', value, text:String(value)})).sort((a,b)=>b.value-a.value)};
     }
     if(type === 'evolution'){
       const byMonth = {}; latest.forEach(item => { const key = item.month || (typeof monthISO === 'function' ? monthISO() : new Date().toISOString().slice(0,7)); byMonth[key] = [...(byMonth[key] || []), item.score]; });
-      return {title:'Evolução mensal', metric:'Nota', rows:Object.entries(byMonth).slice(-12).map(([label,values])=>({label:monthLabel(label), sub:'Média mensal', value:safeAvg(values), text:fmt(safeAvg(values)), icon:''}))};
+      return {title:'EvoluÃ§Ã£o mensal', metric:'Nota', rows:Object.entries(byMonth).slice(-12).map(([label,values])=>({label:monthLabel(label), sub:'MÃ©dia mensal', value:safeAvg(values), text:fmt(safeAvg(values)), icon:''}))};
     }
     const groups = {}; latest.flatMap(occurrenceList).forEach(item => { groups[item.criteriaName] = groups[item.criteriaName] || {count:0, quantity:0}; groups[item.criteriaName].count += 1; groups[item.criteriaName].quantity += Number(item.quantity || 0); });
-    return {title:'Principais ocorrências', metric:'Registros', rows:Object.entries(groups).map(([label,data])=>({label, icon:icon(label), sub:`Qtd. informada: ${data.quantity}`, value:data.count, text:String(data.count)})).sort((a,b)=>b.value-a.value).slice(0,30)};
+    return {title:'Principais ocorrÃªncias', metric:'Registros', rows:Object.entries(groups).map(([label,data])=>({label, icon:icon(label), sub:`Qtd. informada: ${data.quantity}`, value:data.count, text:String(data.count)})).sort((a,b)=>b.value-a.value).slice(0,30)};
   };
 
-  function maxFor(data){ const max = Math.max(...(data.rows || []).map(r=>Number(r.value)||0),1); return (data.metric === 'Nota' || data.metric === 'Média') ? 10 : max; }
-  function chartTitleFor(type, title){ return type === 'evolution' ? 'Evolução mensal' : title; }
+  function maxFor(data){ const max = Math.max(...(data.rows || []).map(r=>Number(r.value)||0),1); return (data.metric === 'Nota' || data.metric === 'MÃ©dia') ? 10 : max; }
+  function chartTitleFor(type, title){ return type === 'evolution' ? 'EvoluÃ§Ã£o mensal' : title; }
 
   window.openDashboardChart = function(type){
     const data = window.chartRows(type);
     const rows = (data.rows && data.rows.length ? data.rows : [{label:'Sem dados', value:0, text:'0', icon:''}]).slice(0,30);
     const max = maxFor({...data, rows});
-    const isScore = data.metric === 'Nota' || data.metric === 'Média';
+    const isScore = data.metric === 'Nota' || data.metric === 'MÃ©dia';
     const printable = ensureChartDialog().querySelector('#chartPrintable');
-    printable.innerHTML = `<header class="chart-exec-header"><span>MÉTODO SOBRAL</span><h2>${esc(chartTitleFor(type, data.title))}</h2><p>${esc(data.metric)} • ${dateText(new Date().toISOString().slice(0,10))}</p></header>
-      <div class="chart-exec-body"><div class="chart-plot-card ${type==='occurrences'?'occurrence-plot-card':''}"><h3>Dashboard gráfico</h3><p>Barras ordenadas do maior para o menor</p>
+    printable.innerHTML = `<header class="chart-exec-header"><span>MÃ‰TODO SOBRAL</span><h2>${esc(chartTitleFor(type, data.title))}</h2><p>${esc(data.metric)} â€¢ ${dateText(new Date().toISOString().slice(0,10))}</p></header>
+      <div class="chart-exec-body"><div class="chart-plot-card ${type==='occurrences'?'occurrence-plot-card':''}"><h3>Dashboard grÃ¡fico</h3><p>Barras ordenadas do maior para o menor</p>
       <div class="vertical-chart v8-chart ${rows.length>10?'is-many':''}"><div class="axis-line y100">${isScore?'10':max}</div><div class="axis-line y50">${isScore?'5':Math.round(max/2)}</div><div class="axis-line y0">0</div>
       ${rows.map(row=>{ const value = Number(row.value)||0; const h = Math.max(value ? 6 : 2, Math.min(100,(value/max)*100)); const ic = row.icon || icon(row.label); const label = `${ic ? ic + ' ' : ''}${cleanLabel(row.label)}`; return `<div class="vbar-item" style="--h:${h}%"><b>${esc(row.text)}</b><i></i><strong title="${esc(label)}">${esc(label)}</strong></div>`; }).join('')}</div></div></div>`;
     ensureChartDialog().showModal();
@@ -3439,9 +3464,9 @@ else init();
     ctx.fillStyle = '#eef2f7'; ctx.fillRect(0,0,1600,900);
     ctx.fillStyle = '#101827'; ctx.fillRect(0,0,1600,150);
     ctx.fillStyle = '#fff'; ctx.font = '700 44px Arial'; ctx.fillText(title,80,74);
-    ctx.font = '500 24px Arial'; ctx.fillText('Método Sobral • Performance Individual 360',80,116);
+    ctx.font = '500 24px Arial'; ctx.fillText('MÃ©todo Sobral â€¢ Performance Individual 360',80,116);
     ctx.fillStyle = '#fff'; roundRect(ctx,60,185,1480,645,28,true,false);
-    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.fillText('Dashboard gráfico',120,242);
+    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.fillText('Dashboard grÃ¡fico',120,242);
     ctx.strokeStyle = '#dbe3ee'; ctx.lineWidth = 2; [330,470,610].forEach(y=>{ctx.beginPath();ctx.moveTo(135,y);ctx.lineTo(1465,y);ctx.stroke();});
     const count = Math.max(data.length,1);
     const gap = count > 18 ? 10 : (count > 10 ? 14 : 24);
@@ -3515,9 +3540,9 @@ else init();
 
 
 
-/* ===== RESTAURAÇÃO SEGURA - RELATÓRIOS MOBILE =====
-   Corrige apenas o relatório/tabelas no celular para não espremer colunas.
-   Não altera menu, dashboard, histórico, avaliações ou dados.
+/* ===== RESTAURAÃ‡ÃƒO SEGURA - RELATÃ“RIOS MOBILE =====
+   Corrige apenas o relatÃ³rio/tabelas no celular para nÃ£o espremer colunas.
+   NÃ£o altera menu, dashboard, histÃ³rico, avaliaÃ§Ãµes ou dados.
 */
 (function(){
   function injectReportSafeStyle(){
@@ -3576,14 +3601,14 @@ else init();
 
 
 /* ============================================================
-   AJUSTE FINAL v9 - consolidação solicitada
-   - Dashboard usa avaliações salvas de forma robusta, mesmo após filtros/edição
-   - Filtro por setor não mistura departamentos
-   - Gráficos com rótulos inclinados como modelo e sem cortar no download
-   - Sem espaço vazio quando não houver emoji
+   AJUSTE FINAL v9 - consolidaÃ§Ã£o solicitada
+   - Dashboard usa avaliaÃ§Ãµes salvas de forma robusta, mesmo apÃ³s filtros/ediÃ§Ã£o
+   - Filtro por setor nÃ£o mistura departamentos
+   - GrÃ¡ficos com rÃ³tulos inclinados como modelo e sem cortar no download
+   - Sem espaÃ§o vazio quando nÃ£o houver emoji
    - Logo Zenir com nome/data mais abaixo e centralizados
-   - Tabelas dos relatórios/PDI/Oportunidades com rolagem segura no mobile
-   - Configurações/critério mais compacto no celular
+   - Tabelas dos relatÃ³rios/PDI/Oportunidades com rolagem segura no mobile
+   - ConfiguraÃ§Ãµes/critÃ©rio mais compacto no celular
    ============================================================ */
 (function(){
   function norm(v){ return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
@@ -3595,15 +3620,15 @@ else init();
   function labelMonth(m){ return (typeof monthLabel==='function') ? monthLabel(m) : String(m||''); }
   function cleanLabel(v){
     const raw = (typeof plainChartLabel === 'function' ? plainChartLabel(v) : String(v||''));
-    return raw.replace(/^\s*(?:🛏️|📺|🛋️|🪑|🔊|📱|🚲|💻|🗂️|🏷️|📍|🖼️|🧽|🧹|🧼|🤝|👤|📞|⏱️|✅|📝|📦|🛡️|🎯|📊|👥|💬|🚀|⚡|⚠️)\s*/u,'').trim();
+    return raw.replace(/^\s*(?:ðŸ›ï¸|ðŸ“º|ðŸ›‹ï¸|ðŸª‘|ðŸ”Š|ðŸ“±|ðŸš²|ðŸ’»|ðŸ—‚ï¸|ðŸ·ï¸|ðŸ“|ðŸ–¼ï¸|ðŸ§½|ðŸ§¹|ðŸ§¼|ðŸ¤|ðŸ‘¤|ðŸ“ž|â±ï¸|âœ…|ðŸ“|ðŸ“¦|ðŸ›¡ï¸|ðŸŽ¯|ðŸ“Š|ðŸ‘¥|ðŸ’¬|ðŸš€|âš¡|âš ï¸)\s*/u,'').trim();
   }
   function icon(label){
     const t = norm(label);
     const rules = [
-      ['cama','🛏️'], ['colch','🛏️'], ['eletro','📺'], ['televis','📺'], ['tv','📺'], ['audio','🔊'], ['som','🔊'], ['moveis','🛋️'], ['movel','🛋️'], ['sofa','🛋️'], ['estof','🛋️'], ['celular','📱'], ['telefon','📱'], ['bicic','🚲'], ['informat','💻'], ['comput','💻'],
-      ['organiz','🗂️'], ['preco','🏷️'], ['etiqueta','🏷️'], ['localizacao','📍'], ['local definido','📍'], ['fora da localizacao','📍'], ['exposicao','🖼️'], ['visual','🖼️'],
-      ['limpeza','🧽'], ['sujeira','🧹'], ['conservacao','🧼'], ['atendimento','🤝'], ['abordagem','🤝'], ['cliente','👤'], ['pos venda','📞'],
-      ['disciplina','⏱️'], ['cadastro','📝'], ['estoque','📦'], ['patrimonio','📦'], ['servico','🛡️'], ['meta','🎯'], ['resultado','📊'], ['equipe','👥'], ['comunicacao','💬'], ['desenvolvimento','🚀'], ['proatividade','⚡']
+      ['cama','ðŸ›ï¸'], ['colch','ðŸ›ï¸'], ['eletro','ðŸ“º'], ['televis','ðŸ“º'], ['tv','ðŸ“º'], ['audio','ðŸ”Š'], ['som','ðŸ”Š'], ['moveis','ðŸ›‹ï¸'], ['movel','ðŸ›‹ï¸'], ['sofa','ðŸ›‹ï¸'], ['estof','ðŸ›‹ï¸'], ['celular','ðŸ“±'], ['telefon','ðŸ“±'], ['bicic','ðŸš²'], ['informat','ðŸ’»'], ['comput','ðŸ’»'],
+      ['organiz','ðŸ—‚ï¸'], ['preco','ðŸ·ï¸'], ['etiqueta','ðŸ·ï¸'], ['localizacao','ðŸ“'], ['local definido','ðŸ“'], ['fora da localizacao','ðŸ“'], ['exposicao','ðŸ–¼ï¸'], ['visual','ðŸ–¼ï¸'],
+      ['limpeza','ðŸ§½'], ['sujeira','ðŸ§¹'], ['conservacao','ðŸ§¼'], ['atendimento','ðŸ¤'], ['abordagem','ðŸ¤'], ['cliente','ðŸ‘¤'], ['pos venda','ðŸ“ž'],
+      ['disciplina','â±ï¸'], ['cadastro','ðŸ“'], ['estoque','ðŸ“¦'], ['patrimonio','ðŸ“¦'], ['servico','ðŸ›¡ï¸'], ['meta','ðŸŽ¯'], ['resultado','ðŸ“Š'], ['equipe','ðŸ‘¥'], ['comunicacao','ðŸ’¬'], ['desenvolvimento','ðŸš€'], ['proatividade','âš¡']
     ];
     const found = rules.find(([k]) => t.includes(k));
     return found ? found[1] : '';
@@ -3630,7 +3655,7 @@ else init();
   function occs(list){ return (list||[]).flatMap(e => (typeof occurrenceList==='function') ? occurrenceList(e) : (e.occurrences||[])); }
   function topQty(items){
     const groups={};
-    (items||[]).forEach(o=>{ const k=o.criteriaName||o.name||'Ocorrência'; groups[k]=(groups[k]||0)+Number(o.quantity||0); });
+    (items||[]).forEach(o=>{ const k=o.criteriaName||o.name||'OcorrÃªncia'; groups[k]=(groups[k]||0)+Number(o.quantity||0); });
     const entry=Object.entries(groups).sort((a,b)=>b[1]-a[1])[0];
     return entry ? {name:entry[0], quantity:entry[1]} : null;
   }
@@ -3640,27 +3665,27 @@ else init();
     const el=document.getElementById('rankingCategory'); if(!el) return;
     el.innerHTML = Object.entries(groups).sort((a,b)=>b[1]-a[1]).map(([name,count])=>
       `<div class="ranking-row">${rowIcon(name)}<div><strong>${esc(name)}</strong><small>Categoria</small></div><strong>${count}</strong></div>`
-    ).join('') || `<div class="empty">Sem ocorrências.</div>`;
+    ).join('') || `<div class="empty">Sem ocorrÃªncias.</div>`;
   };
   window.renderEvolution = function(items){
     const byMonth={};
     (items||[]).forEach(e=>{ const k=e.month || (typeof monthISO==='function'?monthISO():new Date().toISOString().slice(0,7)); byMonth[k]=[...(byMonth[k]||[]), Number(e.score)||0]; });
     const rows=Object.entries(byMonth).slice(-6).map(([m,vals])=>[labelMonth(m), mean(vals)]);
     const el=document.getElementById('evolutionCharts'); if(!el) return;
-    el.innerHTML = rows.length ? `<div class="bars">${rows.map(([label,value])=>`<div class="bar-row"><span>${esc(label)}</span><div class="bar"><i style="width:${Math.max(0,Math.min(100,value*10))}%"></i></div><strong>${fmt(value)}</strong></div>`).join('')}</div>` : `<div class="empty">Sem evolução registrada.</div>`;
+    el.innerHTML = rows.length ? `<div class="bars">${rows.map(([label,value])=>`<div class="bar-row"><span>${esc(label)}</span><div class="bar"><i style="width:${Math.max(0,Math.min(100,value*10))}%"></i></div><strong>${fmt(value)}</strong></div>`).join('')}</div>` : `<div class="empty">Sem evoluÃ§Ã£o registrada.</div>`;
   };
   window.renderTopOccurrences = function(items){
     const groups={};
     (items||[]).forEach(o=>{
-      const k=o.criteriaName||o.name||'Ocorrência';
+      const k=o.criteriaName||o.name||'OcorrÃªncia';
       groups[k]=groups[k]||{count:0, quantity:0};
       groups[k].count += 1;
       groups[k].quantity += Number(o.quantity||0);
     });
     const ordered=Object.entries(groups).sort((a,b)=>b[1].count-a[1].count || b[1].quantity-a[1].quantity).slice(0,6);
     const el=document.getElementById('topOccurrences'); if(!el) return;
-    if(!ordered.length){ el.innerHTML = `<div class="empty">Nenhuma ocorrência.</div>`; return; }
-    el.innerHTML = ordered.map(([name,data],i)=>`<div class="ranking-row ${i===0?'highlight-row most-recurrent-row':''}">${rowIcon(name)}<div><strong>${i===0?'Mais recorrente: ':''}${esc(name)}</strong><small>${i===0?`Registros encontrados: ${data.count}`:`${data.count} ocorrência(s) | qtd. ${data.quantity}`}</small></div><strong>${data.count}</strong></div>`).join('');
+    if(!ordered.length){ el.innerHTML = `<div class="empty">Nenhuma ocorrÃªncia.</div>`; return; }
+    el.innerHTML = ordered.map(([name,data],i)=>`<div class="ranking-row ${i===0?'highlight-row most-recurrent-row':''}">${rowIcon(name)}<div><strong>${i===0?'Mais recorrente: ':''}${esc(name)}</strong><small>${i===0?`Registros encontrados: ${data.count}`:`${data.count} ocorrÃªncia(s) | qtd. ${data.quantity}`}</small></div><strong>${data.count}</strong></div>`).join('');
   };
   window.renderDashboard = function(){
     const sel=document.getElementById('dashboardSector');
@@ -3679,13 +3704,13 @@ else init();
     const k=document.getElementById('dashboardKpis');
     if(k) k.innerHTML = [
       ['Colaboradores', filteredEmployees.length || latest.length, 'people'],
-      ['Avaliações', filteredEvals.length, 'evals'],
-      ['Média atual', fmt(mean(latest.map(e=>e.score))), 'score'],
-      ['Ocorrências', occurrences.length, 'warn'],
+      ['AvaliaÃ§Ãµes', filteredEvals.length, 'evals'],
+      ['MÃ©dia atual', fmt(mean(latest.map(e=>e.score))), 'score'],
+      ['OcorrÃªncias', occurrences.length, 'warn'],
       ['Maior qtd.', top?top.quantity:0, 'qty'],
-      ['Sem preço/mês', monthOccurrences.filter(o=>norm(o.criteriaName).includes('produto sem preco')).reduce((a,o)=>a+Number(o.quantity||0),0), 'price'],
-      ['Qtd. média', fmt(mean(qOcc.map(o=>Number(o.quantity||0)))).replace(',0',''), 'avg'],
-      ['Críticos', qOcc.filter(o=>typeof quantitySeverity==='function' && quantitySeverity(o.quantity).key==='critical').length, 'critical']
+      ['Sem preÃ§o/mÃªs', monthOccurrences.filter(o=>norm(o.criteriaName).includes('produto sem preco')).reduce((a,o)=>a+Number(o.quantity||0),0), 'price'],
+      ['Qtd. mÃ©dia', fmt(mean(qOcc.map(o=>Number(o.quantity||0)))).replace(',0',''), 'avg'],
+      ['CrÃ­ticos', qOcc.filter(o=>typeof quantitySeverity==='function' && quantitySeverity(o.quantity).key==='critical').length, 'critical']
     ].map(([label,value,type])=>`<div class="kpi kpi-${type}"><span>${label}</span><strong>${value}</strong></div>`).join('');
     const rg=document.getElementById('rankingGeneral');
     if(rg) rg.innerHTML = (typeof rankingRows==='function') ? rankingRows([...latest].sort((a,b)=>(Number(b.score)||0)-(Number(a.score)||0))) : '';
@@ -3696,7 +3721,7 @@ else init();
         const vals=evals().filter(e=>sectorOf(e)===sec);
         const latestSector=[...new Map(vals.map(e=>[e.employeeId || `${e.employeeSnapshot?.name||''}|${sec}`, e])).values()];
         return `<div class="ranking-row">${rowIcon(sec)}<div><strong>${esc(sec)}</strong><small>${latestSector.length} colaborador(es)</small></div><strong>${fmt(mean(latestSector.map(e=>e.score)))}</strong></div>`;
-      }).join('') || `<div class="empty">Sem avaliações.</div>`;
+      }).join('') || `<div class="empty">Sem avaliaÃ§Ãµes.</div>`;
     }
     renderCategoryRanking(latest);
     renderEvolution(latest);
@@ -3709,27 +3734,27 @@ else init();
     if(type==='general') return {title:'Ranking geral', metric:'Nota', rows:[...latest].sort((a,b)=>(Number(b.score)||0)-(Number(a.score)||0)).map((e,i)=>({label:`${i+1}. ${e.employeeSnapshot?.name||emp(e.employeeId)?.name||'Colaborador'}`, sub:`${e.employeeSnapshot?.role||emp(e.employeeId)?.role||''} - ${sectorOf(e)}`, value:Number(e.score)||0, text:fmt(e.score), icon:''}))};
     if(type==='sector'){
       const s=selectedSector(); const list=s?[s]:sectors();
-      return {title:'Ranking por setor', metric:'Média', rows:list.map(sec=>{ const vals=latestRobust().filter(e=>sectorOf(e)===sec); const v=mean(vals.map(e=>e.score)); return {label:sec, sub:`${vals.length} colaborador(es)`, value:v, text:fmt(v), icon:icon(sec)}; }).sort((a,b)=>b.value-a.value)};
+      return {title:'Ranking por setor', metric:'MÃ©dia', rows:list.map(sec=>{ const vals=latestRobust().filter(e=>sectorOf(e)===sec); const v=mean(vals.map(e=>e.score)); return {label:sec, sub:`${vals.length} colaborador(es)`, value:v, text:fmt(v), icon:icon(sec)}; }).sort((a,b)=>b.value-a.value)};
     }
     if(type==='category'){
       const groups={}; occs(latest).forEach(o=>{ const k=o.categoryName||'Sem categoria'; groups[k]=(groups[k]||0)+1; });
-      return {title:'Ranking por categoria', metric:'Ocorrências', rows:Object.entries(groups).map(([label,value])=>({label,value,text:String(value),icon:icon(label),sub:'Categoria'})).sort((a,b)=>b.value-a.value)};
+      return {title:'Ranking por categoria', metric:'OcorrÃªncias', rows:Object.entries(groups).map(([label,value])=>({label,value,text:String(value),icon:icon(label),sub:'Categoria'})).sort((a,b)=>b.value-a.value)};
     }
     if(type==='evolution'){
       const byMonth={}; latest.forEach(e=>{ const k=e.month || (typeof monthISO==='function'?monthISO():new Date().toISOString().slice(0,7)); byMonth[k]=[...(byMonth[k]||[]), Number(e.score)||0]; });
-      return {title:'Evolução mensal', metric:'Nota', rows:Object.entries(byMonth).slice(-12).map(([m,vals])=>({label:labelMonth(m), value:mean(vals), text:fmt(mean(vals)), icon:'', sub:'Média mensal'}))};
+      return {title:'EvoluÃ§Ã£o mensal', metric:'Nota', rows:Object.entries(byMonth).slice(-12).map(([m,vals])=>({label:labelMonth(m), value:mean(vals), text:fmt(mean(vals)), icon:'', sub:'MÃ©dia mensal'}))};
     }
-    const groups={}; occs(latest).forEach(o=>{ const k=o.criteriaName||'Ocorrência'; groups[k]=groups[k]||{count:0,quantity:0}; groups[k].count++; groups[k].quantity += Number(o.quantity||0); });
-    return {title:'Principais ocorrências', metric:'Registros', rows:Object.entries(groups).map(([label,d])=>({label,value:d.count,text:String(d.count),icon:icon(label),sub:`Qtd. informada: ${d.quantity}`})).sort((a,b)=>b.value-a.value).slice(0,30)};
+    const groups={}; occs(latest).forEach(o=>{ const k=o.criteriaName||'OcorrÃªncia'; groups[k]=groups[k]||{count:0,quantity:0}; groups[k].count++; groups[k].quantity += Number(o.quantity||0); });
+    return {title:'Principais ocorrÃªncias', metric:'Registros', rows:Object.entries(groups).map(([label,d])=>({label,value:d.count,text:String(d.count),icon:icon(label),sub:`Qtd. informada: ${d.quantity}`})).sort((a,b)=>b.value-a.value).slice(0,30)};
   };
-  function maxFor(data){ const max=Math.max(...(data.rows||[]).map(r=>Number(r.value)||0),1); return (data.metric==='Nota'||data.metric==='Média')?10:max; }
+  function maxFor(data){ const max=Math.max(...(data.rows||[]).map(r=>Number(r.value)||0),1); return (data.metric==='Nota'||data.metric==='MÃ©dia')?10:max; }
   window.openDashboardChart = function(type){
     const data=window.chartRows(type);
     const rows=(data.rows&&data.rows.length?data.rows:[{label:'Sem dados',value:0,text:'0',icon:''}]).slice(0,30);
-    const max=maxFor({...data,rows}); const isScore=data.metric==='Nota'||data.metric==='Média';
+    const max=maxFor({...data,rows}); const isScore=data.metric==='Nota'||data.metric==='MÃ©dia';
     const printable=ensureChartDialog().querySelector('#chartPrintable');
-    printable.innerHTML = `<header class="chart-exec-header"><span>MÉTODO SOBRAL</span><h2>${esc(data.title)}</h2><p>${esc(data.metric)} • ${dateText(new Date().toISOString().slice(0,10))}</p></header>
-      <div class="chart-exec-body"><div class="chart-plot-card ${type==='occurrences'?'occurrence-plot-card':''}"><h3>Dashboard gráfico</h3><p>Barras ordenadas do maior para o menor</p>
+    printable.innerHTML = `<header class="chart-exec-header"><span>MÃ‰TODO SOBRAL</span><h2>${esc(data.title)}</h2><p>${esc(data.metric)} â€¢ ${dateText(new Date().toISOString().slice(0,10))}</p></header>
+      <div class="chart-exec-body"><div class="chart-plot-card ${type==='occurrences'?'occurrence-plot-card':''}"><h3>Dashboard grÃ¡fico</h3><p>Barras ordenadas do maior para o menor</p>
       <div class="vertical-chart v9-chart ${rows.length>10?'is-many':''}"><div class="axis-line y100">${isScore?'10':max}</div><div class="axis-line y50">${isScore?'5':Math.round(max/2)}</div><div class="axis-line y0">0</div>
       ${rows.map(row=>{ const val=Number(row.value)||0; const h=Math.max(val?6:2,Math.min(100,(val/max)*100)); const ic=row.icon||icon(row.label); const label=`${ic?ic+' ':''}${cleanLabel(row.label)}`; return `<div class="vbar-item" style="--h:${h}%"><b>${esc(row.text)}</b><i></i><strong title="${esc(label)}">${esc(label)}</strong></div>`; }).join('')}</div></div></div>`;
     ensureChartDialog().showModal();
@@ -3741,9 +3766,9 @@ else init();
     const canvas=document.createElement('canvas'); canvas.width=1600; canvas.height=900; const ctx=canvas.getContext('2d');
     ctx.fillStyle='#eef2f7'; ctx.fillRect(0,0,1600,900);
     ctx.fillStyle='#101827'; ctx.fillRect(0,0,1600,150);
-    ctx.fillStyle='#fff'; ctx.font='700 44px Arial'; ctx.fillText(title,80,74); ctx.font='500 24px Arial'; ctx.fillText('Método Sobral • Performance Individual 360',80,116);
+    ctx.fillStyle='#fff'; ctx.font='700 44px Arial'; ctx.fillText(title,80,74); ctx.font='500 24px Arial'; ctx.fillText('MÃ©todo Sobral â€¢ Performance Individual 360',80,116);
     ctx.fillStyle='#fff'; roundRect(ctx,60,185,1480,645,28,true,false);
-    ctx.fillStyle='#334155'; ctx.font='700 28px Arial'; ctx.fillText('Dashboard gráfico',120,242);
+    ctx.fillStyle='#334155'; ctx.font='700 28px Arial'; ctx.fillText('Dashboard grÃ¡fico',120,242);
     ctx.strokeStyle='#dbe3ee'; ctx.lineWidth=2; [330,470,610].forEach(y=>{ctx.beginPath();ctx.moveTo(135,y);ctx.lineTo(1465,y);ctx.stroke();});
     const count=Math.max(rows.length,1); const gap=count>18?10:(count>10?14:24); const barW=Math.max(22,Math.min(86,(1260-(count-1)*gap)/count)); let x=180;
     rows.forEach(item=>{ const h=Math.max(8,320*(item.h/100)); const y=650-h; ctx.fillStyle='#2563eb'; roundRect(ctx,x,y,barW,h,12,true,false); ctx.fillStyle='#0f172a'; ctx.font='700 20px Arial'; ctx.textAlign='center'; ctx.fillText(item.value,x+barW/2,y-12); ctx.save(); ctx.translate(x+barW/2,762); ctx.rotate(-Math.PI/4); ctx.font=count>18?'700 13px Arial':(count>10?'700 15px Arial':'700 17px Arial'); ctx.textAlign='right'; ctx.fillText(item.label.slice(0,36),0,0); ctx.restore(); x += barW+gap; });
@@ -3812,10 +3837,10 @@ else init();
 })();
 
 /* ============================================================
-   AJUSTE FINAL v10 - nomes dos rankings + cabeçalho Zenir
-   - Rótulos dos gráficos inclinados no padrão solicitado, sem cortar
-   - Download do gráfico com margem inferior segura
-   - Nome J. Alves de Oliveira mais abaixo/organizado no cabeçalho da arte
+   AJUSTE FINAL v10 - nomes dos rankings + cabeÃ§alho Zenir
+   - RÃ³tulos dos grÃ¡ficos inclinados no padrÃ£o solicitado, sem cortar
+   - Download do grÃ¡fico com margem inferior segura
+   - Nome da empresa mais abaixo/organizado no cabecalho da arte
    ============================================================ */
 (function(){
   function esc360(v){ return (typeof esc === 'function') ? esc(v) : String(v||'').replace(/[&<>"']/g, s=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[s])); }
@@ -3823,18 +3848,18 @@ else init();
   function norm360(v){ return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
   function clean360(v){
     const raw = (typeof plainChartLabel === 'function' ? plainChartLabel(v) : String(v||''));
-    return raw.replace(/^\s*(?:🛏️|📺|🛋️|🪑|🔊|📱|🚲|💻|🗂️|🏷️|📍|🖼️|🧽|🧹|🧼|🤝|👤|📞|⏱️|✅|📝|📦|🛡️|🎯|📊|👥|💬|🚀|⚡|⚠️)\s*/u,'').trim();
+    return raw.replace(/^\s*(?:ðŸ›ï¸|ðŸ“º|ðŸ›‹ï¸|ðŸª‘|ðŸ”Š|ðŸ“±|ðŸš²|ðŸ’»|ðŸ—‚ï¸|ðŸ·ï¸|ðŸ“|ðŸ–¼ï¸|ðŸ§½|ðŸ§¹|ðŸ§¼|ðŸ¤|ðŸ‘¤|ðŸ“ž|â±ï¸|âœ…|ðŸ“|ðŸ“¦|ðŸ›¡ï¸|ðŸŽ¯|ðŸ“Š|ðŸ‘¥|ðŸ’¬|ðŸš€|âš¡|âš ï¸)\s*/u,'').trim();
   }
   function icon360(label){
     if(typeof displayIconForLabel === 'function') return displayIconForLabel(label) || '';
     const t = norm360(label);
-    const rules = [['cama','🛏️'],['eletro','📺'],['tv','📺'],['organiz','🗂️'],['preco','🏷️'],['etiqueta','🏷️'],['localizacao','📍'],['visual','🖼️'],['exposicao','🖼️'],['limpeza','🧽']];
+    const rules = [['cama','ðŸ›ï¸'],['eletro','ðŸ“º'],['tv','ðŸ“º'],['organiz','ðŸ—‚ï¸'],['preco','ðŸ·ï¸'],['etiqueta','ðŸ·ï¸'],['localizacao','ðŸ“'],['visual','ðŸ–¼ï¸'],['exposicao','ðŸ–¼ï¸'],['limpeza','ðŸ§½']];
     const f = rules.find(([k])=>t.includes(k));
     return f ? f[1] : '';
   }
   function max360(data){
     const mx = Math.max(...(data.rows||[]).map(r=>Number(r.value)||0),1);
-    return (data.metric === 'Nota' || data.metric === 'Média') ? 10 : mx;
+    return (data.metric === 'Nota' || data.metric === 'MÃ©dia') ? 10 : mx;
   }
   function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, maxLines){
     const words = String(text||'').split(/\s+/).filter(Boolean);
@@ -3858,10 +3883,10 @@ else init();
     const data = (typeof chartRows === 'function' ? chartRows(type) : window.chartRows(type));
     const rows = (data.rows && data.rows.length ? data.rows : [{label:'Sem dados', value:0, text:'0', icon:''}]).slice(0,30);
     const max = max360({...data, rows});
-    const isScore = data.metric === 'Nota' || data.metric === 'Média';
+    const isScore = data.metric === 'Nota' || data.metric === 'MÃ©dia';
     const printable = ensureChartDialog().querySelector('#chartPrintable');
-    printable.innerHTML = `<header class="chart-exec-header"><span>MÉTODO SOBRAL</span><h2>${esc360(data.title)}</h2><p>${esc360(data.metric)} • ${dateText(new Date().toISOString().slice(0,10))}</p></header>
-      <div class="chart-exec-body"><div class="chart-plot-card ${type==='occurrences'?'occurrence-plot-card':''}"><h3>Dashboard gráfico</h3><p>Barras ordenadas do maior para o menor</p>
+    printable.innerHTML = `<header class="chart-exec-header"><span>MÃ‰TODO SOBRAL</span><h2>${esc360(data.title)}</h2><p>${esc360(data.metric)} â€¢ ${dateText(new Date().toISOString().slice(0,10))}</p></header>
+      <div class="chart-exec-body"><div class="chart-plot-card ${type==='occurrences'?'occurrence-plot-card':''}"><h3>Dashboard grÃ¡fico</h3><p>Barras ordenadas do maior para o menor</p>
       <div class="vertical-chart v10-chart ${rows.length>10?'is-many':''}"><div class="axis-line y100">${isScore?'10':max}</div><div class="axis-line y50">${isScore?'5':Math.round(max/2)}</div><div class="axis-line y0">0</div>
       ${rows.map(row=>{ const val=Number(row.value)||0; const h=Math.max(val?6:2,Math.min(100,(val/max)*100)); const ic=row.icon||icon360(row.label); const label=`${ic?ic+' ':''}${clean360(row.label)}`; return `<div class="vbar-item" style="--h:${h}%"><b>${esc360(row.text)}</b><i></i><strong title="${esc360(label)}">${esc360(label)}</strong></div>`; }).join('')}</div></div></div>`;
     ensureChartDialog().showModal();
@@ -3881,9 +3906,9 @@ else init();
     ctx.fillStyle = '#eef2f7'; ctx.fillRect(0,0,1600,900);
     ctx.fillStyle = '#101827'; ctx.fillRect(0,0,1600,150);
     ctx.fillStyle = '#fff'; ctx.font = '700 44px Arial'; ctx.fillText(title,80,74);
-    ctx.font = '500 24px Arial'; ctx.fillText('Método Sobral • Performance Individual 360',80,116);
+    ctx.font = '500 24px Arial'; ctx.fillText('MÃ©todo Sobral â€¢ Performance Individual 360',80,116);
     ctx.fillStyle = '#fff'; roundRect(ctx,60,185,1480,655,28,true,false);
-    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.fillText('Dashboard gráfico',120,242);
+    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.fillText('Dashboard grÃ¡fico',120,242);
     ctx.strokeStyle = '#dbe3ee'; ctx.lineWidth = 2; [330,470,610].forEach(y=>{ctx.beginPath();ctx.moveTo(135,y);ctx.lineTo(1465,y);ctx.stroke();});
     const count = Math.max(rows.length,1);
     const gap = count > 18 ? 10 : (count > 10 ? 14 : 24);
@@ -3895,7 +3920,7 @@ else init();
       ctx.fillStyle = '#2563eb'; roundRect(ctx,x,y,barW,h,12,true,false);
       ctx.fillStyle = '#0f172a'; ctx.font = '700 20px Arial'; ctx.textAlign = 'center'; ctx.fillText(item.value,x+barW/2,y-12);
       ctx.save();
-      // Inclinação igual ao modelo enviado: diagonal moderada, próxima das barras e sem sair da imagem.
+      // InclinaÃ§Ã£o igual ao modelo enviado: diagonal moderada, prÃ³xima das barras e sem sair da imagem.
       ctx.translate(x+barW/2,730);
       ctx.rotate(-Math.PI/4);
       ctx.font = count > 18 ? '700 13px Arial' : (count > 10 ? '700 15px Arial' : '700 17px Arial');
@@ -3917,7 +3942,7 @@ else init();
     if(document.getElementById('sobralFinalV10Style')) return;
     const st = document.createElement('style'); st.id = 'sobralFinalV10Style';
     st.textContent = `
-      /* Nomes dos rankings nos gráficos: inclinados, próximos e sem cortar */
+      /* Nomes dos rankings nos grÃ¡ficos: inclinados, prÃ³ximos e sem cortar */
       .vertical-chart.v10-chart{height:420px!important;padding:46px 28px 132px 58px!important;gap:26px!important;overflow-x:auto!important;overflow-y:hidden!important;align-items:flex-end!important;}
       .vertical-chart.v10-chart .y0{bottom:132px!important;}
       .vertical-chart.v10-chart .vbar-item{min-width:88px!important;flex:1 0 88px!important;}
@@ -3928,7 +3953,7 @@ else init();
       .chart-plot-card{overflow:hidden!important;}
       .chart-printable{overflow:hidden!important;}
 
-      /* Cabeçalho da arte: J. Alves de Oliveira mais abaixo e alinhado à data */
+      /* Cabecalho da arte: nome da empresa mais abaixo e alinhado a data */
       .exec-meta{justify-content:center!important;align-items:center!important;text-align:center!important;padding:38px 22px 22px!important;gap:0!important;}
       .exec-meta .exec-brand-logo{width:min(315px,95%)!important;max-height:88px!important;margin:0 auto 2px!important;object-fit:contain!important;display:block!important;}
       .exec-meta strong{font-size:22px!important;line-height:1.1!important;margin:16px 0 0!important;text-align:center!important;display:block!important;}
@@ -3951,36 +3976,36 @@ else init();
 
 /* ============================================================
    AJUSTE FINAL v11 - ajuste fino pedido
-   - Rótulos dos gráficos mais próximos, inclinados no padrão do modelo e sem corte no download
-   - Nome da empresa abaixo da logo mais próximo da data
+   - RÃ³tulos dos grÃ¡ficos mais prÃ³ximos, inclinados no padrÃ£o do modelo e sem corte no download
+   - Nome da empresa abaixo da logo mais prÃ³ximo da data
    ============================================================ */
 (function(){
   function safeEsc(v){ return (typeof esc === 'function') ? esc(v) : String(v||'').replace(/[&<>"']/g, s=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[s])); }
   function norm(v){ return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
   function cleanLabel(v){
     const raw = (typeof plainChartLabel === 'function') ? plainChartLabel(v) : String(v||'');
-    return raw.replace(/^\s*(?:🛏️|📺|🛋️|🪑|🔊|📱|🚲|💻|🗂️|🏷️|📍|🖼️|🧽|🧹|🧼|🤝|👤|📞|⏱️|✅|📝|📦|🛡️|🎯|📊|👥|💬|🚀|⚡|⚠️)\s*/u,'').trim();
+    return raw.replace(/^\s*(?:ðŸ›ï¸|ðŸ“º|ðŸ›‹ï¸|ðŸª‘|ðŸ”Š|ðŸ“±|ðŸš²|ðŸ’»|ðŸ—‚ï¸|ðŸ·ï¸|ðŸ“|ðŸ–¼ï¸|ðŸ§½|ðŸ§¹|ðŸ§¼|ðŸ¤|ðŸ‘¤|ðŸ“ž|â±ï¸|âœ…|ðŸ“|ðŸ“¦|ðŸ›¡ï¸|ðŸŽ¯|ðŸ“Š|ðŸ‘¥|ðŸ’¬|ðŸš€|âš¡|âš ï¸)\s*/u,'').trim();
   }
   function labelIcon(label){
     if(typeof displayIconForLabel === 'function') return displayIconForLabel(label) || '';
     const t = norm(label);
-    const rules = [['cama','🛏️'],['eletro','📺'],['tv','📺'],['preco','🏷️'],['etiqueta','🏷️'],['localizacao','📍'],['visual','🖼️'],['exposicao','🖼️'],['limpeza','🧽'],['organiz','🗂️']];
+    const rules = [['cama','ðŸ›ï¸'],['eletro','ðŸ“º'],['tv','ðŸ“º'],['preco','ðŸ·ï¸'],['etiqueta','ðŸ·ï¸'],['localizacao','ðŸ“'],['visual','ðŸ–¼ï¸'],['exposicao','ðŸ–¼ï¸'],['limpeza','ðŸ§½'],['organiz','ðŸ—‚ï¸']];
     const f = rules.find(([k])=>t.includes(k));
     return f ? f[1] : '';
   }
   function maxFor(data){
     const mx = Math.max(...(data.rows||[]).map(r=>Number(r.value)||0),1);
-    return (data.metric === 'Nota' || data.metric === 'Média') ? 10 : mx;
+    return (data.metric === 'Nota' || data.metric === 'MÃ©dia') ? 10 : mx;
   }
 
   window.openDashboardChart = function(type){
     const data = (typeof chartRows === 'function' ? chartRows(type) : window.chartRows(type));
     const rows = (data.rows && data.rows.length ? data.rows : [{label:'Sem dados', value:0, text:'0', icon:''}]).slice(0,30);
     const max = maxFor({...data, rows});
-    const isScore = data.metric === 'Nota' || data.metric === 'Média';
+    const isScore = data.metric === 'Nota' || data.metric === 'MÃ©dia';
     const printable = ensureChartDialog().querySelector('#chartPrintable');
-    printable.innerHTML = `<header class="chart-exec-header"><span>MÉTODO SOBRAL</span><h2>${safeEsc(data.title)}</h2><p>${safeEsc(data.metric)} • ${dateText(new Date().toISOString().slice(0,10))}</p></header>
-      <div class="chart-exec-body"><div class="chart-plot-card ${type==='occurrences'?'occurrence-plot-card':''}"><h3>Dashboard gráfico</h3><p>Barras ordenadas do maior para o menor</p>
+    printable.innerHTML = `<header class="chart-exec-header"><span>MÃ‰TODO SOBRAL</span><h2>${safeEsc(data.title)}</h2><p>${safeEsc(data.metric)} â€¢ ${dateText(new Date().toISOString().slice(0,10))}</p></header>
+      <div class="chart-exec-body"><div class="chart-plot-card ${type==='occurrences'?'occurrence-plot-card':''}"><h3>Dashboard grÃ¡fico</h3><p>Barras ordenadas do maior para o menor</p>
       <div class="vertical-chart v11-chart ${rows.length>10?'is-many':''}"><div class="axis-line y100">${isScore?'10':max}</div><div class="axis-line y50">${isScore?'5':Math.round(max/2)}</div><div class="axis-line y0">0</div>
       ${rows.map(row=>{ const val=Number(row.value)||0; const h=Math.max(val?6:2,Math.min(100,(val/max)*100)); const ic=row.icon||labelIcon(row.label); const label=`${ic?ic+' ':''}${cleanLabel(row.label)}`; return `<div class="vbar-item" style="--h:${h}%"><b>${safeEsc(row.text)}</b><i></i><strong title="${safeEsc(label)}">${safeEsc(label)}</strong></div>`; }).join('')}</div></div></div>`;
     ensureChartDialog().showModal();
@@ -4000,9 +4025,9 @@ else init();
     ctx.fillStyle = '#eef2f7'; ctx.fillRect(0,0,1600,900);
     ctx.fillStyle = '#101827'; ctx.fillRect(0,0,1600,150);
     ctx.fillStyle = '#fff'; ctx.font = '700 44px Arial'; ctx.fillText(title,80,74);
-    ctx.font = '500 24px Arial'; ctx.fillText('Método Sobral • Performance Individual 360',80,116);
+    ctx.font = '500 24px Arial'; ctx.fillText('MÃ©todo Sobral â€¢ Performance Individual 360',80,116);
     ctx.fillStyle = '#fff'; roundRect(ctx,60,185,1480,690,28,true,false);
-    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.fillText('Dashboard gráfico',120,242);
+    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.fillText('Dashboard grÃ¡fico',120,242);
     ctx.strokeStyle = '#dbe3ee'; ctx.lineWidth = 2;
     [330,470,610].forEach(y=>{ctx.beginPath();ctx.moveTo(135,y);ctx.lineTo(1465,y);ctx.stroke();});
     const count = Math.max(rows.length,1);
@@ -4015,7 +4040,7 @@ else init();
       ctx.fillStyle = '#2563eb'; roundRect(ctx,x,y,barW,h,12,true,false);
       ctx.fillStyle = '#0f172a'; ctx.font = '700 20px Arial'; ctx.textAlign = 'center'; ctx.fillText(item.value,x+barW/2,y-12);
       ctx.save();
-      // Padrão do modelo: inclinado em diagonal, começando logo abaixo da coluna e sem cortar.
+      // PadrÃ£o do modelo: inclinado em diagonal, comeÃ§ando logo abaixo da coluna e sem cortar.
       ctx.translate(x+barW/2,704);
       ctx.rotate(-Math.PI/4);
       ctx.font = count > 18 ? '700 13px Arial' : (count > 10 ? '700 15px Arial' : '700 17px Arial');
@@ -4038,7 +4063,7 @@ else init();
     const st = document.createElement('style');
     st.id = 'sobralFinalV11Style';
     st.textContent = `
-      /* Gráficos: nomes inclinados como modelo, próximos das colunas e dentro do cartão */
+      /* GrÃ¡ficos: nomes inclinados como modelo, prÃ³ximos das colunas e dentro do cartÃ£o */
       .chart-printable,.chart-plot-card{overflow:visible!important;}
       .vertical-chart.v11-chart{height:420px!important;padding:46px 28px 128px 58px!important;gap:26px!important;overflow-x:auto!important;overflow-y:visible!important;align-items:flex-end!important;}
       .vertical-chart.v11-chart .y0{bottom:128px!important;}
@@ -4048,7 +4073,7 @@ else init();
       .vertical-chart.v11-chart .vbar-item strong{bottom:-42px!important;left:50%!important;transform:translateX(-50%) rotate(-45deg)!important;transform-origin:top right!important;width:158px!important;text-align:right!important;font-size:12px!important;line-height:1.05!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;color:#0f172a!important;}
       .vertical-chart.v11-chart .vbar-item strong:empty{display:none!important;}
 
-      /* Cabeçalho da arte/PDF: empresa mais baixa, aproximando da data */
+      /* CabeÃ§alho da arte/PDF: empresa mais baixa, aproximando da data */
       .exec-meta{justify-content:center!important;align-items:center!important;text-align:center!important;padding:34px 22px 22px!important;gap:0!important;}
       .exec-meta .exec-brand-logo{width:min(315px,95%)!important;max-height:88px!important;margin:0 auto 0!important;object-fit:contain!important;display:block!important;}
       .exec-meta strong{font-size:22px!important;line-height:1.1!important;margin:20px 0 0!important;text-align:center!important;display:block!important;}
@@ -4068,20 +4093,20 @@ else init();
 })();
 
 /* ============================================================
-   AJUSTE FINAL v12 - alinhamento dos nomes dos gráficos e destaque
-   - rótulos inclinados padronizados no rodapé, sem emoji “caído”
-   - textos longos com reticências
+   AJUSTE FINAL v12 - alinhamento dos nomes dos grÃ¡ficos e destaque
+   - rÃ³tulos inclinados padronizados no rodapÃ©, sem emoji â€œcaÃ­doâ€
+   - textos longos com reticÃªncias
    - destaque "Mais recorrente" organizado
-   - sem ícone quando não existir regra
+   - sem Ã­cone quando nÃ£o existir regra
    ============================================================ */
 (function(){
   function safeEsc(v){ return (typeof esc === 'function') ? esc(v) : String(v||'').replace(/[&<>"']/g, s=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[s])); }
   function norm(v){ return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
   const iconRules = [
-    ['cama','🛏️'],['colch','🛏️'],['eletro','📺'],['tv','📺'],['televis','📺'],['move','🛋️'],['sofa','🛋️'],['celular','📱'],['telefon','📱'],['bicic','🚲'],
-    ['organiz','🗂️'],['preco','🏷️'],['etiqueta','🏷️'],['localizacao','📍'],['exposicao','🖼️'],['visual','🖼️'],
-    ['limpeza','🧽'],['sujeira','🧹'],['conservacao','🧼'],['atendimento','🤝'],['cliente','👤'],['pos venda','📞'],['atraso','⏱️'],
-    ['disciplina','✅'],['cadastro','📝'],['estoque','📦'],['servico','🛡️'],['meta','🎯'],['resultado','📊'],['equipe','👥'],['comunicacao','💬']
+    ['cama','ðŸ›ï¸'],['colch','ðŸ›ï¸'],['eletro','ðŸ“º'],['tv','ðŸ“º'],['televis','ðŸ“º'],['move','ðŸ›‹ï¸'],['sofa','ðŸ›‹ï¸'],['celular','ðŸ“±'],['telefon','ðŸ“±'],['bicic','ðŸš²'],
+    ['organiz','ðŸ—‚ï¸'],['preco','ðŸ·ï¸'],['etiqueta','ðŸ·ï¸'],['localizacao','ðŸ“'],['exposicao','ðŸ–¼ï¸'],['visual','ðŸ–¼ï¸'],
+    ['limpeza','ðŸ§½'],['sujeira','ðŸ§¹'],['conservacao','ðŸ§¼'],['atendimento','ðŸ¤'],['cliente','ðŸ‘¤'],['pos venda','ðŸ“ž'],['atraso','â±ï¸'],
+    ['disciplina','âœ…'],['cadastro','ðŸ“'],['estoque','ðŸ“¦'],['servico','ðŸ›¡ï¸'],['meta','ðŸŽ¯'],['resultado','ðŸ“Š'],['equipe','ðŸ‘¥'],['comunicacao','ðŸ’¬']
   ];
   window.displayIconForLabel = function(label){
     const t = norm(label);
@@ -4101,7 +4126,7 @@ else init();
   }
   function maxFor(data, rows){
     const mx = Math.max(...(rows||[]).map(r=>Number(r.value)||0), 1);
-    return (data.metric === 'Nota' || data.metric === 'Média') ? 10 : mx;
+    return (data.metric === 'Nota' || data.metric === 'MÃ©dia') ? 10 : mx;
   }
 
   window.renderTopOccurrences = function(occurrences){
@@ -4119,12 +4144,12 @@ else init();
       const icon = displayIconForLabel(name);
       return `<div class="ranking-row occurrence-row-v12">
         ${icon ? `<span class="ranking-icon">${safeEsc(icon)}</span>` : `<span class="ranking-icon no-icon" aria-hidden="true"></span>`}
-        <div><strong>${safeEsc(name)}</strong><small>${data.count} ocorrência(s) | qtd. ${data.quantity}</small></div><strong>${data.count}</strong>
+        <div><strong>${safeEsc(name)}</strong><small>${data.count} ocorrÃªncia(s) | qtd. ${data.quantity}</small></div><strong>${data.count}</strong>
       </div>`;
     }).join('');
     const target = document.getElementById('topOccurrences');
     if(!target) return;
-    if(!top){ target.innerHTML = `<div class="empty">Nenhuma ocorrência.</div>`; return; }
+    if(!top){ target.innerHTML = `<div class="empty">Nenhuma ocorrÃªncia.</div>`; return; }
     const [name,data] = top;
     const icon = displayIconForLabel(name);
     target.innerHTML = `<div class="ranking-row highlight-row top-recurrent-v12">
@@ -4137,10 +4162,10 @@ else init();
     const data = chartRows(type);
     const rows = (data.rows && data.rows.length ? data.rows : [{label:'Sem dados', value:0, text:'0', icon:''}]).slice(0, 30);
     const max = maxFor(data, rows);
-    const isScore = data.metric === 'Nota' || data.metric === 'Média';
+    const isScore = data.metric === 'Nota' || data.metric === 'MÃ©dia';
     const printable = ensureChartDialog().querySelector('#chartPrintable');
-    printable.innerHTML = `<header class="chart-exec-header"><span>MÉTODO SOBRAL</span><h2>${safeEsc(data.title)}</h2><p>${safeEsc(data.metric)} • ${dateText(new Date().toISOString().slice(0,10))}</p></header>
-      <div class="chart-exec-body"><div class="chart-plot-card"><h3>Dashboard gráfico</h3><p>Barras ordenadas do maior para o menor</p>
+    printable.innerHTML = `<header class="chart-exec-header"><span>MÃ‰TODO SOBRAL</span><h2>${safeEsc(data.title)}</h2><p>${safeEsc(data.metric)} â€¢ ${dateText(new Date().toISOString().slice(0,10))}</p></header>
+      <div class="chart-exec-body"><div class="chart-plot-card"><h3>Dashboard grÃ¡fico</h3><p>Barras ordenadas do maior para o menor</p>
       <div class="vertical-chart v12-chart ${rows.length>10?'is-many':''}"><div class="axis-line y100">${isScore?'10':max}</div><div class="axis-line y50">${isScore?'5':Math.round(max/2)}</div><div class="axis-line y0">0</div>
       ${rows.map(row=>{
         const val = Number(row.value)||0;
@@ -4168,9 +4193,9 @@ else init();
     ctx.fillStyle = '#eef2f7'; ctx.fillRect(0,0,1600,900);
     ctx.fillStyle = '#101827'; ctx.fillRect(0,0,1600,150);
     ctx.fillStyle = '#fff'; ctx.font = '700 44px Arial'; ctx.fillText(title,80,74);
-    ctx.font = '500 24px Arial'; ctx.fillText('Método Sobral • Performance Individual 360',80,116);
+    ctx.font = '500 24px Arial'; ctx.fillText('MÃ©todo Sobral â€¢ Performance Individual 360',80,116);
     ctx.fillStyle = '#fff'; roundRect(ctx,60,185,1480,690,28,true,false);
-    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.fillText('Dashboard gráfico',120,242);
+    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.fillText('Dashboard grÃ¡fico',120,242);
     ctx.strokeStyle = '#dbe3ee'; ctx.lineWidth = 2;
     [330,470,610].forEach(y=>{ctx.beginPath();ctx.moveTo(135,y);ctx.lineTo(1465,y);ctx.stroke();});
     const count = Math.max(rows.length,1);
@@ -4183,7 +4208,7 @@ else init();
       ctx.fillStyle = '#2563eb'; roundRect(ctx,x,y,barW,h,12,true,false);
       ctx.fillStyle = '#0f172a'; ctx.font = '700 20px Arial'; ctx.textAlign = 'center'; ctx.fillText(item.value,x+barW/2,y-12);
       ctx.save();
-      // Rodapé alinhado: o texto nasce sempre da mesma linha; nomes grandes recebem reticências.
+      // RodapÃ© alinhado: o texto nasce sempre da mesma linha; nomes grandes recebem reticÃªncias.
       ctx.translate(x+barW/2,724);
       ctx.rotate(-Math.PI/4);
       ctx.font = count > 18 ? '700 13px Arial' : (count > 10 ? '700 15px Arial' : '700 17px Arial');
@@ -4241,11 +4266,11 @@ else init();
 })();
 
 /* ============================================================
-   AJUSTE FINAL v11 - alinhamento definitivo emoji + nome no gráfico baixado
-   - Mantém emoji
+   AJUSTE FINAL v11 - alinhamento definitivo emoji + nome no grÃ¡fico baixado
+   - MantÃ©m emoji
    - Alinha emoji e texto na mesma base, tanto na tela quanto no PNG
    - Nomes longos recebem ...
-   - O download passa a seguir o mesmo padrão visual da prévia
+   - O download passa a seguir o mesmo padrÃ£o visual da prÃ©via
    ============================================================ */
 (function(){
   function esc360(v){ return (typeof esc === 'function') ? esc(v) : String(v||'').replace(/[&<>"']/g, s=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[s])); }
@@ -4253,13 +4278,13 @@ else init();
   function icon360(label){
     if(typeof displayIconForLabel === 'function') return displayIconForLabel(label) || '';
     const t = norm360(label);
-    const rules = [['preco','🏷️'],['etiqueta','🏷️'],['localizacao','📍'],['limpeza','🧽'],['sujeira','🧹'],['organ','🗂️'],['eletro','📺'],['cama','🛏️']];
+    const rules = [['preco','ðŸ·ï¸'],['etiqueta','ðŸ·ï¸'],['localizacao','ðŸ“'],['limpeza','ðŸ§½'],['sujeira','ðŸ§¹'],['organ','ðŸ—‚ï¸'],['eletro','ðŸ“º'],['cama','ðŸ›ï¸']];
     const f = rules.find(([k])=>t.includes(k));
     return f ? f[1] : '';
   }
   function clean360(v){
     const raw = (typeof plainChartLabel === 'function' ? plainChartLabel(v) : String(v||''));
-    return raw.replace(/^\s*(?:[\u{1F300}-\u{1FAFF}]|✅|⚠️|⏱️)\s*/u,'').trim();
+    return raw.replace(/^\s*(?:[\u{1F300}-\u{1FAFF}]|âœ…|âš ï¸|â±ï¸)\s*/u,'').trim();
   }
   function shorten(text, max){
     text = String(text||'').trim();
@@ -4267,7 +4292,7 @@ else init();
   }
   function maxFor(data){
     const mx = Math.max(...(data.rows||[]).map(r=>Number(r.value)||0),1);
-    return (data.metric === 'Nota' || data.metric === 'Média') ? 10 : mx;
+    return (data.metric === 'Nota' || data.metric === 'MÃ©dia') ? 10 : mx;
   }
   function preparedRows(type){
     const data = (typeof chartRows === 'function' ? chartRows(type) : window.chartRows(type));
@@ -4284,10 +4309,10 @@ else init();
     const data = pack.data;
     const rows = pack.rows;
     const max = maxFor({...data, rows});
-    const isScore = data.metric === 'Nota' || data.metric === 'Média';
+    const isScore = data.metric === 'Nota' || data.metric === 'MÃ©dia';
     const printable = ensureChartDialog().querySelector('#chartPrintable');
-    printable.innerHTML = `<header class="chart-exec-header"><span>MÉTODO SOBRAL</span><h2>${esc360(data.title)}</h2><p>${esc360(data.metric)} • ${dateText(new Date().toISOString().slice(0,10))}</p></header>
-      <div class="chart-exec-body"><div class="chart-plot-card ${type==='occurrences'?'occurrence-plot-card':''}"><h3>Dashboard gráfico</h3><p>Barras ordenadas do maior para o menor</p>
+    printable.innerHTML = `<header class="chart-exec-header"><span>MÃ‰TODO SOBRAL</span><h2>${esc360(data.title)}</h2><p>${esc360(data.metric)} â€¢ ${dateText(new Date().toISOString().slice(0,10))}</p></header>
+      <div class="chart-exec-body"><div class="chart-plot-card ${type==='occurrences'?'occurrence-plot-card':''}"><h3>Dashboard grÃ¡fico</h3><p>Barras ordenadas do maior para o menor</p>
       <div class="vertical-chart v11-chart ${rows.length>10?'is-many':''}"><div class="axis-line y100">${isScore?'10':max}</div><div class="axis-line y50">${isScore?'5':Math.round(max/2)}</div><div class="axis-line y0">0</div>
       ${rows.map(row=>{ const val=Number(row.value)||0; const h=Math.max(val?6:2,Math.min(100,(val/max)*100)); return `<div class="vbar-item" style="--h:${h}%"><b>${esc360(row.text)}</b><i></i><strong title="${esc360((row.__icon?row.__icon+' ':'')+row.__label)}"><span class="chart-label-text">${esc360(row.__short)}</span>${row.__icon ? `<span class="chart-label-emoji">${esc360(row.__icon)}</span>` : ''}</strong></div>`; }).join('')}</div></div></div>`;
     ensureChartDialog().showModal();
@@ -4310,10 +4335,10 @@ else init();
     ctx.fillStyle = '#eef2f7'; ctx.fillRect(0,0,1600,900);
     ctx.fillStyle = '#101827'; ctx.fillRect(0,0,1600,150);
     ctx.fillStyle = '#fff'; ctx.font = '700 44px Arial'; ctx.textAlign='left'; ctx.fillText(title,80,74);
-    ctx.font = '500 24px Arial'; ctx.fillText('Método Sobral • Performance Individual 360',80,116);
+    ctx.font = '500 24px Arial'; ctx.fillText('MÃ©todo Sobral â€¢ Performance Individual 360',80,116);
 
     ctx.fillStyle = '#fff'; roundRect(ctx,60,185,1480,655,28,true,false);
-    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.textAlign='left'; ctx.fillText('Dashboard gráfico',120,242);
+    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.textAlign='left'; ctx.fillText('Dashboard grÃ¡fico',120,242);
     ctx.strokeStyle = '#dbe3ee'; ctx.lineWidth = 2;
     [330,470,610].forEach(y=>{ ctx.beginPath(); ctx.moveTo(135,y); ctx.lineTo(1465,y); ctx.stroke(); });
 
@@ -4384,11 +4409,11 @@ else init();
 })();
 
 /* ============================================================
-   AJUSTE FINAL v13 - alinhamento real emoji + nome nos gráficos
-   - Mantém os emojis
-   - Emoji e nome passam a ser UMA ÚNICA LINHA inclinada
+   AJUSTE FINAL v13 - alinhamento real emoji + nome nos grÃ¡ficos
+   - MantÃ©m os emojis
+   - Emoji e nome passam a ser UMA ÃšNICA LINHA inclinada
    - A linha fica centralizada exatamente abaixo da barra
-   - O PNG baixado usa a mesma regra, sem emoji caído/desalinhado
+   - O PNG baixado usa a mesma regra, sem emoji caÃ­do/desalinhado
    ============================================================ */
 (function(){
   function esc360(v){ return (typeof esc === 'function') ? esc(v) : String(v||'').replace(/[&<>"']/g, s=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[s])); }
@@ -4396,13 +4421,13 @@ else init();
   function icon360(label){
     if(typeof displayIconForLabel === 'function') return displayIconForLabel(label) || '';
     const t = norm360(label);
-    const rules = [['preco','🏷️'],['etiqueta','🏷️'],['localizacao','📍'],['limpeza','🧽'],['sujeira','🧹'],['organ','🗂️'],['eletro','📺'],['cama','🛏️'],['disciplina','⏱️'],['atraso','⏱️']];
+    const rules = [['preco','ðŸ·ï¸'],['etiqueta','ðŸ·ï¸'],['localizacao','ðŸ“'],['limpeza','ðŸ§½'],['sujeira','ðŸ§¹'],['organ','ðŸ—‚ï¸'],['eletro','ðŸ“º'],['cama','ðŸ›ï¸'],['disciplina','â±ï¸'],['atraso','â±ï¸']];
     const f = rules.find(([k])=>t.includes(k));
     return f ? f[1] : '';
   }
   function clean360(v){
     const raw = (typeof plainChartLabel === 'function' ? plainChartLabel(v) : String(v||''));
-    return raw.replace(/^\s*(?:[\u{1F300}-\u{1FAFF}]|✅|⚠️|⏱️)\s*/u,'').trim();
+    return raw.replace(/^\s*(?:[\u{1F300}-\u{1FAFF}]|âœ…|âš ï¸|â±ï¸)\s*/u,'').trim();
   }
   function shorten(text, max){
     text = String(text||'').trim();
@@ -4410,7 +4435,7 @@ else init();
   }
   function maxFor(data){
     const mx = Math.max(...(data.rows||[]).map(r=>Number(r.value)||0),1);
-    return (data.metric === 'Nota' || data.metric === 'Média') ? 10 : mx;
+    return (data.metric === 'Nota' || data.metric === 'MÃ©dia') ? 10 : mx;
   }
   function preparedRows(type){
     const data = (typeof chartRows === 'function' ? chartRows(type) : window.chartRows(type));
@@ -4428,10 +4453,10 @@ else init();
     const data = pack.data;
     const rows = pack.rows;
     const max = maxFor({...data, rows});
-    const isScore = data.metric === 'Nota' || data.metric === 'Média';
+    const isScore = data.metric === 'Nota' || data.metric === 'MÃ©dia';
     const printable = ensureChartDialog().querySelector('#chartPrintable');
-    printable.innerHTML = `<header class="chart-exec-header"><span>MÉTODO SOBRAL</span><h2>${esc360(data.title)}</h2><p>${esc360(data.metric)} • ${dateText(new Date().toISOString().slice(0,10))}</p></header>
-      <div class="chart-exec-body"><div class="chart-plot-card occurrence-plot-card"><h3>Dashboard gráfico</h3><p>Barras ordenadas do maior para o menor</p>
+    printable.innerHTML = `<header class="chart-exec-header"><span>MÃ‰TODO SOBRAL</span><h2>${esc360(data.title)}</h2><p>${esc360(data.metric)} â€¢ ${dateText(new Date().toISOString().slice(0,10))}</p></header>
+      <div class="chart-exec-body"><div class="chart-plot-card occurrence-plot-card"><h3>Dashboard grÃ¡fico</h3><p>Barras ordenadas do maior para o menor</p>
       <div class="vertical-chart v13-chart ${rows.length>10?'is-many':''}"><div class="axis-line y100">${isScore?'10':max}</div><div class="axis-line y50">${isScore?'5':Math.round(max/2)}</div><div class="axis-line y0">0</div>
       ${rows.map(row=>{ const val=Number(row.value)||0; const h=Math.max(val?6:2,Math.min(100,(val/max)*100)); return `<div class="vbar-item" style="--h:${h}%"><b>${esc360(row.text)}</b><i></i><strong title="${esc360((row.__icon?row.__icon+' ':'')+row.__label)}"><span class="chart-full-label">${esc360(row.__full)}</span></strong></div>`; }).join('')}</div></div></div>`;
     ensureChartDialog().showModal();
@@ -4453,10 +4478,10 @@ else init();
     ctx.fillStyle = '#eef2f7'; ctx.fillRect(0,0,1600,900);
     ctx.fillStyle = '#101827'; ctx.fillRect(0,0,1600,150);
     ctx.fillStyle = '#fff'; ctx.font = '700 44px Arial'; ctx.textAlign='left'; ctx.fillText(title,80,74);
-    ctx.font = '500 24px Arial'; ctx.fillText('Método Sobral • Performance Individual 360',80,116);
+    ctx.font = '500 24px Arial'; ctx.fillText('MÃ©todo Sobral â€¢ Performance Individual 360',80,116);
 
     ctx.fillStyle = '#fff'; roundRect(ctx,60,185,1480,655,28,true,false);
-    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.textAlign='left'; ctx.fillText('Dashboard gráfico',120,242);
+    ctx.fillStyle = '#334155'; ctx.font = '700 28px Arial'; ctx.textAlign='left'; ctx.fillText('Dashboard grÃ¡fico',120,242);
     ctx.strokeStyle = '#dbe3ee'; ctx.lineWidth = 2;
     [330,470,610].forEach(y=>{ ctx.beginPath(); ctx.moveTo(135,y); ctx.lineTo(1465,y); ctx.stroke(); });
 
@@ -4466,7 +4491,7 @@ else init();
     let x = 180;
     const labelFont = count > 18 ? '700 13px Arial' : (count > 10 ? '700 15px Arial' : '700 17px Arial');
     const labelMax = count > 18 ? 22 : (count > 10 ? 26 : 30);
-    const labelY = 775; // linha-base fixa: todos os nomes/emojis alinham neste rodapé
+    const labelY = 775; // linha-base fixa: todos os nomes/emojis alinham neste rodapÃ©
 
     rows.forEach(item=>{
       const h = Math.max(8, 320*(item.h/100));
@@ -4483,8 +4508,8 @@ else init();
       ctx.fillStyle = '#0f172a';
       ctx.font = labelFont;
       let txt = String(item.full||'').trim();
-      // encurta mantendo emoji no começo, quando existir
-      const m = txt.match(/^([\u{1F300}-\u{1FAFF}]|✅|⚠️|⏱️)\s+(.*)$/u);
+      // encurta mantendo emoji no comeÃ§o, quando existir
+      const m = txt.match(/^([\u{1F300}-\u{1FAFF}]|âœ…|âš ï¸|â±ï¸)\s+(.*)$/u);
       if(m) txt = m[1] + ' ' + shorten(m[2], labelMax);
       else txt = shorten(txt, labelMax);
       ctx.fillText(txt, 0, 0);
@@ -4531,7 +4556,7 @@ else init();
     const st = document.createElement('style');
     st.id = 'sobralAdminStatusInlineV14';
     st.textContent = `
-      /* Configurações: Status + botão de orientação na mesma linha para economizar espaço */
+      /* ConfiguraÃ§Ãµes: Status + botÃ£o de orientaÃ§Ã£o na mesma linha para economizar espaÃ§o */
       #criteriaAdmin .admin-criterion{
         grid-template-columns:minmax(220px,1fr) 110px minmax(170px,220px) 96px!important;
         align-items:end!important;
@@ -4577,3 +4602,4 @@ else init();
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, {once:true}); else run();
 })();
+

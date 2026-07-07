@@ -1,10 +1,11 @@
-const CACHE_NAME = "performance-360-pwa-report-flow-20260707-2";
+const CACHE_NAME = "performance360-v3";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./styles.css",
   "./app.js",
   "./manifest.json",
+  "./icone-192.png",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/maskable-512.png",
@@ -29,11 +30,31 @@ self.addEventListener("activate", event => {
 
 self.addEventListener("fetch", event => {
   if(event.request.method !== "GET") return;
+
+  const url = new URL(event.request.url);
+  const isAppFile = url.pathname.endsWith("/") ||
+    url.pathname.endsWith("/index.html") ||
+    url.pathname.endsWith("/manifest.json") ||
+    url.pathname.endsWith("/service-worker.js");
+
+  if(isAppFile){
+    event.respondWith(
+      fetch(event.request, {cache:"no-store"})
+        .then(response => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy)).catch(() => undefined);
+          return response;
+        })
+        .catch(() => caches.match(event.request).then(cached => cached || caches.match("./index.html")))
+    );
+    return;
+  }
+
   event.respondWith(
-    fetch(event.request).then(response => {
+    caches.match(event.request).then(cached => cached || fetch(event.request).then(response => {
       const copy = response.clone();
       caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy)).catch(() => undefined);
       return response;
-    }).catch(() => caches.match(event.request).then(cached => cached || caches.match("./index.html")))
+    }))
   );
 });

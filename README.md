@@ -1,31 +1,67 @@
 # Performance Individual 360
 
-Sistema responsivo para avaliação individual de colaboradores, ocorrências, feedback, histórico, dashboard, relatórios e geração de artes para compartilhamento.
+Sistema mobile-first para avaliacao individual de colaboradores, com checklist por ocorrencia, historico auditavel, dashboard, relatorios executivos, PDI e geracao de arte profissional para compartilhamento.
 
-## Arquivos principais
+## Acesso
 
-- `index.html` — estrutura principal do sistema.
-- `styles.css` — layout desktop, tablet e celular.
-- `app.js` — regras de negócio, localStorage, relatórios, canvas e backup.
-- `manifest.json` — instalação como aplicativo/PWA.
-- `service-worker.js` — cache e funcionamento offline.
-- `icons/` — ícones do aplicativo.
+Abra pelo navegador:
 
-## Publicação no GitHub Pages
+`http://127.0.0.1:8765/index.html`
 
-Envie todos os arquivos deste pacote para a raiz do repositório e mantenha o GitHub Pages em:
+Para uso no celular, publique no GitHub Pages ou acesse pelo endereco de rede do servidor local, mantendo computador e celular no mesmo Wi-Fi.
 
-- Source: Deploy from a branch
-- Branch: principal
-- Folder: / (root)
+## Instalar como aplicativo
 
-Depois acesse o link do GitHub Pages no celular e escolha **Adicionar à tela inicial** ou **Instalar aplicativo**.
+A plataforma esta preparada como PWA:
 
-## Dados
+- `manifest.json`: nome, icones, tema e modo standalone.
+- `service-worker.js`: cache basico para abertura mais rapida e suporte offline inicial.
+- `icons/`: icones do app.
+- `assets/`: logos usadas nos relatorios e artes.
 
-Os dados ficam salvos no `localStorage` do navegador. Use o botão **Backup JSON** para guardar uma cópia antes de trocar de celular, limpar cache ou atualizar a plataforma.
+No celular, abra o site no Chrome e use:
 
+`Menu > Adicionar a tela inicial`
 
-## Versão PRO PWA
+Quando o navegador permitir, o proprio sistema tambem pode exibir o botao `Instalar app`.
 
-Esta versão inclui ajustes de experiência mobile em estilo aplicativo, PWA instalável, service worker, tela em modo standalone, cards executivos, dashboard com KPIs destacados, avaliação com acordeão inteligente, nota fixa durante avaliação e melhorias visuais para Android/iOS.
+## Arquivos para publicar no GitHub Pages
+
+Suba estes arquivos e pastas na raiz do repositorio:
+
+- `index.html`
+- `styles.css`
+- `app.js`
+- `manifest.json`
+- `service-worker.js`
+- `assets/`
+- `icons/`
+
+O arquivo `PERFORMANCE_360_AVALIACAO_ATUALIZADO.html` e uma versao avulsa para teste/local, mas para site publicado o ideal e usar os arquivos separados acima.
+
+## Recursos principais
+
+- Cadastro de colaboradores com foto, cargo, setor e status ativo/inativo.
+- Categorias e criterios editaveis pelo administrador.
+- Pontuacao automatica redistribuida entre criterios ativos.
+- Checklist em acordeao com desconto automatico na nota.
+- Observacao, quantidade encontrada, gravidade e evidencias por ocorrencia.
+- Upload de foto, video e audio.
+- Contestacao, status da ocorrencia e acao corretiva.
+- Linha do tempo por colaborador.
+- Dashboard com rankings, evolucao, ocorrencias e indicadores por setor/categoria.
+- Relatorios parcial semanal, quinzenal, fechamento mensal, comparativo e PDI.
+- Arte profissional com foto, nota, classificacao, pontos fortes e ocorrencias.
+- Download da imagem, download em PDF e envio via WhatsApp.
+- Backup e importacao JSON.
+- Interface mobile com barra inferior fixa estilo aplicativo.
+
+## Armazenamento
+
+Os dados ficam no `localStorage` do navegador utilizado.
+
+Para trocar de aparelho ou preservar os registros, use o botao `Backup JSON` e depois `Importar backup`.
+
+## Observacao
+
+Por usar `localStorage`, os dados nao ficam em servidor central. Se o navegador limpar dados do site, os registros podem ser perdidos sem backup.

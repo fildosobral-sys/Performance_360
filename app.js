@@ -832,8 +832,8 @@ function updateCategoryVisual(categoryId){
   element.classList.toggle("is-edited", edited);
   const badge = element.querySelector(".category-count");
   if(badge){
-    const base = badge.dataset.count || badge.textContent.replace(/\s*(OK|✅)\s*$/, "");
-    badge.innerHTML = edited ? `${esc(base)} <span class="category-done">\u{2705}</span>` : esc(base);
+    const base = badge.dataset.count || badge.textContent.replace(/\s*(OK|✅|V)\s*$/, "");
+    badge.textContent = repairText(base);
   }
 }
 
@@ -845,7 +845,7 @@ function renderChecklist(){
     <article class="category ${edited ? "is-edited" : ""}" data-category="${category.id}">
       <button class="category-head" type="button" data-toggle-category="${category.id}">
         <span class="category-title-block"><strong>${esc(category.name)}</strong><small>${esc(category.description || "")}</small></span>
-        <span class="category-count" data-count="${esc(count)}">${esc(count)}${edited ? ` <span class="category-done">\u{2705}</span>` : ""}</span>
+        <span class="category-count" data-count="${esc(count)}">${esc(count)}</span>
       </button>
       <div class="category-body">
         ${category.criteria.filter(c => c.active).map(criteria => criterionRow(category, criteria)).join("")}
@@ -1912,7 +1912,7 @@ function ensureChartDialog(){
   dialog.id = "chartDialog";
   dialog.className = "chart-dialog";
   dialog.innerHTML = `<form method="dialog" class="chart-dialog-shell">
-    <button class="chart-close" value="close" aria-label="Fechar">Ã—</button>
+    <button class="chart-close" value="close" aria-label="Fechar">X</button>
     <div id="chartPrintable" class="chart-printable"></div>
     <div class="chart-actions"><button type="button" class="button primary" id="downloadChartButton">Baixar grÃ¡fico</button><button class="button" value="close">Fechar</button></div>
   </form>`;
@@ -4633,7 +4633,11 @@ else init();
       const raw = button.textContent || "";
       if(!raw.trim() || /ðŸ|âœ|âš/.test(raw)) button.textContent = "\u{1F4C8}";
     });
-    document.querySelectorAll(".category-done").forEach(item => item.textContent = "\u{2705}");
+    document.querySelectorAll(".category-done").forEach(item => item.remove());
+    document.querySelectorAll(".category-count").forEach(item => {
+      const base = (item.dataset.count || item.textContent).replace(/\s*(OK|✅|V)\s*$/i, "");
+      item.textContent = repairText(base);
+    });
     document.querySelectorAll(".icon-note").forEach(button => {
       const raw = button.textContent || "";
       if(!raw.trim() || raw === "Obs") button.textContent = "\u{1F4DD}";
@@ -4701,5 +4705,120 @@ else init();
     document.head.appendChild(st);
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, {once:true}); else run();
+})();
+
+/* AJUSTE v15 - graficos estaveis, modal limpo e nova categoria robusta */
+(function finalInteractionFixesV15(){
+  function chartData(type){
+    try{
+      return (window.chartRows || (typeof chartRows === "function" ? chartRows : null))?.(type) || {title:"Dashboard gráfico", metric:"Registros", rows:[]};
+    }catch(error){
+      return {title:"Dashboard gráfico", metric:"Registros", rows:[]};
+    }
+  }
+  function realRows(data){
+    return (data.rows || []).filter(row => String(row.label || "").trim() && !normalize(row.label).includes("sem dados"));
+  }
+  function ensureChartButtonsV15(){
+    const targets = [
+      ["rankingGeneral","general"],
+      ["rankingSector","sector"],
+      ["rankingCategory","category"],
+      ["evolutionCharts","evolution"],
+      ["topOccurrences","occurrences"]
+    ];
+    targets.forEach(([id,type]) => {
+      const node = document.getElementById(id);
+      const card = node?.closest("article.panel, .panel, article, .dashboard-card");
+      const heading = card?.querySelector(":scope > h2, :scope > h3, :scope > header h2, :scope > header h3");
+      if(!card || !heading) return;
+      card.classList.add("chart-card-host");
+      heading.classList.add("chart-heading");
+      let button = heading.querySelector("[data-open-chart]");
+      if(!button){
+        button = document.createElement("button");
+        button.type = "button";
+        button.className = "chart-toggle";
+        button.dataset.openChart = type;
+        heading.appendChild(button);
+      }
+      button.textContent = "\u{1F4C8}";
+      button.title = "Abrir gráfico";
+      button.setAttribute("aria-label", `Abrir gráfico: ${heading.textContent.replace(button.textContent, "").trim() || type}`);
+      button.hidden = false;
+    });
+    document.querySelectorAll(".chart-close").forEach(button => button.textContent = "X");
+  }
+  function showEmptyChart(data){
+    const dialog = ensureChartDialog();
+    const printable = dialog.querySelector("#chartPrintable");
+    printable.innerHTML = `<header class="chart-exec-header"><span>MÉTODO SOBRAL</span><h2>${esc(data.title || "Dashboard gráfico")}</h2><p>${esc(data.metric || "Registros")} • ${dateText(new Date().toISOString().slice(0,10))}</p></header>
+      <div class="chart-exec-body"><div class="chart-empty-state"><strong>Sem dados para gerar gráfico.</strong><span>Salve avaliações ou ocorrências para visualizar este indicador.</span></div></div>`;
+    dialog.querySelectorAll(".chart-close").forEach(button => button.textContent = "X");
+    dialog.showModal();
+  }
+  window.openDashboardChart = function(type){
+    const data = chartData(type);
+    const rows = realRows(data).slice(0,30);
+    if(!rows.length){
+      showEmptyChart(data);
+      return;
+    }
+    const max = Math.max(...rows.map(row => Number(row.value) || 0), 1);
+    const isScore = data.metric === "Nota" || data.metric === "Média";
+    const plotMax = isScore ? 10 : max;
+    const dialog = ensureChartDialog();
+    const printable = dialog.querySelector("#chartPrintable");
+    printable.innerHTML = `<header class="chart-exec-header"><span>MÉTODO SOBRAL</span><h2>${esc(data.title || "Dashboard gráfico")}</h2><p>${esc(data.metric || "Registros")} • ${dateText(new Date().toISOString().slice(0,10))}</p></header>
+      <div class="chart-exec-body"><div class="chart-plot-card occurrence-plot-card"><h3>Dashboard gráfico</h3><p>Barras ordenadas do maior para o menor</p>
+      <div class="vertical-chart v13-chart ${rows.length>10 ? "is-many" : ""}"><div class="axis-line y100">${isScore ? "10" : plotMax}</div><div class="axis-line y50">${isScore ? "5" : Math.round(plotMax/2)}</div><div class="axis-line y0">0</div>
+      ${rows.map(row => {
+        const value = Number(row.value) || 0;
+        const h = Math.max(value ? 6 : 2, Math.min(100, (value / plotMax) * 100));
+        const label = plainChartLabel(row.label);
+        const icon = row.icon || displayIconForLabel(label);
+        const short = label.length > 30 ? `${label.slice(0,27).trim()}...` : label;
+        const full = `${icon ? `${icon} ` : ""}${short}`;
+        return `<div class="vbar-item" style="--h:${h}%"><b>${esc(row.text ?? scoreText(value))}</b><i></i><strong title="${esc(label)}"><span class="chart-full-label">${esc(full)}</span></strong></div>`;
+      }).join("")}</div></div></div>`;
+    dialog.querySelectorAll(".chart-close").forEach(button => button.textContent = "X");
+    dialog.showModal();
+  };
+  function createNewCategoryV15(){
+    state.categories.push({id:uid("cat"),name:"Nova categoria",description:"",active:true,criteria:[]});
+    saveState();
+    renderAll();
+    const created = state.categories[state.categories.length - 1];
+    setTimeout(() => {
+      const card = document.querySelector(`[data-admin-category="${created.id}"]`);
+      card?.classList.add("is-open");
+      const button = card?.querySelector("[data-toggle-admin-category]");
+      if(button){ button.textContent = "Fechar"; button.setAttribute("aria-expanded","true"); }
+      card?.scrollIntoView({behavior:"smooth", block:"center"});
+      card?.querySelector("[data-cat-name]")?.focus();
+    }, 80);
+  }
+  document.addEventListener("click", event => {
+    const chartButton = event.target.closest("[data-open-chart]");
+    if(chartButton){
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      window.openDashboardChart(chartButton.dataset.openChart);
+      return;
+    }
+    const addCategory = event.target.closest("#addCategoryButton");
+    if(!addCategory) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    createNewCategoryV15();
+  }, true);
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", () => setTimeout(ensureChartButtonsV15, 200), {once:true});
+  }else{
+    setTimeout(ensureChartButtonsV15, 200);
+  }
+  [500, 1200, 2500].forEach(delay => setTimeout(ensureChartButtonsV15, delay));
 })();
 

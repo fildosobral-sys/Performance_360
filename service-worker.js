@@ -1,4 +1,4 @@
-const CACHE_NAME = "performance-360-final-points-20260707-1";
+const CACHE_NAME = "performance-360-pwa-report-20260707-1";
 const APP_SHELL = [
   "./",
   "./index.html",

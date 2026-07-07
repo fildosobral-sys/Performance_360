@@ -1583,9 +1583,9 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   setFont(900,34,"#fff"); ctx.fillText("Performance Individual 360", sx(54), sx(76));
   setFont(600,17,"#d8dee8"); ctx.fillText("Relatorio Executivo de Desenvolvimento", sx(54), sx(108));
   const brandBoxX = sx(880), brandBoxW = sx(360), brandCenter = brandBoxX + brandBoxW / 2;
-  drawContainImage(ctx,logoZenirImg,brandCenter - sx(155),sx(10),sx(310),sx(68));
+  drawContainImage(ctx,logoZenirImg,brandCenter - sx(150),sx(8),sx(300),sx(66));
   ctx.textAlign = "center";
-  setFont(800,18,"#0f172a"); ctx.fillText(state.settings.company || "Empresa", brandCenter, sx(92));
+  setFont(800,15,"#0f172a"); ctx.fillText(state.settings.company || "Empresa", brandCenter, sx(104));
   setFont(600,12,"#334155"); ctx.fillText(`Data: ${dateText(evaluation.date)} | Periodo: ${evaluation.month || "-"}`, brandCenter, sx(122));
   ctx.textAlign = "left";
 
@@ -4820,5 +4820,58 @@ else init();
     setTimeout(ensureChartButtonsV15, 200);
   }
   [500, 1200, 2500].forEach(delay => setTimeout(ensureChartButtonsV15, delay));
+  let dashboardButtonTimer = null;
+  function scheduleChartButtonRepair(){
+    clearTimeout(dashboardButtonTimer);
+    dashboardButtonTimer = setTimeout(ensureChartButtonsV15, 40);
+  }
+  document.addEventListener("click", event => {
+    if(event.target.closest("[data-view='dashboard']")) scheduleChartButtonRepair();
+  }, true);
+  document.addEventListener("change", event => {
+    if(event.target?.id === "dashboardSector") scheduleChartButtonRepair();
+  }, true);
+  function watchDashboardButtons(){
+    const dashboard = document.getElementById("view-dashboard");
+    if(!dashboard || dashboard.dataset.chartWatch === "true") return;
+    dashboard.dataset.chartWatch = "true";
+    new MutationObserver(scheduleChartButtonRepair).observe(dashboard, {
+      childList:true,
+      subtree:true,
+      characterData:true,
+      attributes:true,
+      attributeFilter:["class","style","hidden"]
+    });
+    scheduleChartButtonRepair();
+  }
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", watchDashboardButtons, {once:true});
+  }else{
+    watchDashboardButtons();
+  }
+})();
+
+(function injectReportHeaderPwaV16(){
+  function run(){
+    if(document.getElementById("sobralReportHeaderPwaV16")) return;
+    const style = document.createElement("style");
+    style.id = "sobralReportHeaderPwaV16";
+    style.textContent = `
+      .exec-meta{justify-content:center!important;align-items:center!important;text-align:center!important;padding:32px 22px 22px!important;gap:0!important;}
+      .exec-meta .exec-brand-logo,.exec-meta-logo{width:min(300px,94%)!important;max-height:86px!important;margin:0 auto 2px!important;object-fit:contain!important;display:block!important;}
+      .exec-meta strong{font-size:18px!important;line-height:1.08!important;margin:22px 0 0!important;text-align:center!important;display:block!important;}
+      .exec-meta small{font-size:13px!important;line-height:1.24!important;margin-top:3px!important;text-align:center!important;display:block!important;}
+      @media(max-width:720px){
+        .exec-meta .exec-brand-logo,.exec-meta-logo{width:min(250px,92%)!important;max-height:76px!important;margin-bottom:2px!important;}
+        .exec-meta strong{font-size:17px!important;margin-top:20px!important;}
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", run, {once:true});
+  }else{
+    run();
+  }
 })();
 

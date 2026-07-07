@@ -91,10 +91,10 @@ dialog{border:0;border-radius:14px;width:min(92vw,640px);padding:0;box-shadow:0 
 #topOccurrences .most-recurrent-row div strong{font-size:15px!important;}
 #topOccurrences .most-recurrent-row div small{font-size:11px!important;color:#0e7490!important;}
 #topOccurrences .most-recurrent-row>strong{font-size:22px!important;color:#0e7490!important;}
-.exec-meta{justify-content:center!important;align-items:center!important;text-align:center!important;gap:4px!important;padding:30px 22px 22px!important;}
-.exec-meta .exec-brand-logo,.exec-meta-logo{width:min(310px,95%)!important;max-height:92px!important;object-fit:contain!important;margin:0 auto 12px!important;display:block!important;}
-.exec-meta strong{font-size:21px!important;line-height:1.12!important;margin-top:12px!important;display:block!important;}
-.exec-meta small{font-size:13px!important;margin-top:8px!important;display:block!important;}
+.exec-meta{justify-content:center!important;align-items:center!important;text-align:center!important;gap:0!important;padding:32px 22px 22px!important;}
+.exec-meta .exec-brand-logo,.exec-meta-logo{width:min(300px,94%)!important;max-height:86px!important;object-fit:contain!important;margin:0 auto 2px!important;display:block!important;}
+.exec-meta strong{font-size:18px!important;line-height:1.08!important;margin:22px 0 0!important;display:block!important;}
+.exec-meta small{font-size:13px!important;margin-top:3px!important;display:block!important;}
 .admin-category{margin:10px 0!important;border-radius:18px!important;}
 .admin-category>header{padding:10px 14px!important;gap:8px!important;}
 .admin-category>header input,.admin-category>header select{min-height:40px!important;border-radius:12px!important;margin-top:4px!important;}
@@ -120,7 +120,8 @@ dialog{border:0;border-radius:14px;width:min(92vw,640px);padding:0;box-shadow:0 
   #view-reports .exec-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
   #view-reports .exec-opportunity-table{font-size:10.5px!important;}
   #view-reports .exec-opportunity-table th,#view-reports .exec-opportunity-table td{padding:5px!important;}
-  .exec-meta .exec-brand-logo,.exec-meta-logo{width:min(260px,92%)!important;max-height:78px!important;margin-bottom:10px!important;}
+  .exec-meta .exec-brand-logo,.exec-meta-logo{width:min(250px,92%)!important;max-height:76px!important;margin-bottom:2px!important;}
+  .exec-meta strong{font-size:17px!important;margin-top:20px!important;}
   .vertical-chart.v9-chart{height:370px!important;padding:38px 18px 106px 42px!important;gap:20px!important;}
   .vertical-chart.v9-chart .y0{bottom:106px!important;}
   .vertical-chart.v9-chart .vbar-item{min-width:74px!important;}

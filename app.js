@@ -3482,3 +3482,130 @@ else init();
   document.addEventListener('change', function(ev){ if(ev.target && ev.target.id === 'dashboardSector'){ setTimeout(()=>{ try{ renderDashboard(); }catch(e){} },0); } }, true);
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, {once:true}); else setTimeout(boot,120);
 })();
+
+
+/* ============================================================
+   AJUSTE FINAL v9 - dashboard filtrado, gráficos, mobile e relatório
+   ============================================================ */
+(function(){
+  function norm(v){ return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
+  function fmt(v){ return (typeof scoreText === 'function') ? scoreText(v) : String((Number(v)||0).toFixed(1)).replace('.', ','); }
+  function safeAvg(values){ values=(values||[]).map(Number).filter(v=>!Number.isNaN(v)); return values.length ? values.reduce((a,b)=>a+b,0)/values.length : 0; }
+  function selectedSector(){ return document.getElementById('dashboardSector')?.value || ''; }
+  function employeeExists(id){ return window.state?.employees?.some(e=>e.id===id); }
+  function empById(id){ return (typeof employeeById === 'function' ? employeeById(id) : (state.employees||[]).find(e=>e.id===id)); }
+  function sectorOfEval(item){ return empById(item.employeeId)?.sector || item.employeeSnapshot?.sector || ''; }
+  function validLatest(){ return (typeof latestByEmployee === 'function' ? [...latestByEmployee().values()] : []).filter(item=>employeeExists(item.employeeId)); }
+  function sectorList(){ return [...new Set((state.employees||[]).map(e=>e.sector).filter(Boolean))]; }
+  function icon(label){
+    const t=norm(label);
+    const rules=[['cama','🛏️'],['colch','🛏️'],['eletro','📺'],['televis','📺'],['tv','📺'],['audio','🔊'],['som','🔊'],['move','🛋️'],['sofa','🛋️'],['estof','🛋️'],['celular','📱'],['telefon','📱'],['bicic','🚲'],['informat','💻'],['comput','💻'],['organiz','🗂️'],['preco','🏷️'],['etiqueta','🏷️'],['localizacao','📍'],['local definido','📍'],['exposicao','🖼️'],['visual','🖼️'],['limpeza','🧽'],['sujeira','🧹'],['conservacao','🧼'],['atendimento','🤝'],['cliente','👤'],['pos venda','📞'],['disciplina','⏱️'],['cadastro','📝'],['estoque','📦'],['patrimonio','📦'],['servico','🛡️'],['meta','🎯'],['resultado','📊'],['equipe','👥'],['comunicacao','💬'],['desenvolvimento','🚀'],['proatividade','⚡']];
+    const found=rules.find(([k])=>t.includes(k));
+    return found?found[1]:'';
+  }
+  window.displayIconForLabel = icon;
+  window.sectorEmoji360 = icon;
+  function rowIcon(label){ const ic=icon(label); return ic ? `<span class="ranking-icon">${ic}</span>` : ''; }
+  function monthText(value){ return (typeof monthLabel === 'function') ? monthLabel(value) : String(value||''); }
+  function cleanLabel(label){ return (typeof plainChartLabel === 'function') ? plainChartLabel(label) : String(label||'').replace(/^\s*\d+\.\s*/,''); }
+
+  window.renderDashboard = function(){
+    const latestAll = validLatest();
+    const previous = selectedSector();
+    const sectors = sectorList();
+    const sel = document.getElementById('dashboardSector');
+    if(sel){ sel.innerHTML = `<option value="">Todos os setores</option>` + sectors.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join(''); sel.value = sectors.includes(previous) ? previous : ''; }
+    const s = selectedSector();
+    const latest = latestAll.filter(item=>!s || sectorOfEval(item)===s);
+    const employees = (state.employees||[]).filter(e=>!s || e.sector===s);
+    const evals = (state.evaluations||[]).filter(e=>employeeExists(e.employeeId)).filter(e=>!s || sectorOfEval(e)===s);
+    const occurrences = latest.flatMap(occurrenceList);
+    const qtyOccurrences = occurrences.filter(o=>Number(o.quantity||0)>0);
+    const topQty = (typeof topByQuantity === 'function') ? topByQuantity(occurrences) : null;
+    const currentMonth = (typeof monthISO === 'function') ? monthISO() : new Date().toISOString().slice(0,7);
+    const monthOccurrences = evals.filter(e=>e.month===currentMonth).flatMap(occurrenceList);
+    const priceQtyMonth = monthOccurrences.filter(o=>norm(o.criteriaName).includes('produto sem preco')).reduce((sum,o)=>sum+Number(o.quantity||0),0);
+    const kpi = document.getElementById('dashboardKpis');
+    if(kpi){ kpi.innerHTML = [
+      ['Colaboradores', employees.length, 'people'], ['Avaliações', evals.length, 'evals'], ['Média atual', fmt(safeAvg(latest.map(e=>e.score))), 'score'], ['Ocorrências', occurrences.length, 'warn'], ['Maior qtd.', topQty ? `${topQty.quantity}` : '0', 'qty'], ['Sem preço/mês', priceQtyMonth, 'price'], ['Qtd. média', fmt(safeAvg(qtyOccurrences.map(o=>Number(o.quantity||0)))).replace(',0',''), 'avg'], ['Críticos', qtyOccurrences.filter(o=>typeof quantitySeverity==='function' && quantitySeverity(o.quantity).key==='critical').length, 'critical']
+    ].map(([label,value,type])=>`<div class="kpi kpi-${type}"><span>${label}</span><strong>${value}</strong></div>`).join(''); }
+    const rg=document.getElementById('rankingGeneral'); if(rg) rg.innerHTML = (typeof rankingRows==='function') ? rankingRows([...latest].sort((a,b)=>b.score-a.score)) : '';
+    const rs=document.getElementById('rankingSector'); if(rs){ const list=s?[s]:sectors; rs.innerHTML = list.map(sector=>{ const values=latestAll.filter(item=>sectorOfEval(item)===sector); return `<div class="ranking-row">${rowIcon(sector)}<div><strong>${esc(sector)}</strong><small>${values.length} colaborador(es)</small></div><strong>${fmt(safeAvg(values.map(v=>v.score)))}</strong></div>`; }).join('') || `<div class="empty">Sem avaliações.</div>`; }
+    if(typeof renderCategoryRanking==='function') renderCategoryRanking(latest);
+    if(typeof renderEvolution==='function') renderEvolution(latest);
+    if(typeof renderTopOccurrences==='function') renderTopOccurrences(occurrences);
+    if(typeof renderTopEvolution==='function') renderTopEvolution(latest);
+    if(typeof attachDashboardChartButtons==='function') attachDashboardChartButtons();
+  };
+
+  window.renderTopEvolution = function(items){
+    const s = selectedSector();
+    const baseEmployees = (state.employees||[]).filter(e=>!s || e.sector===s);
+    const rows = baseEmployees.map(employee=>{
+      const values=(state.evaluations||[]).filter(e=>e.employeeId===employee.id).sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt));
+      return values.length>=2 ? {employee, delta:values.at(-1).score-values[0].score, latest:values.at(-1)} : null;
+    }).filter(Boolean).sort((a,b)=>b.delta-a.delta);
+    const el=document.getElementById('topEvolution'); if(!el) return;
+    el.innerHTML = rows.slice(0,6).map(row=>`<div class="ranking-row"><img src="${row.employee.photo||defaultPhoto}" alt=""><div><strong>${esc(row.employee.name)}</strong><small>Evolução desde a primeira avaliação</small></div><strong>${row.delta>=0?'+':''}${fmt(row.delta)}</strong></div>`).join('') || `<div class="empty">Evolução exige pelo menos duas avaliações.</div>`;
+  };
+
+  window.renderCategoryRanking = function(items){
+    const groups={}; (items||[]).flatMap(occurrenceList).forEach(o=>groups[o.categoryName]=(groups[o.categoryName]||0)+1);
+    const el=document.getElementById('rankingCategory'); if(!el) return;
+    el.innerHTML = Object.entries(groups).sort((a,b)=>b[1]-a[1]).map(([name,count])=>`<div class="ranking-row">${rowIcon(name)}<div><strong>${esc(name)}</strong><small>Categoria</small></div><strong>${count}</strong></div>`).join('') || `<div class="empty">Sem ocorrências.</div>`;
+  };
+
+  window.renderEvolution = function(items){
+    const byMonth={}; (items||[]).forEach(item=>{ const key=item.month || ((typeof monthISO==='function')?monthISO():new Date().toISOString().slice(0,7)); byMonth[key]=[...(byMonth[key]||[]),item.score]; });
+    const rows=Object.entries(byMonth).slice(-6).map(([label,values])=>[monthText(label), safeAvg(values)]);
+    const el=document.getElementById('evolutionCharts'); if(!el) return;
+    el.innerHTML = rows.length ? `<div class="bars">${rows.map(([label,value])=>`<div class="bar-row"><span>${esc(label)}</span><div class="bar"><i style="width:${Math.max(0,Math.min(100,value*10))}%"></i></div><strong>${fmt(value)}</strong></div>`).join('')}</div>` : `<div class="empty">Sem evolução registrada.</div>`;
+  };
+
+  window.renderTopOccurrences = function(occurrences){
+    const groups={}; (occurrences||[]).forEach(o=>{ groups[o.criteriaName]=groups[o.criteriaName]||{count:0,quantity:0}; groups[o.criteriaName].count+=1; groups[o.criteriaName].quantity+=Number(o.quantity||0); });
+    const ordered=Object.entries(groups).sort((a,b)=>b[1].count-a[1].count || b[1].quantity-a[1].quantity).slice(0,6);
+    const el=document.getElementById('topOccurrences'); if(!el) return;
+    if(!ordered.length){ el.innerHTML=`<div class="empty">Nenhuma ocorrência.</div>`; return; }
+    el.innerHTML = ordered.map(([name,data],i)=>`<div class="ranking-row ${i===0?'highlight-row most-recurrent-row':''}">${rowIcon(name)}<div><strong>${i===0?'Mais recorrente: ':''}${esc(name)}</strong><small>${i===0?`Registros encontrados: ${data.count}`:`${data.count} ocorrência(s) | qtd. ${data.quantity}`}</small></div><strong>${data.count}</strong></div>`).join('');
+  };
+
+  window.chartRows = function(type){
+    const latestAll = validLatest();
+    const s=selectedSector();
+    const latest=latestAll.filter(item=>!s || sectorOfEval(item)===s);
+    if(type==='general') return {title:'Ranking geral', metric:'Nota', rows:[...latest].sort((a,b)=>b.score-a.score).map((item,i)=>({label:`${i+1}. ${item.employeeSnapshot.name}`, sub:`${item.employeeSnapshot.role} - ${item.employeeSnapshot.sector}`, value:item.score, text:fmt(item.score), icon:''}))};
+    if(type==='sector'){ const list=s?[s]:sectorList(); return {title:'Ranking por setor', metric:'Média', rows:list.map(sector=>{ const values=latestAll.filter(item=>sectorOfEval(item)===sector); const v=safeAvg(values.map(x=>x.score)); return {label:sector, icon:icon(sector), sub:`${values.length} colaborador(es)`, value:v, text:fmt(v)}; }).sort((a,b)=>b.value-a.value)}; }
+    if(type==='category'){ const groups={}; latest.flatMap(occurrenceList).forEach(o=>groups[o.categoryName]=(groups[o.categoryName]||0)+1); return {title:'Ranking por categoria', metric:'Ocorrências', rows:Object.entries(groups).map(([label,value])=>({label, icon:icon(label), sub:'Categoria', value, text:String(value)})).sort((a,b)=>b.value-a.value)}; }
+    if(type==='evolution'){ const byMonth={}; latest.forEach(item=>{ const key=item.month || ((typeof monthISO==='function')?monthISO():new Date().toISOString().slice(0,7)); byMonth[key]=[...(byMonth[key]||[]),item.score]; }); return {title:'Evolução mensal', metric:'Nota', rows:Object.entries(byMonth).slice(-12).map(([label,values])=>({label:monthText(label), sub:'Média mensal', value:safeAvg(values), text:fmt(safeAvg(values)), icon:''}))}; }
+    const groups={}; latest.flatMap(occurrenceList).forEach(o=>{ groups[o.criteriaName]=groups[o.criteriaName]||{count:0,quantity:0}; groups[o.criteriaName].count+=1; groups[o.criteriaName].quantity+=Number(o.quantity||0); });
+    return {title:'Principais ocorrências', metric:'Registros', rows:Object.entries(groups).map(([label,data])=>({label, icon:icon(label), sub:`Qtd. informada: ${data.quantity}`, value:data.count, text:String(data.count)})).sort((a,b)=>b.value-a.value).slice(0,30)};
+  };
+
+  function maxFor(data){ const max=Math.max(...(data.rows||[]).map(r=>Number(r.value)||0),1); return (data.metric==='Nota'||data.metric==='Média') ? 10 : max; }
+  window.openDashboardChart = function(type){
+    const data=window.chartRows(type);
+    const rows=(data.rows&&data.rows.length?data.rows:[{label:'Sem dados',value:0,text:'0',icon:''}]).slice(0,30);
+    const max=maxFor({...data,rows});
+    const isScore=data.metric==='Nota'||data.metric==='Média';
+    const printable=ensureChartDialog().querySelector('#chartPrintable');
+    printable.innerHTML=`<header class="chart-exec-header"><span>MÉTODO SOBRAL</span><h2>${esc(type==='evolution'?'Evolução mensal':data.title)}</h2><p>${esc(data.metric)} • ${dateText(new Date().toISOString().slice(0,10))}</p></header><div class="chart-exec-body"><div class="chart-plot-card ${type==='occurrences'?'occurrence-plot-card':''}"><h3>Dashboard gráfico</h3><p>Barras ordenadas do maior para o menor</p><div class="vertical-chart v9-chart ${rows.length>10?'is-many':''}"><div class="axis-line y100">${isScore?'10':max}</div><div class="axis-line y50">${isScore?'5':Math.round(max/2)}</div><div class="axis-line y0">0</div>${rows.map(row=>{ const value=Number(row.value)||0; const h=Math.max(value?6:2,Math.min(100,(value/max)*100)); const ic=row.icon||icon(row.label); const label=`${ic?ic+' ':''}${cleanLabel(row.label)}`; return `<div class="vbar-item" style="--h:${h}%"><b>${esc(row.text)}</b><i></i><strong title="${esc(label)}">${esc(label)}</strong></div>`; }).join('')}</div></div></div>`;
+    ensureChartDialog().showModal();
+  };
+
+  window.downloadChartImage = function(){
+    const printable=document.getElementById('chartPrintable');
+    const title=printable?.querySelector('h2')?.textContent || 'grafico';
+    const data=[]; printable?.querySelectorAll('.vbar-item').forEach(row=>data.push({label:(row.querySelector('strong')?.textContent||'').trim(), value:(row.querySelector('b')?.textContent||'').trim(), h:parseFloat(getComputedStyle(row).getPropertyValue('--h'))||0}));
+    const count=Math.max(data.length,1);
+    const canvas=document.createElement('canvas'); canvas.width=1600; canvas.height=900;
+    const ctx=canvas.getContext('2d'); ctx.fillStyle='#eef2f7'; ctx.fillRect(0,0,1600,900); ctx.fillStyle='#101827'; ctx.fillRect(0,0,1600,150); ctx.fillStyle='#fff'; ctx.font='700 44px Arial'; ctx.fillText(title,80,74); ctx.font='500 24px Arial'; ctx.fillText('Método Sobral • Performance Individual 360',80,116); ctx.fillStyle='#fff'; roundRect(ctx,60,185,1480,645,28,true,false); ctx.fillStyle='#334155'; ctx.font='700 28px Arial'; ctx.fillText('Dashboard gráfico',120,242); ctx.strokeStyle='#dbe3ee'; ctx.lineWidth=2; [330,470,610].forEach(y=>{ctx.beginPath();ctx.moveTo(135,y);ctx.lineTo(1465,y);ctx.stroke();});
+    const gap=count>18?10:(count>10?14:24); const barW=Math.max(22,Math.min(86,(1260-(count-1)*gap)/count)); let x=180;
+    data.forEach(item=>{ const h=Math.max(8,320*(item.h/100)); const y=650-h; ctx.fillStyle='#2563eb'; roundRect(ctx,x,y,barW,h,12,true,false); ctx.fillStyle='#0f172a'; ctx.font='700 20px Arial'; ctx.textAlign='center'; ctx.fillText(item.value,x+barW/2,y-12); ctx.save(); ctx.translate(x+barW/2,742); ctx.rotate(-Math.PI/4); ctx.font=count>18?'700 13px Arial':(count>10?'700 15px Arial':'700 17px Arial'); ctx.textAlign='right'; ctx.fillText(item.label.slice(0,34),0,0); ctx.restore(); x+=barW+gap; });
+    ctx.textAlign='start'; const a=document.createElement('a'); a.href=canvas.toDataURL('image/png',1); a.download=`${title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-')}.png`; a.click();
+  };
+
+  function boot(){ try{ renderDashboard(); }catch(e){} }
+  document.addEventListener('change', ev=>{ if(ev.target && ev.target.id==='dashboardSector') setTimeout(boot,0); }, true);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot, {once:true}); else setTimeout(boot,120);
+})();

@@ -6,7 +6,17 @@ const $$ = selector => [...document.querySelectorAll(selector)];
 const uid = prefix => `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 const todayISO = () => new Date().toISOString().slice(0,10);
 const monthISO = () => todayISO().slice(0,7);
-const esc = value => String(value ?? "").replace(/[&<>"']/g, char => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;" }[char]));
+const repairText = value => String(value ?? "")
+  .replaceAll("Ã¡","á").replaceAll("Ã ","à").replaceAll("Ã¢","â").replaceAll("Ã£","ã")
+  .replaceAll("Ã©","é").replaceAll("Ãª","ê").replaceAll("Ã­","í").replaceAll("Ã³","ó")
+  .replaceAll("Ã´","ô").replaceAll("Ãµ","õ").replaceAll("Ãº","ú").replaceAll("Ã§","ç")
+  .replaceAll("Ã","Á").replaceAll("Ã€","À").replaceAll("Ã‚","Â").replaceAll("Ãƒ","Ã")
+  .replaceAll("Ã‰","É").replaceAll("ÃŠ","Ê").replaceAll("Ã","Í").replaceAll("Ã“","Ó")
+  .replaceAll("Ã”","Ô").replaceAll("Ã•","Õ").replaceAll("Ãš","Ú").replaceAll("Ã‡","Ç")
+  .replaceAll("â€¢","•").replaceAll("â€“","-").replaceAll("â€”","-").replaceAll("â€œ","\"").replaceAll("â€","\"")
+  .replaceAll("â€˜","'").replaceAll("â€™","'").replaceAll("âœ“","OK").replaceAll("âœ…","OK")
+  .replaceAll("âšª","").replace(/ðŸ\S*/g,"").replace(/âœ\S*/g,"").replace(/âš\S*/g,"");
+const esc = value => repairText(value).replace(/[&<>"']/g, char => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;" }[char]));
 const scoreText = value => Number(value || 0).toFixed(1).replace(".", ",");
 const pointsText = value => {
   const text = Number(value || 0).toFixed(2).replace(".", ",");
@@ -14,19 +24,64 @@ const pointsText = value => {
 };
 const dateText = value => value ? new Date(`${value}T12:00:00`).toLocaleDateString("pt-BR") : "-";
 const dateTimeText = value => value ? new Date(value).toLocaleString("pt-BR") : "-";
-const normalize = value => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+const normalize = value => repairText(value).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
 const avg = values => values.length ? values.reduce((a,b)=>a+b,0)/values.length : 0;
 const activeCriteria = () => state.categories.flatMap(category => category.active ? category.criteria.filter(c => c.active).map(criteria => ({...criteria, categoryId:category.id, categoryName:category.name})) : []);
 const upperText = value => String(value || "").trim().toLocaleUpperCase("pt-BR");
+let textRepairObserverStarted = false;
+function repairVisibleText(root = document.body){
+  if(!root) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while(walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(node => {
+    const next = repairText(node.nodeValue);
+    if(next !== node.nodeValue) node.nodeValue = next;
+  });
+  root.querySelectorAll?.("[placeholder],[title],[aria-label]").forEach(element => {
+    ["placeholder","title","aria-label"].forEach(attr => {
+      if(element.hasAttribute(attr)) element.setAttribute(attr, repairText(element.getAttribute(attr)));
+    });
+  });
+}
+function startTextRepairObserver(){
+  if(textRepairObserverStarted || !document.body) return;
+  textRepairObserverStarted = true;
+  const observer = new MutationObserver(records => {
+    records.forEach(record => {
+      record.addedNodes.forEach(node => {
+        if(node.nodeType === Node.TEXT_NODE){
+          const next = repairText(node.nodeValue);
+          if(next !== node.nodeValue) node.nodeValue = next;
+        }else if(node.nodeType === Node.ELEMENT_NODE){
+          repairVisibleText(node);
+        }
+      });
+    });
+  });
+  observer.observe(document.body, {childList:true, subtree:true});
+  repairVisibleText();
+}
+function startCanvasTextRepair(){
+  const proto = window.CanvasRenderingContext2D?.prototype;
+  if(!proto || proto.__performance360TextRepair) return;
+  proto.__performance360TextRepair = true;
+  const originalFillText = proto.fillText;
+  const originalStrokeText = proto.strokeText;
+  const originalMeasureText = proto.measureText;
+  proto.fillText = function(text, ...args){ return originalFillText.call(this, repairText(text), ...args); };
+  proto.strokeText = function(text, ...args){ return originalStrokeText.call(this, repairText(text), ...args); };
+  proto.measureText = function(text){ return originalMeasureText.call(this, repairText(text)); };
+}
 const STATUS_LABELS = {
-  pending:"ðŸŸ¡ Pendente de analise",
-  confirmed:"ðŸŸ¢ Confirmada",
-  justified:"ðŸ”µ Justificada",
-  canceled:"âšª Cancelada",
-  resolved:"âœ… Resolvida",
-  recurrent:"ðŸ”´ Reincidente",
-  maintained:"ðŸŸ¢ Confirmada",
-  changed:"ðŸŸ¢ Confirmada"
+  pending:"Pendente de analise",
+  confirmed:"Confirmada",
+  justified:"Justificada",
+  canceled:"Cancelada",
+  resolved:"Resolvida",
+  recurrent:"Reincidente",
+  maintained:"Confirmada",
+  changed:"Confirmada"
 };
 
 const defaultPhoto = "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160"><rect width="160" height="160" fill="#e8edf3"/><circle cx="80" cy="62" r="32" fill="#98a2b3"/><path d="M28 142c8-34 28-52 52-52s44 18 52 52" fill="#98a2b3"/></svg>`);
@@ -777,19 +832,20 @@ function updateCategoryVisual(categoryId){
   element.classList.toggle("is-edited", edited);
   const badge = element.querySelector(".category-count");
   if(badge){
-    badge.innerHTML = edited ? `${badge.dataset.count || badge.textContent.replace(" âœ“", "")} <span class="category-done">âœ“</span>` : (badge.dataset.count || badge.textContent.replace(" âœ“", ""));
+    const base = badge.dataset.count || badge.textContent.replace(/\s*OK\s*$/, "");
+    badge.innerHTML = edited ? `${esc(base)} <span class="category-done">OK</span>` : esc(base);
   }
 }
 
 function renderChecklist(){
   $("checklist").innerHTML = state.categories.filter(category => category.active).map(category => {
     const edited = categoryWasEdited(category.id);
-    const count = `${category.criteria.filter(c => c.active).length} critÃ©rios`;
+    const count = `${category.criteria.filter(c => c.active).length} criterios`;
     return `
     <article class="category ${edited ? "is-edited" : ""}" data-category="${category.id}">
       <button class="category-head" type="button" data-toggle-category="${category.id}">
         <span class="category-title-block"><strong>${esc(category.name)}</strong><small>${esc(category.description || "")}</small></span>
-        <span class="category-count" data-count="${esc(count)}">${esc(count)}${edited ? ` <span class="category-done">âœ“</span>` : ""}</span>
+        <span class="category-count" data-count="${esc(count)}">${esc(count)}${edited ? ` <span class="category-done">OK</span>` : ""}</span>
       </button>
       <div class="category-body">
         ${category.criteria.filter(c => c.active).map(criteria => criterionRow(category, criteria)).join("")}
@@ -810,11 +866,11 @@ function criterionRow(category, criteria){
     <div class="criterion-name"><strong>${esc(criteria.name)}</strong></div>
     <span class="deduction">-${pointsText(criteria.points)}</span>
     ${criteria.description ? `<button class="info-button" type="button" data-info="${criteria.id}" aria-expanded="false" aria-label="Orientacao do criterio">i</button>` : `<span class="info-spacer"></span>`}
-    <button class="icon-note" type="button" data-note="${criteria.id}" title="Observacao">${hasNote ? "ðŸ“" : "âœï¸"}</button>
+    <button class="icon-note" type="button" data-note="${criteria.id}" title="Observacao">${hasNote ? "Obs" : "+"}</button>
     ${criteria.description ? `<div class="orientation-panel" data-info-panel="${criteria.id}" hidden>
-      <strong>OrientaÃ§Ã£o:</strong>
+      <strong>Orientacao:</strong>
       <p>${esc(criteria.description)}</p>
-      <strong>Feedback automÃ¡tico:</strong>
+      <strong>Feedback automatico:</strong>
       <p>${esc(automaticFeedback(occurrence, category.name, criteria.name))}</p>
     </div>` : ""}
     ${hasNote ? `<div class="evidence-list">
@@ -1751,20 +1807,21 @@ function renderAll(){
   renderDashboard();
   renderTimeline();
   renderReportSelectors();
+  repairVisibleText();
 }
 
 
 function displayIconForLabel(label){
   const text = normalize(String(label || ""));
   const rules = [
-    ["camas", "ðŸ›ï¸"], ["colch", "ðŸ›ï¸"], ["eletro", "ðŸ“º"], ["move", "ðŸ›‹ï¸"], ["celular", "ðŸ“±"], ["telefon", "ðŸ“±"], ["bicic", "ðŸš²"],
-    ["organiz", "ðŸ—‚ï¸"], ["preco", "ðŸ·ï¸"], ["etiqueta", "ðŸ·ï¸"], ["localizacao", "ðŸ“"], ["exposicao", "ðŸ–¼ï¸"], ["visual", "ðŸ–¼ï¸"],
-    ["limpeza", "ðŸ§½"], ["sujeira", "ðŸ§¹"], ["conservacao", "ðŸ§¼"], ["atendimento", "ðŸ¤"], ["cliente", "ðŸ‘¤"], ["pos venda", "ðŸ“ž"],
-    ["disciplina", "âœ…"], ["cadastro", "ðŸ“"], ["estoque", "ðŸ“¦"], ["produto", "ðŸ·ï¸"], ["servico", "ðŸ›¡ï¸"], ["meta", "ðŸŽ¯"],
-    ["resultado", "ðŸ“Š"], ["equipe", "ðŸ‘¥"], ["comunicacao", "ðŸ’¬"], ["desenvolvimento", "ðŸš€"], ["proatividade", "âš¡"]
+    ["camas", "CAM"], ["colch", "COL"], ["eletro", "ELT"], ["move", "MOV"], ["celular", "CEL"], ["telefon", "TEL"], ["bicic", "BIC"],
+    ["organiz", "ORG"], ["preco", "PRE"], ["etiqueta", "ETQ"], ["localizacao", "LOC"], ["exposicao", "EXP"], ["visual", "VIS"],
+    ["limpeza", "LIM"], ["sujeira", "LIM"], ["conservacao", "CON"], ["atendimento", "ATD"], ["cliente", "CLI"], ["pos venda", "POS"],
+    ["disciplina", "DIS"], ["cadastro", "CAD"], ["estoque", "EST"], ["produto", "PRO"], ["servico", "SER"], ["meta", "MET"],
+    ["resultado", "RES"], ["equipe", "EQP"], ["comunicacao", "COM"], ["desenvolvimento", "DEV"], ["proatividade", "PRO"]
   ];
   const found = rules.find(([key]) => text.includes(key));
-  return found ? found[1] : "ðŸ“Œ";
+  return found ? found[1] : "VER";
 }
 
 function plainChartLabel(label){
@@ -2195,6 +2252,8 @@ function setupPwaInstall(){
 function init(){
   injectSobralPolish();
   setupPwaInstall();
+  startTextRepairObserver();
+  startCanvasTextRepair();
   $("evalDate").value = currentEval.date;
   $("evalMonth").value = currentEval.month;
   $("employeePhotoPreview").src = defaultPhoto;
@@ -4547,6 +4606,33 @@ else init();
     document.head.appendChild(st);
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', injectV13, {once:true}); else injectV13();
+})();
+
+/* Correção final de codificação e ícones seguros para mobile/exportação. */
+(function finalTextAndIconGuard(){
+  function safeIcon(label){
+    const t = typeof normalize === "function" ? normalize(label) : String(label || "").toLowerCase();
+    const rules = [
+      ["organiz","ORG"], ["limpeza","LIM"], ["atendimento","ATD"], ["disciplina","DIS"],
+      ["cadastro","CAD"], ["estoque","EST"], ["patrimonio","EST"], ["produto","PRO"],
+      ["servico","SER"], ["meta","MET"], ["resultado","RES"], ["equipe","EQP"],
+      ["comunicacao","COM"], ["desenvolvimento","DEV"], ["proatividade","PRO"],
+      ["preco","PRE"], ["etiqueta","ETQ"], ["localizacao","LOC"], ["exposicao","EXP"],
+      ["sujeira","LIM"], ["cliente","CLI"]
+    ];
+    const found = rules.find(([key]) => t.includes(key));
+    return found ? found[1] : "";
+  }
+  window.displayIconForLabel = safeIcon;
+  window.setorIcon = safeIcon;
+  window.sectorEmoji360 = safeIcon;
+  window.categoryEmoji360 = safeIcon;
+  window.occurrenceEmoji360 = safeIcon;
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", () => setTimeout(() => repairVisibleText(), 80), {once:true});
+  }else{
+    setTimeout(() => repairVisibleText(), 80);
+  }
 })();
 
 

@@ -1425,7 +1425,14 @@ function renderReportSelectors(){
   $("reportEvaluation").innerHTML = evaluations.map(item => `<option value="${item.id}">${dateText(item.date)} - ${esc(item.employeeSnapshot?.name || employeeById(item.employeeId)?.name || "Colaborador")} - ${scoreText(item.score)}</option>`).join("");
   const preferred = state.selectedReportId && evaluations.some(item => item.id === state.selectedReportId) ? state.selectedReportId : (evaluations[0]?.id || "");
   if(preferred) $("reportEvaluation").value = preferred;
-  renderSelectedReport();
+  // Não desenha a arte pesada no carregamento inicial.
+  // Só renderiza a prévia quando a aba Relatórios estiver aberta.
+  if($("view-reports")?.classList.contains("is-active")){
+    renderSelectedReport();
+  }else{
+    const output = $("reportOutput");
+    if(output && !output.innerHTML.trim()) output.innerHTML = reportHtml("monthly", null);
+  }
 }
 
 function selectedEvaluation(){
@@ -1482,7 +1489,13 @@ function renderSelectedReport(type="monthly"){
     try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch{}
   }
   $("reportOutput").innerHTML = reportHtml(type, evaluation).replaceAll("Filial:", "Setor:");
-  drawShareArt(evaluation, 1240, 1754);
+  // Desenho controlado: evita travar o app na abertura/atualização.
+  if($("view-reports")?.classList.contains("is-active")){
+    clearTimeout(window.__p360DrawTimer);
+    window.__p360DrawTimer = setTimeout(() => {
+      try{ drawShareArt(evaluation, 1240, 1754); }catch(error){ console.error(error); }
+    }, 80);
+  }
 }
 
 function drawRoundImage(ctx, img, x, y, size){
@@ -6415,4 +6428,86 @@ else init();
   else bootV28();
   setTimeout(bootV28, 400);
   setTimeout(bootV28, 1400);
+})();
+
+
+/* ============================================================
+   AJUSTE FINAL v29 - anti-travamento + download direto
+   - não redesenha a arte ao clicar em Baixar imagem;
+   - impede listeners antigos de rodarem em duplicidade;
+   - mantém o layout atual sem alterações visuais.
+   ============================================================ */
+(function(){
+  function activeReports(){ return document.getElementById('view-reports')?.classList.contains('is-active'); }
+  function cleanFileName(value){
+    return String(value || 'avaliacao')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-+|-+$/g,'')
+      .toLowerCase() || 'avaliacao';
+  }
+  function hideReportShortcuts(){
+    ['weeklyReportButton','fortnightReportButton','monthlyReportButton','compareReportButton','pdiReportButton'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el){ el.hidden=true; el.style.display='none'; }
+    });
+  }
+  function removeStuckToast(){
+    document.querySelectorAll('#appToast').forEach(t=>setTimeout(()=>t.remove(),1600));
+  }
+  async function drawPreviewIfNeeded(){
+    const canvas=document.getElementById('shareCanvas');
+    const evaluation=(typeof selectedEvaluation==='function') ? selectedEvaluation() : null;
+    if(!canvas || !evaluation) return null;
+    // Se já existe conteúdo no canvas, usa ele mesmo.
+    if(canvas.width > 50 && canvas.height > 50) return {canvas,evaluation};
+    await Promise.resolve(drawShareArt(evaluation,1240,1754));
+    return {canvas,evaluation};
+  }
+  async function instantDownload(event){
+    const btn=event.target.closest?.('#downloadImageButton');
+    if(!btn) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    const original=btn.textContent || 'Baixar imagem';
+    btn.disabled=true;
+    btn.textContent='Gerando...';
+    try{
+      const data=await drawPreviewIfNeeded();
+      if(!data) throw new Error('Avaliação ou canvas não encontrado.');
+      const {canvas,evaluation}=data;
+      // Download direto do canvas já pronto. JPEG reduz muito o tempo no celular.
+      const blob = await new Promise(resolve => {
+        try{ canvas.toBlob(resolve,'image/jpeg',0.72); }catch{ resolve(null); }
+      });
+      if(!blob){
+        const a=document.createElement('a');
+        a.href=canvas.toDataURL('image/jpeg',0.72);
+        a.download=`performance-${cleanFileName(evaluation.employeeSnapshot?.name)}.jpg`;
+        document.body.appendChild(a); a.click(); a.remove();
+      }else{
+        const url=URL.createObjectURL(blob);
+        const a=document.createElement('a');
+        a.href=url;
+        a.download=`performance-${cleanFileName(evaluation.employeeSnapshot?.name)}.jpg`;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(()=>URL.revokeObjectURL(url),900);
+      }
+      if(typeof notify==='function') notify('Imagem gerada com sucesso.');
+    }catch(error){
+      console.error(error);
+      alert('Não foi possível baixar a imagem. Abra a aba Relatórios novamente e tente baixar.');
+    }finally{
+      btn.disabled=false;
+      btn.textContent=original;
+      removeStuckToast();
+    }
+  }
+  function boot(){
+    hideReportShortcuts();
+    document.getElementById('downloadImageButton')?.removeAttribute('disabled');
+  }
+  document.addEventListener('click', instantDownload, true);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot, {once:true}); else boot();
+  setTimeout(boot,300); setTimeout(boot,1200);
 })();

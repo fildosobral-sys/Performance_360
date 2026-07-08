@@ -817,13 +817,21 @@ function notify(message){
   if(!box){
     box = document.createElement("div");
     box.id = "appToast";
-    box.style.cssText = "position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:99999;background:#101827;color:#fff;padding:12px 16px;border-radius:16px;font:700 14px system-ui,-apple-system,Segoe UI,sans-serif;box-shadow:0 18px 45px rgba(16,24,39,.22);max-width:92vw;text-align:center;opacity:0;transition:.25s ease;pointer-events:none";
+    box.style.cssText = "position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(12px);z-index:99999;background:#101827;color:#fff;padding:12px 16px;border-radius:16px;font:700 14px system-ui,-apple-system,Segoe UI,sans-serif;box-shadow:0 18px 45px rgba(16,24,39,.22);max-width:88vw;text-align:center;opacity:0;transition:opacity .22s ease, transform .22s ease;pointer-events:none";
     document.body.appendChild(box);
   }
   box.textContent = message;
   box.style.opacity = "1";
+  box.style.transform = "translateX(-50%) translateY(0)";
   clearTimeout(window.__toastTimer);
-  window.__toastTimer = setTimeout(() => { box.style.opacity = "0"; }, 2400);
+  clearTimeout(window.__toastRemoveTimer);
+  window.__toastTimer = setTimeout(() => {
+    const current = document.getElementById("appToast");
+    if(!current) return;
+    current.style.opacity = "0";
+    current.style.transform = "translateX(-50%) translateY(12px)";
+    window.__toastRemoveTimer = setTimeout(() => current.remove(), 320);
+  }, 2300);
 }
 
 function renderEmployees(){
@@ -1642,7 +1650,7 @@ async function drawShareArt(evaluation, width=1240, height=1754){
       qtd:String(qtd),
       status,
       action: actionPlanText(item),
-      feedback: compactArtFeedback(directionalOccurrenceFeedback(item, evaluation), 210)
+      feedback: compactArtFeedback(directionalOccurrenceFeedback(item, evaluation), 155)
     };
   });
 
@@ -1650,7 +1658,7 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   setFont(700,15);
   let rowsHeight = 46;
   rowData.forEach(row => {
-    const lines = Math.max(wrapLines(row.criteria, 250).length, wrapLines(row.action, 185).length, wrapLines(row.feedback, 340).length, 1);
+    const lines = Math.max(wrapLines(row.criteria, 250).length, wrapLines(row.action, 175).length, wrapLines(row.feedback, 300).length, 1);
     rowsHeight += Math.max(42, lines * 18 + 20);
   });
   const evidenceHeight = photoEvidence.length ? (108 + Math.ceil(Math.min(photoEvidence.length,12) / 6) * 158) : 0;
@@ -1715,7 +1723,7 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   ctx.fillText("QTD", sx(tableX+470), sx(startY+20));
   ctx.fillText("STATUS", sx(tableX+528), sx(startY+20));
   ctx.fillText("ACAO RECOMENDADA", sx(tableX+630), sx(startY+20));
-  ctx.fillText("FEEDBACK", sx(tableX+822), sx(startY+20));
+  ctx.fillText("FEEDBACK", sx(tableX+812), sx(startY+20));
 
   let rowY = startY + 46;
   if(!rowData.length){
@@ -1725,8 +1733,8 @@ async function drawShareArt(evaluation, width=1240, height=1754){
     rowData.forEach((row,index)=>{
       setFont(700,14,"#101827");
       const criteriaLines = wrapLines(row.criteria,250).length;
-      const actionLines = wrapLines(row.action,185).length;
-      const feedbackLines = wrapLines(row.feedback,340).length;
+      const actionLines = wrapLines(row.action,175).length;
+      const feedbackLines = wrapLines(row.feedback,300).length;
       const rowH = Math.max(42, Math.max(criteriaLines, actionLines, feedbackLines, 1) * 18 + 20);
       ctx.fillStyle = index % 2 ? "#fff" : "#fbfcfe";
       roundRect(ctx,sx(tableX+28),sx(rowY-24),sx(tableW-56),sx(rowH),sx(8)); ctx.fill();
@@ -1734,8 +1742,8 @@ async function drawShareArt(evaluation, width=1240, height=1754){
       setFont(700,13,"#101827"); textBlock(row.criteria,tableX+202,rowY,250,18,0);
       setFont(800,13,"#101827"); ctx.fillText(row.qtd, sx(tableX+478), sx(rowY));
       setFont(700,13,"#334155"); textBlock(row.status,tableX+528,rowY,104,16,2);
-      setFont(600,13,"#344054"); textBlock(row.action,tableX+630,rowY,176,18,0);
-      setFont(600,13,"#475467"); textBlock(row.feedback,tableX+822,rowY,340,18,0);
+      setFont(600,13,"#344054"); textBlock(row.action,tableX+630,rowY,166,18,0);
+      setFont(600,13,"#475467"); textBlock(row.feedback,tableX+812,rowY,300,18,0);
       rowY += rowH + 2;
     });
   }
@@ -1787,30 +1795,35 @@ async function drawShareArt(evaluation, width=1240, height=1754){
 }
 async function downloadArt(scale){
   const evaluation = selectedEvaluation();
-  if(!evaluation) return alert("Selecione uma avaliaÃ§Ã£o para baixar.");
-  await drawShareArt(evaluation, scale === 8 ? 4960 : 2480, scale === 8 ? 7016 : 3508);
-  const canvas = $("shareCanvas");
-  const fileName = `performance-${evaluation?.employeeSnapshot?.name || "avaliaÃ§Ã£o"}-${scale}k.png`.replace(/\s+/g,"-").toLowerCase();
-  let blob = null;
+  if(!evaluation) return alert("Selecione uma avaliação para baixar.");
+  const button = $("downloadImageButton");
+  const originalLabel = button?.textContent;
+  if(button){ button.disabled = true; button.textContent = "Gerando..."; }
   try{
-    blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png", 1));
+    // Tamanho otimizado para celular: mantém boa definição e reduz bastante o tempo de geração.
+    const exportWidth = scale === 8 ? 3720 : 1860;
+    const exportHeight = scale === 8 ? 5262 : 2631;
+    await drawShareArt(evaluation, exportWidth, exportHeight);
+    const canvas = $("shareCanvas");
+    const fileName = `performance-${evaluation?.employeeSnapshot?.name || "avaliacao"}.png`.replace(/\s+/g,"-").toLowerCase();
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png", 0.92));
+    if(!blob) throw new Error("Falha ao gerar blob da imagem");
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+    notify("Imagem gerada com sucesso.");
   }catch(error){
     console.error(error);
+    alert("Não foi possível gerar a imagem. Gere a prévia novamente e tente baixar outra vez.");
+  }finally{
+    if(button){ button.disabled = false; button.textContent = originalLabel || "Baixar imagem"; }
+    setTimeout(() => drawShareArt(evaluation, 1240, 1754), 120);
   }
-  if(!blob){
-    alert("Nao foi possivel gerar a imagem. Abra a plataforma pelo link http://127.0.0.1:8765/index.html ou gere a previa novamente. Se alguma foto tiver vindo de caminho externo, envie a foto pelo cadastro do colaborador.");
-    await drawShareArt(evaluation, 1240, 1754);
-    return;
-  }
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  await drawShareArt(evaluation, 1240, 1754);
 }
 
 function sendEvaluationWhatsApp(){
@@ -5650,3 +5663,47 @@ else init();
   [200,800,1800,3200].forEach(delay => setTimeout(inject, delay));
 })();
 
+
+
+/* AJUSTE v21 - acabamento final relatório e toast */
+(function finalReportPolishV21(){
+  function inject(){
+    if(document.getElementById("sobralFinalReportV21Style")) return;
+    const style = document.createElement("style");
+    style.id = "sobralFinalReportV21Style";
+    style.textContent = `
+      #appToast{bottom:calc(96px + env(safe-area-inset-bottom))!important;}
+      #downloadImageButton:disabled{opacity:.72!important;cursor:wait!important;}
+      #view-reports .exec-block{overflow-x:hidden!important;}
+      #view-reports .exec-opportunity-table{
+        width:100%!important;
+        min-width:0!important;
+        max-width:100%!important;
+        table-layout:fixed!important;
+        border-collapse:collapse!important;
+        font-size:9.8px!important;
+        line-height:1.22!important;
+      }
+      #view-reports .exec-opportunity-table th,
+      #view-reports .exec-opportunity-table td{
+        box-sizing:border-box!important;
+        max-width:0!important;
+        padding:6px 7px!important;
+        white-space:normal!important;
+        word-break:normal!important;
+        overflow-wrap:anywhere!important;
+        vertical-align:top!important;
+      }
+      #view-reports .exec-opportunity-table th:nth-child(1),#view-reports .exec-opportunity-table td:nth-child(1){width:13%!important;}
+      #view-reports .exec-opportunity-table th:nth-child(2),#view-reports .exec-opportunity-table td:nth-child(2){width:17%!important;}
+      #view-reports .exec-opportunity-table th:nth-child(3),#view-reports .exec-opportunity-table td:nth-child(3){width:5%!important;text-align:center!important;}
+      #view-reports .exec-opportunity-table th:nth-child(4),#view-reports .exec-opportunity-table td:nth-child(4){width:9%!important;}
+      #view-reports .exec-opportunity-table th:nth-child(5),#view-reports .exec-opportunity-table td:nth-child(5){width:22%!important;}
+      #view-reports .exec-opportunity-table th:nth-child(6),#view-reports .exec-opportunity-table td:nth-child(6){width:34%!important;font-size:9.6px!important;line-height:1.24!important;}
+      @media(max-width:780px){#appToast{bottom:calc(96px + env(safe-area-inset-bottom))!important;max-width:78vw!important;}}
+    `;
+    document.head.appendChild(style);
+  }
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", inject, {once:true});
+  else inject();
+})();

@@ -277,3 +277,34 @@ dialog{border:0;border-radius:14px;width:min(92vw,640px);padding:0;box-shadow:0 
 }
 .chart-empty-state strong{color:#101827;font-size:18px}
 .chart-empty-state span{max-width:280px;line-height:1.35}
+
+/* AJUSTE v21 - acabamento final relatório, toast e exportação */
+#appToast{bottom:calc(96px + env(safe-area-inset-bottom))!important;}
+#downloadImageButton:disabled{opacity:.72!important;cursor:wait!important;}
+#view-reports .exec-block{overflow-x:hidden!important;}
+#view-reports .exec-opportunity-table{
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  table-layout:fixed!important;
+  border-collapse:collapse!important;
+  font-size:9.8px!important;
+  line-height:1.22!important;
+}
+#view-reports .exec-opportunity-table th,
+#view-reports .exec-opportunity-table td{
+  box-sizing:border-box!important;
+  max-width:0!important;
+  padding:6px 7px!important;
+  white-space:normal!important;
+  word-break:normal!important;
+  overflow-wrap:anywhere!important;
+  vertical-align:top!important;
+}
+#view-reports .exec-opportunity-table th:nth-child(1),#view-reports .exec-opportunity-table td:nth-child(1){width:13%!important;}
+#view-reports .exec-opportunity-table th:nth-child(2),#view-reports .exec-opportunity-table td:nth-child(2){width:17%!important;}
+#view-reports .exec-opportunity-table th:nth-child(3),#view-reports .exec-opportunity-table td:nth-child(3){width:5%!important;text-align:center!important;}
+#view-reports .exec-opportunity-table th:nth-child(4),#view-reports .exec-opportunity-table td:nth-child(4){width:9%!important;}
+#view-reports .exec-opportunity-table th:nth-child(5),#view-reports .exec-opportunity-table td:nth-child(5){width:22%!important;}
+#view-reports .exec-opportunity-table th:nth-child(6),#view-reports .exec-opportunity-table td:nth-child(6){width:34%!important;font-size:9.6px!important;line-height:1.24!important;}
+@media(max-width:780px){#appToast{bottom:calc(96px + env(safe-area-inset-bottom))!important;max-width:78vw!important;}}

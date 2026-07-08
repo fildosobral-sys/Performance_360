@@ -360,3 +360,20 @@ dialog{border:0;border-radius:14px;width:min(92vw,640px);padding:0;box-shadow:0 
 @media(max-width:780px){
   .topbar-actions{display:flex!important}.app-menu-wrap{display:flex!important}.menu-dot-button{width:44px;height:44px;border-radius:14px;font-size:28px}.app-menu-panel{right:0;top:52px;min-width:224px}.app-update-banner{bottom:calc(96px + env(safe-area-inset-bottom));align-items:stretch;flex-direction:column}.app-update-banner div{display:flex;gap:8px}.app-update-banner button{flex:1}
 }
+
+
+/* AJUSTE FINAL v25 - relatório executivo e rankings */
+.ranking-row{grid-template-columns:48px minmax(0,1fr) auto!important;}
+.ranking-row .ranking-icon{width:48px!important;height:48px!important;min-width:48px!important;border-radius:16px!important;background:#f8fafc!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:24px!important;line-height:1!important;}
+.ranking-row strong{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;}
+.exec-opportunity-table{table-layout:fixed!important;width:100%!important;min-width:0!important;}
+.exec-opportunity-table th,.exec-opportunity-table td{overflow-wrap:anywhere!important;word-break:normal!important;hyphens:auto!important;line-height:1.42!important;}
+.exec-opportunity-table tr:nth-child(even) td{background:#fafcff!important;}
+.exec-opportunity-table tr:nth-child(odd) td{background:#fff!important;}
+.exec-opportunity-table th:nth-child(1),.exec-opportunity-table td:nth-child(1){width:14%!important;}
+.exec-opportunity-table th:nth-child(2),.exec-opportunity-table td:nth-child(2){width:22%!important;}
+.exec-opportunity-table th:nth-child(3),.exec-opportunity-table td:nth-child(3){width:5%!important;text-align:center!important;}
+.exec-opportunity-table th:nth-child(4),.exec-opportunity-table td:nth-child(4){width:9%!important;}
+.exec-opportunity-table th:nth-child(5),.exec-opportunity-table td:nth-child(5){width:25%!important;padding-right:14px!important;}
+.exec-opportunity-table th:nth-child(6),.exec-opportunity-table td:nth-child(6){width:25%!important;padding-left:14px!important;padding-right:14px!important;}
+#appToast{pointer-events:none!important;}

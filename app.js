@@ -324,11 +324,7 @@ function supplementalCategoryTemplates(){
 
 const defaults = {
   settings:{company:"Empresa",initialScore:10,recurrencePenalty:.25,managers:"Gestor, Supervisor, Gerente"},
-  employees:[
-    {id:"emp_ana",name:"Ana Paula Lima",role:"Vendedora",sector:"Moveis",admission:"2023-03-10",active:true,photo:defaultPhoto},
-    {id:"emp_carlos",name:"Carlos Mendes",role:"Consultor",sector:"Eletro",admission:"2022-08-01",active:true,photo:defaultPhoto},
-    {id:"emp_bia",name:"Beatriz Rocha",role:"Caixa",sector:"Atendimento",admission:"2024-01-15",active:true,photo:defaultPhoto}
-  ],
+  employees:[],
   categories:[
     ...coreCategoryTemplates(),
     ...supplementalCategoryTemplates()
@@ -1656,7 +1652,7 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   setFont(700,15);
   let rowsHeight = 46;
   rowData.forEach(row => {
-    const lines = Math.max(wrapLines(row.criteria, 220).length, wrapLines(row.action, 200).length, wrapLines(row.feedback, 325).length, 1);
+    const lines = Math.max(wrapLines(row.criteria, 220).length, wrapLines(row.action, 200).length, wrapLines(row.feedback, 292).length, 1);
     rowsHeight += Math.max(48, lines * 18 + 22);
   });
   const evidenceHeight = photoEvidence.length ? (108 + Math.ceil(Math.min(photoEvidence.length,12) / 6) * 158) : 0;
@@ -1721,7 +1717,7 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   ctx.fillText("QTD", sx(tableX+438), sx(startY+20));
   ctx.fillText("STATUS", sx(tableX+492), sx(startY+20));
   ctx.fillText("AÇÃO RECOMENDADA", sx(tableX+592), sx(startY+20));
-  ctx.fillText("FEEDBACK", sx(tableX+825), sx(startY+20));
+  ctx.fillText("FEEDBACK", sx(tableX+812), sx(startY+20));
 
   let rowY = startY + 46;
   if(!rowData.length){
@@ -1731,8 +1727,8 @@ async function drawShareArt(evaluation, width=1240, height=1754){
     rowData.forEach((row,index)=>{
       setFont(700,14,"#101827");
       const criteriaLines = wrapLines(row.criteria,220).length;
-      const actionLines = wrapLines(row.action,200).length;
-      const feedbackLines = wrapLines(row.feedback,325).length;
+      const actionLines = wrapLines(row.action,190).length;
+      const feedbackLines = wrapLines(row.feedback,292).length;
       const rowH = Math.max(48, Math.max(criteriaLines, actionLines, feedbackLines, 1) * 18 + 22);
       ctx.fillStyle = index % 2 ? "#ffffff" : "#f8fafc";
       roundRect(ctx,sx(tableX+28),sx(rowY-24),sx(tableW-56),sx(rowH),sx(8)); ctx.fill();
@@ -1742,8 +1738,8 @@ async function drawShareArt(evaluation, width=1240, height=1754){
       setFont(700,13,"#101827"); textBlock(row.criteria,tableX+184,rowY,220,18,0);
       setFont(800,13,"#101827"); ctx.fillText(row.qtd, sx(tableX+446), sx(rowY));
       setFont(700,13,"#334155"); textBlock(row.status,tableX+492,rowY,88,16,2);
-      setFont(600,13,"#344054"); textBlock(row.action,tableX+592,rowY,200,18,0);
-      setFont(600,13,"#475467"); textBlock(row.feedback,tableX+825,rowY,325,18,0);
+      setFont(600,13,"#344054"); textBlock(row.action,tableX+592,rowY,190,18,0);
+      setFont(600,13,"#475467"); textBlock(row.feedback,tableX+812,rowY,292,18,0);
       rowY += rowH + 2;
     });
   }
@@ -5960,4 +5956,133 @@ else init();
 
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => { bindMenu(); setupUpdates(); }, {once:true});
   else { bindMenu(); setupUpdates(); }
+})();
+
+
+/* ============================================================
+   AJUSTE FINAL v25 - velocidade, limpeza sem usuários exemplo,
+   ícones estáveis e segurança visual do relatório
+   ============================================================ */
+(function(){
+  const ICON_RULES_V25 = [
+    ['cama','🛏️'], ['colch','🛏️'], ['eletro','📺'], ['televis','📺'], ['tv','📺'], ['audio','🔊'], ['som','🔊'], ['móvel','🛋️'], ['movel','🛋️'], ['móveis','🛋️'], ['moveis','🛋️'], ['sofa','🛋️'], ['estof','🛋️'], ['celular','📱'], ['telefon','📱'], ['bicic','🚲'], ['informat','💻'], ['comput','💻'],
+    ['organiz','🗂️'], ['preço','🏷️'], ['preco','🏷️'], ['etiqueta','🏷️'], ['localização','📍'], ['localizacao','📍'], ['local definido','📍'], ['circulacao','🚧'], ['circulação','🚧'], ['exposição','🖼️'], ['exposicao','🖼️'], ['visual','💬'],
+    ['limpeza','🧹'], ['sujeira','🧹'], ['conservação','🧽'], ['conservacao','🧽'], ['atendimento','🤝'], ['cliente','👤'], ['pós-venda','📞'], ['pos venda','📞'], ['disciplina','⏱️'], ['cadastro','📝'], ['estoque','📦'], ['patrimônio','📦'], ['patrimonio','📦'], ['serviço','🛡️'], ['servico','🛡️'], ['meta','🎯'], ['resultado','📊'], ['equipe','👥'], ['comunicação','💬'], ['comunicacao','💬'], ['desenvolvimento','🚀'], ['proatividade','⚡'], ['manutenção','🛠️'], ['manutencao','🛠️']
+  ];
+  function norm(v){ return repairText(String(v||'')).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
+  function stableIcon(label){
+    const t = norm(label);
+    const found = ICON_RULES_V25.find(([key]) => t.includes(norm(key)));
+    return found ? found[1] : '📈';
+  }
+  window.displayIconForLabel = stableIcon;
+  window.sectorEmoji360 = stableIcon;
+
+  function decorateRankingIcons(){
+    ['rankingSector','rankingCategory','topOccurrences'].forEach(id => {
+      const root = document.getElementById(id);
+      if(!root) return;
+      root.querySelectorAll('.ranking-row').forEach(row => {
+        if(row.querySelector('.ranking-icon') || row.querySelector('img')) return;
+        const label = row.querySelector('strong')?.textContent?.replace(/^Mais recorrente:\s*/i,'') || '';
+        const span = document.createElement('span');
+        span.className = 'ranking-icon';
+        span.textContent = stableIcon(label);
+        row.insertBefore(span, row.firstChild);
+      });
+      root.querySelectorAll('.ranking-icon').forEach(el => {
+        const row = el.closest('.ranking-row');
+        const label = row?.querySelector('strong')?.textContent?.replace(/^Mais recorrente:\s*/i,'') || '';
+        if(!el.textContent.trim()) el.textContent = stableIcon(label);
+      });
+    });
+  }
+  const prevRenderDashboardV25 = window.renderDashboard || (typeof renderDashboard === 'function' ? renderDashboard : null);
+  if(prevRenderDashboardV25){
+    window.renderDashboard = function(){
+      const result = prevRenderDashboardV25.apply(this, arguments);
+      setTimeout(decorateRankingIcons, 20);
+      return result;
+    };
+  }
+  document.addEventListener('DOMContentLoaded', () => setTimeout(decorateRankingIcons, 400));
+  document.addEventListener('click', () => setTimeout(decorateRankingIcons, 250), true);
+
+  // Qualquer toast criado agora some sozinho, inclusive mensagens antigas que ficavam presas.
+  function autoCloseToast(node){
+    if(!node || node.id !== 'appToast') return;
+    node.dataset.createdAt = String(Date.now());
+    setTimeout(() => node.remove(), 2300);
+  }
+  new MutationObserver(records => records.forEach(r => r.addedNodes.forEach(n => {
+    if(n?.id === 'appToast') autoCloseToast(n);
+    n?.querySelectorAll?.('#appToast').forEach(autoCloseToast);
+  }))).observe(document.documentElement, {childList:true, subtree:true});
+  setInterval(() => document.querySelectorAll('#appToast').forEach(t => {
+    const created = Number(t.dataset.createdAt || 0);
+    if(!created || Date.now() - created > 2600) t.remove();
+  }), 800);
+
+  // Intercepta o botão antes do listener antigo: baixa o canvas já pronto, sem redesenhar tudo por 2 minutos.
+  async function fastDownloadCurrentCanvas(){
+    const evaluation = selectedEvaluation();
+    if(!evaluation) return alert('Selecione uma avaliação para baixar.');
+    const btn = document.getElementById('downloadImageButton');
+    const label = btn?.textContent || 'Baixar imagem';
+    if(btn){ btn.disabled = true; btn.textContent = 'Gerando...'; }
+    try{
+      let canvas = document.getElementById('shareCanvas');
+      // Se a prévia ainda não existir, gera uma versão leve uma única vez.
+      if(!canvas || !canvas.width || !canvas.height){
+        await drawShareArt(evaluation, 960, 1358);
+        canvas = document.getElementById('shareCanvas');
+      }
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.82));
+      if(!blob) throw new Error('Falha ao gerar imagem');
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `performance-${(evaluation.employeeSnapshot?.name || 'avaliacao').replace(/\s+/g,'-').toLowerCase()}.png`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 900);
+      if(typeof notify === 'function') notify('Imagem gerada com sucesso.');
+    }catch(err){
+      console.error(err);
+      alert('Não foi possível gerar a imagem. Abra a prévia novamente e tente baixar.');
+    }finally{
+      if(btn){ btn.disabled = false; btn.textContent = label; }
+      setTimeout(() => document.getElementById('appToast')?.remove(), 2300);
+    }
+  }
+  document.addEventListener('click', event => {
+    const btn = event.target.closest?.('#downloadImageButton');
+    if(!btn) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    fastDownloadCurrentCanvas();
+  }, true);
+
+  // Ao limpar, a plataforma volta limpa, sem colaboradores demonstrativos.
+  function blankState(){
+    const fresh = structuredClone(defaults);
+    fresh.employees = [];
+    fresh.evaluations = [];
+    return fresh;
+  }
+  const clearBtn = document.getElementById('menuClearPlatformButton');
+  if(clearBtn){
+    clearBtn.addEventListener('click', event => {
+      event.preventDefault(); event.stopImmediatePropagation();
+      const panel = document.getElementById('appMenuPanel'); if(panel) panel.hidden = true;
+      if(!confirm('Antes de limpar, será criada uma cópia de segurança local. Deseja continuar?')) return;
+      try{ if(typeof createLocalSnapshot === 'function') createLocalSnapshot('antes-de-limpar'); }catch{}
+      if(!confirm('Confirma apagar os dados desta plataforma neste aparelho?')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      state = blankState();
+      currentEval = emptyEvaluation();
+      saveState();
+      renderAll();
+      if(typeof notify === 'function') notify('Plataforma limpa neste aparelho.');
+    }, true);
+  }
 })();

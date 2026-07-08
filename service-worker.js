@@ -1,85 +1,59 @@
-const CACHE_NAME = "performance360-v4";
-
+const CACHE_NAME = "performance360-v20-final";
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./estilos.css",
+  "./styles.css",
   "./app.js",
   "./manifest.json",
   "./icone-192.png",
   "./icone-512.png",
-  "./mascarável-512.png",
+  "./maskable-512.png",
   "./logo-zenir.png",
   "./logo-foco.png"
 ];
 
-// Instala o Service Worker
 self.addEventListener("install", event => {
   self.skipWaiting();
-
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(APP_SHELL))
-      .catch(error => {
-        console.error("Erro ao criar cache:", error);
-      })
+    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).catch(() => undefined)
   );
 });
 
-// Ativa e remove caches antigos
 self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then(keys => {
-      return Promise.all(
-        keys
-          .filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
-      );
-    }).then(() => self.clients.claim())
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))))
+      .then(() => self.clients.claim())
   );
 });
 
-// Intercepta requisições
 self.addEventListener("fetch", event => {
+  if(event.request.method !== "GET") return;
 
-  if (event.request.method !== "GET") {
+  const url = new URL(event.request.url);
+  const isAppFile = url.pathname.endsWith("/") ||
+    url.pathname.endsWith("/index.html") ||
+    url.pathname.endsWith("/manifest.json") ||
+    url.pathname.endsWith("/service-worker.js");
+
+  if(isAppFile){
+    event.respondWith(
+      fetch(event.request, {cache:"no-store"})
+        .then(response => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy)).catch(() => undefined);
+          return response;
+        })
+        .catch(() => caches.match(event.request).then(cached => cached || caches.match("./index.html")))
+    );
     return;
   }
 
   event.respondWith(
-
-    caches.match(event.request).then(cacheResponse => {
-
-      if (cacheResponse) {
-        return cacheResponse;
-      }
-
-      return fetch(event.request)
-        .then(networkResponse => {
-
-          if (!networkResponse || networkResponse.status !== 200) {
-            return networkResponse;
-          }
-
-          const responseClone = networkResponse.clone();
-
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, responseClone);
-          });
-
-          return networkResponse;
-
-        })
-        .catch(() => {
-
-          if (event.request.mode === "navigate") {
-            return caches.match("./index.html");
-          }
-
-        });
-
-    })
-
+    caches.match(event.request).then(cached => cached || fetch(event.request).then(response => {
+      const copy = response.clone();
+      caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy)).catch(() => undefined);
+      return response;
+    }))
   );
-
 });

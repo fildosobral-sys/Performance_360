@@ -861,6 +861,7 @@ function clearEmployeeForm(){
   $("employeeActive").value = "true";
   $("employeePhoto").value = "";
   $("employeePhotoPreview").src = defaultPhoto;
+  $("employeeForm").hidden = true;
 }
 
 async function saveEmployee(event){
@@ -880,6 +881,7 @@ async function saveEmployee(event){
   state.employees = existing ? state.employees.map(item => item.id === id ? employee : item) : [...state.employees, employee];
   saveState();
   clearEmployeeForm();
+  $("employeeForm").hidden = true;
   renderAll();
 }
 
@@ -2105,7 +2107,7 @@ function setupEvents(){
     if(edit){
       const employee = employeeById(edit.dataset.editEmployee);
       if(employee){
-        $("employeeId").value = employee.id;$("employeeName").value = employee.name;$("employeeRole").value = employee.role;$("employeeSector").value = employee.sector;$("employeeActive").value = String(employee.active);$("employeePhotoPreview").src = employee.photo || defaultPhoto;setView("employees");
+        $("employeeId").value = employee.id;$("employeeName").value = employee.name;$("employeeRole").value = employee.role;$("employeeSector").value = employee.sector;$("employeeActive").value = String(employee.active);$("employeePhotoPreview").src = employee.photo || defaultPhoto;$("employeeForm").hidden = false;setView("employees");
       }
     }
     const toggle = event.target.closest("[data-toggle-employee]");
@@ -2192,7 +2194,7 @@ function setupEvents(){
   });
   $("employeeForm").addEventListener("submit", saveEmployee);
   $("cancelEmployeeButton").addEventListener("click", clearEmployeeForm);
-  $("newEmployeeButton").addEventListener("click", () => { clearEmployeeForm(); setView("employees"); });
+  $("newEmployeeButton").addEventListener("click", () => { clearEmployeeForm(); $("employeeForm").hidden = false; setView("employees"); $("employeeName").focus(); });
   $("noteForm").addEventListener("submit", saveNote);
   $("cancelNoteButton").addEventListener("click", () => $("noteDialog").close());
   $("saveEvalButton").addEventListener("click", saveEvaluation);
@@ -4695,6 +4697,167 @@ else init();
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', injectV13, {once:true}); else injectV13();
 })();
 
+/* AJUSTE v19 - camada final: graficos horizontais, colaborador fechado e arte compacta */
+(function finalExecutiveV19(){
+  function cleanV19(value){
+    const fixed = typeof repairText === "function" ? repairText(String(value || "")) : String(value || "");
+    return fixed
+      .replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu, "")
+      .replace(/ðŸ\S*|âœ\S*|âš\S*|â\S*/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+  function shortV19(value, max=36){
+    const text = cleanV19(value);
+    return text.length > max ? `${text.slice(0, Math.max(0, max - 3)).trim()}...` : text;
+  }
+  function escV19(value){
+    return typeof esc === "function" ? esc(value) : String(value || "").replace(/[&<>"']/g, s => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[s]));
+  }
+  function rowsV19(type){
+    try{
+      const fn = window.chartRows || (typeof chartRows === "function" ? chartRows : null);
+      const data = fn ? fn(type) : {title:"Dashboard grafico", metric:"Registros", rows:[]};
+      const rows = (data.rows || [])
+        .filter(row => cleanV19(row.label) && !normalize(cleanV19(row.label)).includes("sem dados"))
+        .slice(0, 12)
+        .map(row => ({...row, label:cleanV19(row.label), text:cleanV19(row.text ?? scoreText(Number(row.value) || 0))}));
+      return {...data, title:cleanV19(data.title || "Dashboard grafico"), metric:cleanV19(data.metric || "Registros"), rows};
+    }catch{
+      return {title:"Dashboard grafico", metric:"Registros", rows:[]};
+    }
+  }
+  function drawHorizontalHtmlV19(data){
+    const max = Math.max(...data.rows.map(row => Number(row.value) || 0), 1);
+    return `<div class="horizontal-chart-v19">
+      ${data.rows.map(row => {
+        const value = Number(row.value) || 0;
+        const pct = Math.max(value ? 4 : 1, Math.min(100, (value / max) * 100));
+        return `<div class="hbar-row-v19"><strong title="${escV19(row.label)}">${escV19(shortV19(row.label, 34))}</strong><span><i style="width:${pct}%"></i></span><b>${escV19(row.text)}</b></div>`;
+      }).join("")}
+    </div>`;
+  }
+  window.openDashboardChart = function(type){
+    const data = rowsV19(type);
+    const dialog = ensureChartDialog();
+    const printable = dialog.querySelector("#chartPrintable");
+    if(!data.rows.length){
+      printable.innerHTML = `<header class="chart-exec-header"><span>METODO SOBRAL</span><h2>${escV19(data.title)}</h2><p>${escV19(data.metric)} - ${dateText(new Date().toISOString().slice(0,10))}</p></header>
+      <div class="chart-exec-body"><div class="chart-empty-state"><strong>Sem dados para gerar grafico.</strong><span>Salve avaliacoes para visualizar este indicador.</span></div></div>`;
+    }else{
+      printable.innerHTML = `<header class="chart-exec-header"><span>METODO SOBRAL</span><h2>${escV19(data.title)}</h2><p>${escV19(data.metric)} - ${dateText(new Date().toISOString().slice(0,10))}</p></header>
+      <div class="chart-exec-body"><div class="chart-plot-card occurrence-plot-card v19-chart-card"><h3>Dashboard grafico</h3><p>Ranking organizado para leitura executiva</p>${drawHorizontalHtmlV19(data)}</div></div>`;
+    }
+    dialog.querySelectorAll(".chart-close").forEach(button => button.textContent = "X");
+    dialog.showModal();
+  };
+  window.downloadChartImage = function(){
+    const printable = document.getElementById("chartPrintable");
+    const title = cleanV19(printable?.querySelector("h2")?.textContent || "grafico");
+    const rowNodes = [...(printable?.querySelectorAll(".hbar-row-v19") || [])];
+    const rows = rowNodes.map(node => ({
+      label: cleanV19(node.querySelector("strong")?.getAttribute("title") || node.querySelector("strong")?.textContent || ""),
+      text: cleanV19(node.querySelector("b")?.textContent || ""),
+      pct: parseFloat(node.querySelector("i")?.style.width || "0")
+    }));
+    const canvas = document.createElement("canvas");
+    canvas.width = 1600;
+    canvas.height = 900;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#eef2f7"; ctx.fillRect(0,0,1600,900);
+    ctx.fillStyle = "#101827"; ctx.fillRect(0,0,1600,150);
+    ctx.fillStyle = "#fff"; ctx.font = "700 44px Arial"; ctx.textAlign = "left"; ctx.fillText(title,80,74);
+    ctx.font = "500 24px Arial"; ctx.fillText("Metodo Sobral - Performance Individual 360",80,116);
+    ctx.fillStyle = "#fff"; roundRect(ctx,60,185,1480,655,28,true,false);
+    ctx.fillStyle = "#334155"; ctx.font = "700 28px Arial"; ctx.fillText("Dashboard grafico",120,242);
+    const list = rows.length ? rows : [{label:"Sem dados", text:"0", pct:0}];
+    const top = 305;
+    const rowH = Math.min(56, Math.floor(470 / Math.max(list.length, 1)));
+    list.forEach((row, index) => {
+      const y = top + index * rowH;
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "#0f172a"; ctx.font = "700 18px Arial"; ctx.textAlign = "right";
+      ctx.fillText(shortV19(row.label, 32), 455, y + rowH / 2);
+      ctx.fillStyle = "#e8eef7"; roundRect(ctx,485,y + rowH * .22,760,rowH * .56,12,true,false);
+      ctx.fillStyle = "#2563eb"; roundRect(ctx,485,y + rowH * .22,Math.max(10,760 * (row.pct / 100)),rowH * .56,12,true,false);
+      ctx.fillStyle = "#0f172a"; ctx.font = "800 18px Arial"; ctx.textAlign = "left";
+      ctx.fillText(row.text, 1272, y + rowH / 2);
+    });
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png", 1);
+    a.download = `${title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-")}.png`;
+    a.click();
+  };
+  function patchUiV19(){
+    const form = document.getElementById("employeeForm");
+    const isEmployeeView = document.getElementById("view-employees")?.classList.contains("is-active");
+    if(form && !form.dataset.userOpened && !form.querySelector("#employeeId")?.value && isEmployeeView) form.hidden = true;
+    document.querySelectorAll("#rankingSector .ranking-row,#rankingCategory .ranking-row").forEach(row => {
+      row.querySelectorAll(".ranking-icon,.rank-emoji").forEach(icon => icon.remove());
+      const label = row.querySelector("div strong");
+      if(label){
+        const full = cleanV19(label.title || label.textContent);
+        label.title = full;
+        label.textContent = shortV19(full, row.closest("#rankingCategory") ? 30 : 26);
+      }
+    });
+  }
+  function injectV19(){
+    if(!document.getElementById("sobralFinalV19Style")){
+      const style = document.createElement("style");
+      style.id = "sobralFinalV19Style";
+      style.textContent = `
+        #employeeForm[hidden]{display:none!important;}
+        #rankingSector .ranking-row,#rankingCategory .ranking-row{display:grid!important;grid-template-columns:minmax(0,1fr) 54px!important;gap:12px!important;align-items:center!important;min-height:58px!important;}
+        #rankingSector .ranking-icon,#rankingCategory .ranking-icon,#rankingSector .rank-emoji,#rankingCategory .rank-emoji{display:none!important;}
+        #rankingSector .ranking-row div,#rankingCategory .ranking-row div{min-width:0!important;}
+        #rankingSector .ranking-row div strong,#rankingCategory .ranking-row div strong{display:block!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+        #rankingSector .ranking-row div small,#rankingCategory .ranking-row div small{display:block!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+        #rankingSector .ranking-row>strong:last-child,#rankingCategory .ranking-row>strong:last-child{text-align:right!important;justify-self:end!important;}
+        .v19-chart-card{overflow:hidden!important;}
+        .horizontal-chart-v19{display:flex!important;flex-direction:column!important;gap:14px!important;padding:20px 8px 4px!important;}
+        .hbar-row-v19{display:grid!important;grid-template-columns:minmax(150px,270px) minmax(180px,1fr) 54px!important;gap:14px!important;align-items:center!important;min-height:30px!important;}
+        .hbar-row-v19 strong{text-align:right!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;font-size:13px!important;line-height:1.1!important;color:#0f172a!important;}
+        .hbar-row-v19 span{height:18px!important;border-radius:999px!important;background:#e8eef7!important;overflow:hidden!important;}
+        .hbar-row-v19 i{display:block!important;height:100%!important;border-radius:999px!important;background:#2563eb!important;}
+        .hbar-row-v19 b{font-size:13px!important;color:#0f172a!important;}
+        #view-reports .exec-opportunity-table{font-size:10px!important;line-height:1.22!important;}
+        #view-reports .exec-opportunity-table th:nth-child(1),#view-reports .exec-opportunity-table td:nth-child(1){width:13%!important;}
+        #view-reports .exec-opportunity-table th:nth-child(2),#view-reports .exec-opportunity-table td:nth-child(2){width:17%!important;}
+        #view-reports .exec-opportunity-table th:nth-child(3),#view-reports .exec-opportunity-table td:nth-child(3){width:5%!important;text-align:center!important;}
+        #view-reports .exec-opportunity-table th:nth-child(4),#view-reports .exec-opportunity-table td:nth-child(4){width:8%!important;}
+        #view-reports .exec-opportunity-table th:nth-child(5),#view-reports .exec-opportunity-table td:nth-child(5){width:22%!important;}
+        #view-reports .exec-opportunity-table th:nth-child(6),#view-reports .exec-opportunity-table td:nth-child(6){width:35%!important;}
+        @media(max-width:720px){
+          .hbar-row-v19{grid-template-columns:minmax(105px,155px) minmax(90px,1fr) 38px!important;gap:8px!important;}
+          .hbar-row-v19 strong{font-size:11px!important;}
+          .hbar-row-v19 b{font-size:11px!important;}
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    patchUiV19();
+    const dash = document.getElementById("view-dashboard");
+    if(dash && dash.dataset.v19Watch !== "true"){
+      dash.dataset.v19Watch = "true";
+      new MutationObserver(() => setTimeout(patchUiV19, 20)).observe(dash, {childList:true, subtree:true, characterData:true});
+    }
+  }
+  document.addEventListener("click", event => {
+    if(event.target.closest("#newEmployeeButton,[data-edit-employee]")){
+      const form = document.getElementById("employeeForm");
+      if(form){ form.dataset.userOpened = "true"; form.hidden = false; }
+    }
+    if(event.target.closest("#cancelEmployeeButton")){
+      const form = document.getElementById("employeeForm");
+      if(form){ delete form.dataset.userOpened; form.hidden = true; }
+    }
+  }, true);
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", injectV19, {once:true});
+  else injectV19();
+  [200, 800, 1800, 3200].forEach(delay => setTimeout(injectV19, delay));
+})();
+
 /* AJUSTE v18 - graficos densos, rankings setoriais e arte mais legivel */
 (function executiveDensityV18(){
   function cleanTextV18(value){
@@ -5347,5 +5510,143 @@ else init();
     inject();
   }
   [200, 700, 1600, 2800].forEach(delay => setTimeout(() => { window.displayIconForLabel = function(){ return ""; }; patchDashboardText(); }, delay));
+})();
+
+/* AJUSTE v20 - override final definitivo */
+(function finalOverrideV20(){
+  function clean(value){
+    const fixed = typeof repairText === "function" ? repairText(String(value || "")) : String(value || "");
+    return fixed.replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu, "").replace(/ðŸ\S*|âœ\S*|âš\S*|â\S*/g, "").replace(/\s+/g, " ").trim();
+  }
+  function short(value, max=34){
+    const text = clean(value);
+    return text.length > max ? `${text.slice(0, max - 3).trim()}...` : text;
+  }
+  function escLocal(value){
+    return typeof esc === "function" ? esc(value) : String(value || "").replace(/[&<>"']/g, s => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[s]));
+  }
+  function readRows(type){
+    try{
+      const fn = window.chartRows || (typeof chartRows === "function" ? chartRows : null);
+      const data = fn ? fn(type) : {title:"Dashboard grafico", metric:"Registros", rows:[]};
+      const rows = (data.rows || []).filter(row => clean(row.label) && !normalize(clean(row.label)).includes("sem dados")).slice(0,12);
+      return {title:clean(data.title || "Dashboard grafico"), metric:clean(data.metric || "Registros"), rows};
+    }catch{
+      return {title:"Dashboard grafico", metric:"Registros", rows:[]};
+    }
+  }
+  function horizontalRows(data){
+    const max = Math.max(...data.rows.map(row => Number(row.value) || 0), 1);
+    return `<div class="horizontal-chart-v20">${data.rows.map(row => {
+      const value = Number(row.value) || 0;
+      const pct = Math.max(value ? 4 : 1, Math.min(100, (value / max) * 100));
+      const label = clean(row.label);
+      const text = clean(row.text ?? scoreText(value));
+      return `<div class="hbar-row-v20"><strong title="${escLocal(label)}">${escLocal(short(label,34))}</strong><span><i style="width:${pct}%"></i></span><b>${escLocal(text)}</b></div>`;
+    }).join("")}</div>`;
+  }
+  window.openDashboardChart = function(type){
+    const data = readRows(type);
+    const dialog = ensureChartDialog();
+    const printable = dialog.querySelector("#chartPrintable");
+    if(!data.rows.length){
+      printable.innerHTML = `<header class="chart-exec-header"><span>METODO SOBRAL</span><h2>${escLocal(data.title)}</h2><p>${escLocal(data.metric)} - ${dateText(new Date().toISOString().slice(0,10))}</p></header><div class="chart-exec-body"><div class="chart-empty-state"><strong>Sem dados para gerar grafico.</strong><span>Salve avaliacoes para visualizar este indicador.</span></div></div>`;
+    }else{
+      printable.innerHTML = `<header class="chart-exec-header"><span>METODO SOBRAL</span><h2>${escLocal(data.title)}</h2><p>${escLocal(data.metric)} - ${dateText(new Date().toISOString().slice(0,10))}</p></header><div class="chart-exec-body"><div class="chart-plot-card v20-chart-card"><h3>Dashboard grafico</h3><p>Ranking organizado para leitura executiva</p>${horizontalRows(data)}</div></div>`;
+    }
+    dialog.querySelectorAll(".chart-close").forEach(button => button.textContent = "X");
+    dialog.showModal();
+  };
+  window.downloadChartImage = function(){
+    const printable = document.getElementById("chartPrintable");
+    const title = clean(printable?.querySelector("h2")?.textContent || "grafico");
+    const rows = [...(printable?.querySelectorAll(".hbar-row-v20") || [])].map(node => ({
+      label: clean(node.querySelector("strong")?.getAttribute("title") || node.querySelector("strong")?.textContent || ""),
+      text: clean(node.querySelector("b")?.textContent || ""),
+      pct: parseFloat(node.querySelector("i")?.style.width || "0")
+    }));
+    const canvas = document.createElement("canvas");
+    canvas.width = 1600;
+    canvas.height = 900;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#eef2f7"; ctx.fillRect(0,0,1600,900);
+    ctx.fillStyle = "#101827"; ctx.fillRect(0,0,1600,150);
+    ctx.fillStyle = "#fff"; ctx.font = "700 44px Arial"; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic"; ctx.fillText(title,80,74);
+    ctx.font = "500 24px Arial"; ctx.fillText("Metodo Sobral - Performance Individual 360",80,116);
+    ctx.fillStyle = "#fff"; roundRect(ctx,60,185,1480,655,28,true,false);
+    ctx.fillStyle = "#334155"; ctx.font = "700 28px Arial"; ctx.fillText("Dashboard grafico",120,242);
+    const list = rows.length ? rows : [{label:"Sem dados", text:"0", pct:0}];
+    const top = 305;
+    const rowH = Math.min(56, Math.floor(470 / Math.max(list.length, 1)));
+    list.forEach((row, index) => {
+      const y = top + index * rowH;
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "#0f172a"; ctx.font = "700 18px Arial"; ctx.textAlign = "right";
+      ctx.fillText(short(row.label,32), 455, y + rowH / 2);
+      ctx.fillStyle = "#e8eef7"; roundRect(ctx,485,y + rowH * .22,760,rowH * .56,12,true,false);
+      ctx.fillStyle = "#2563eb"; roundRect(ctx,485,y + rowH * .22,Math.max(10,760 * (row.pct / 100)),rowH * .56,12,true,false);
+      ctx.fillStyle = "#0f172a"; ctx.font = "800 18px Arial"; ctx.textAlign = "left";
+      ctx.fillText(row.text, 1272, y + rowH / 2);
+    });
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png", 1);
+    a.download = `${title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-")}.png`;
+    a.click();
+  };
+  function patch(){
+    const form = document.getElementById("employeeForm");
+    if(form && !form.dataset.userOpened && !form.querySelector("#employeeId")?.value) form.hidden = true;
+    document.querySelectorAll("#rankingSector .ranking-row,#rankingCategory .ranking-row").forEach(row => {
+      row.querySelectorAll(".ranking-icon,.rank-emoji").forEach(icon => icon.remove());
+      const label = row.querySelector("div strong");
+      if(label){
+        const full = clean(label.title || label.textContent);
+        label.title = full;
+        label.textContent = short(full, row.closest("#rankingCategory") ? 30 : 26);
+      }
+    });
+  }
+  function inject(){
+    if(!document.getElementById("sobralFinalV20Style")){
+      const style = document.createElement("style");
+      style.id = "sobralFinalV20Style";
+      style.textContent = `
+        #employeeForm[hidden]{display:none!important}
+        #rankingSector .ranking-row,#rankingCategory .ranking-row{display:grid!important;grid-template-columns:minmax(0,1fr) 54px!important;gap:12px!important;align-items:center!important;min-height:58px!important}
+        #rankingSector .ranking-icon,#rankingCategory .ranking-icon,#rankingSector .rank-emoji,#rankingCategory .rank-emoji{display:none!important}
+        #rankingSector .ranking-row div,#rankingCategory .ranking-row div{min-width:0!important}
+        #rankingSector .ranking-row div strong,#rankingCategory .ranking-row div strong{display:block!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+        #rankingSector .ranking-row div small,#rankingCategory .ranking-row div small{display:block!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+        #rankingSector .ranking-row>strong:last-child,#rankingCategory .ranking-row>strong:last-child{text-align:right!important;justify-self:end!important}
+        .v20-chart-card{overflow:hidden!important}
+        .horizontal-chart-v20{display:flex!important;flex-direction:column!important;gap:14px!important;padding:20px 8px 4px!important}
+        .hbar-row-v20{display:grid!important;grid-template-columns:minmax(150px,270px) minmax(180px,1fr) 54px!important;gap:14px!important;align-items:center!important;min-height:30px!important}
+        .hbar-row-v20 strong{text-align:right!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;font-size:13px!important;line-height:1.1!important;color:#0f172a!important}
+        .hbar-row-v20 span{height:18px!important;border-radius:999px!important;background:#e8eef7!important;overflow:hidden!important}
+        .hbar-row-v20 i{display:block!important;height:100%!important;border-radius:999px!important;background:#2563eb!important}
+        .hbar-row-v20 b{font-size:13px!important;color:#0f172a!important}
+        #view-reports .exec-opportunity-table{font-size:10px!important;line-height:1.22!important}
+        #view-reports .exec-opportunity-table th:nth-child(2),#view-reports .exec-opportunity-table td:nth-child(2){width:17%!important}
+        #view-reports .exec-opportunity-table th:nth-child(5),#view-reports .exec-opportunity-table td:nth-child(5){width:22%!important}
+        #view-reports .exec-opportunity-table th:nth-child(6),#view-reports .exec-opportunity-table td:nth-child(6){width:35%!important}
+        @media(max-width:720px){.hbar-row-v20{grid-template-columns:minmax(105px,155px) minmax(90px,1fr) 38px!important;gap:8px!important}.hbar-row-v20 strong,.hbar-row-v20 b{font-size:11px!important}}
+      `;
+      document.head.appendChild(style);
+    }
+    patch();
+  }
+  document.addEventListener("click", event => {
+    if(event.target.closest("#newEmployeeButton,[data-edit-employee]")){
+      const form = document.getElementById("employeeForm");
+      if(form){ form.dataset.userOpened = "true"; form.hidden = false; }
+    }
+    if(event.target.closest("#cancelEmployeeButton")){
+      const form = document.getElementById("employeeForm");
+      if(form){ delete form.dataset.userOpened; form.hidden = true; }
+    }
+  }, true);
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", inject, {once:true});
+  else inject();
+  [200,800,1800,3200].forEach(delay => setTimeout(inject, delay));
 })();
 

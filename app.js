@@ -555,6 +555,26 @@ function cleanPositiveBadgeLabel(value=""){
     .trim();
 }
 
+function strengthsMessage(evaluation){
+  const badges = positiveCategoryBadges(evaluation).map(cleanPositiveBadgeLabel).filter(Boolean);
+  const stats = reportStats(evaluation);
+  const joined = badges.length ? badges.slice(0,4).join(", ") : "disciplina, foco e evolução";
+  const perfect = !stats.active.length;
+  const templatesPerfect = [
+    `Parabéns pela entrega deste ciclo. Seus pontos fortes em ${joined} mostram consistência, cuidado com a rotina e postura de referência para a equipe.`,
+    `Excelente desempenho. A combinação de ${joined} demonstra maturidade profissional e fortalece o padrão que esperamos manter na loja.`,
+    `Resultado muito positivo. Continue usando ${joined} como base para inspirar boas práticas, apoiar colegas e sustentar a excelência.`
+  ];
+  const templatesBalance = [
+    `Seus pontos fortes em ${joined} são uma base importante. Use essa força para corrigir as oportunidades registradas e elevar ainda mais a consistência.`,
+    `Há qualidades claras em ${joined}. O próximo passo é transformar esses comportamentos em padrão diário também nos pontos que precisam de ajuste.`,
+    `O desempenho mostra potencial em ${joined}. Mantenha esses acertos e trate as oportunidades como compromissos objetivos de evolução.`
+  ];
+  const list = perfect ? templatesPerfect : templatesBalance;
+  const seed = `${evaluation?.id || ""}|${evaluation?.employeeId || ""}|${evaluation?.date || ""}|${joined}|${stats.active.length}`;
+  return list[Math.abs(textHash(seed)) % list.length];
+}
+
 function reportStats(evaluation){
   const active = occurrenceList(evaluation);
   const resolvedRecords = resolvedOccurrenceList(evaluation);
@@ -1524,17 +1544,16 @@ function drawContainImage(ctx,img,x,y,w,h){
 }
 
 function canvasText(value){
-  return String(value ?? "")
+  return repairText(String(value ?? ""))
     .replaceAll("âœ“", "OK")
-    .replaceAll("â˜…", "*")
-    .replaceAll("â˜†", "-")
-    .replaceAll("Ã", "A").replaceAll("Ã‰", "E").replaceAll("Ã", "I").replaceAll("Ã“", "O").replaceAll("Ãš", "U")
-    .replaceAll("Ã¡", "a").replaceAll("Ã©", "e").replaceAll("Ã­", "i").replaceAll("Ã³", "o").replaceAll("Ãº", "u")
-    .replaceAll("Ã¢", "a").replaceAll("Ãª", "e").replaceAll("Ã´", "o")
-    .replaceAll("Ã£", "a").replaceAll("Ãµ", "o")
-    .replaceAll("Ã§", "c").replaceAll("Ã‡", "C")
-    .replaceAll("Ãƒ", "A")
-    .replaceAll("ï¿½", "");
+    .replaceAll("â˜…", "★")
+    .replaceAll("â˜†", "☆")
+    .replaceAll("ï¿½", "")
+    .trim();
+}
+
+function stripCanvasEmoji(value){
+  return canvasText(value).replace(/[\u{1F300}-\u{1FAFF}]/gu, "").trim();
 }
 
 function drawWrappedText(ctx,text,x,y,maxWidth,lineHeight,maxLines){
@@ -1617,6 +1636,31 @@ async function drawShareArt(evaluation, width=1240, height=1754){
     lines.forEach((line,i)=>ctx.fillText(line,sx(x),sx(y + i*lineHeight)));
     return lines.length * lineHeight;
   };
+  const textBlockJustified = (text,x,y,maxWidth,lineHeight,maxLines=0) => {
+    let lines = wrapLines(text,maxWidth);
+    if(maxLines && lines.length > maxLines){
+      lines = lines.slice(0,maxLines);
+      let last = lines[lines.length-1];
+      while(ctx.measureText(`${last}...`).width > sx(maxWidth) && last.length > 4) last = last.slice(0,-3);
+      lines[lines.length-1] = `${last}...`;
+    }
+    lines.forEach((line,i)=>{
+      const words = line.split(/\s+/).filter(Boolean);
+      const isLast = i === lines.length - 1 || words.length < 3;
+      if(isLast){
+        ctx.fillText(line,sx(x),sx(y + i*lineHeight));
+        return;
+      }
+      const wordsWidth = words.reduce((sum,w)=>sum + ctx.measureText(w).width,0);
+      const gap = Math.max(ctx.measureText(" ").width, (sx(maxWidth) - wordsWidth) / (words.length - 1));
+      let cx = sx(x);
+      words.forEach((word,idx)=>{
+        ctx.fillText(word,cx,sx(y + i*lineHeight));
+        cx += ctx.measureText(word).width + (idx < words.length - 1 ? gap : 0);
+      });
+    });
+    return lines.length * lineHeight;
+  };
 
   if(!evaluation){
     ctx.fillStyle = "#f4f6f9";
@@ -1690,7 +1734,7 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   setFont(900,32,"#101827"); textBlock(evaluation.employeeSnapshot.name || "Colaborador",220,248,330,34,2);
   setFont(600,16,"#475467"); textBlock(`${evaluation.employeeSnapshot.role || "-"} | ${evaluation.employeeSnapshot.sector || "-"}`,220,292,380,19,2);
   textBlock(`Gestor responsavel: ${evaluation.manager || "-"}`,220,326,380,18,1);
-  drawContainImage(ctx,logoFocoImg,sx(590),sx(214),sx(100),sx(100));
+  drawContainImage(ctx,logoFocoImg,sx(574),sx(194),sx(144),sx(144));
 
   fillCard(750,174,440,170,24);
   ctx.fillStyle = exec.soft; roundRect(ctx,sx(778),sx(202),sx(145),sx(110),sx(18)); ctx.fill();
@@ -1742,8 +1786,8 @@ async function drawShareArt(evaluation, width=1240, height=1754){
       setFont(700,13,"#101827"); textBlock(row.criteria,tableX+202,rowY,250,18,0);
       setFont(800,13,"#101827"); ctx.fillText(row.qtd, sx(tableX+478), sx(rowY));
       setFont(700,13,"#334155"); textBlock(row.status,tableX+528,rowY,104,16,2);
-      setFont(600,13,"#344054"); textBlock(row.action,tableX+630,rowY,166,18,0);
-      setFont(600,13,"#475467"); textBlock(row.feedback,tableX+812,rowY,300,18,0);
+      setFont(600,13,"#344054"); textBlockJustified(row.action,tableX+630,rowY,166,18,0);
+      setFont(600,13,"#475467"); textBlockJustified(row.feedback,tableX+812,rowY,292,18,0);
       rowY += rowH + 2;
     });
   }
@@ -1782,14 +1826,15 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   }else{
     setFont(700,14,"#475467"); textBlock("Neste ciclo, os pontos fortes ficam concentrados nas oportunidades que precisam de ajuste.",78,y+78,470,18,3);
   }
-  setFont(600,13,"#475467"); textBlock(`Observacao do gestor: ${evaluation.generalNote || "Sem observacao geral registrada."}`,78,y+192,470,16,2);
+  setFont(600,14,"#475467"); textBlockJustified(strengthsMessage(evaluation),78,y+188,470,17,2);
 
   fillCard(620,y,570,220,24,"#fff");
   setFont(900,22,"#101827"); ctx.fillText("Mensagem ao colaborador", sx(648), sx(y+42));
+  const strongMsg = strengthsMessage(evaluation);
   const message = stats.active.length
-    ? "Cada ponto registrado representa uma oportunidade clara de evoluÃ§Ã£o. Ajuste a rotina, acompanhe as aÃ§Ãµes e transforme melhoria em resultado consistente."
-    : "Excelente entrega neste ciclo. Mantenha a disciplina, registre boas prÃ¡ticas e continue sendo referÃªncia positiva para a equipe.";
-  setFont(600,18,"#475467"); textBlock(message,648,y+82,488,28,5);
+    ? "Existem oportunidades que precisam de atenção e acompanhamento. Ajuste a rotina, cumpra os combinados e transforme cada ponto em evolução visível no próximo ciclo."
+    : strongMsg;
+  setFont(600,18,"#475467"); textBlockJustified(message,648,y+82,488,28,5);
 
   setFont(700,12,"#98a2b3"); ctx.fillText("Gerado pelo Metodo Sobral Performance 360", sx(50), sx(height/s - 32));
 }
@@ -1801,12 +1846,12 @@ async function downloadArt(scale){
   if(button){ button.disabled = true; button.textContent = "Gerando..."; }
   try{
     // Tamanho otimizado para celular: mantém boa definição e reduz bastante o tempo de geração.
-    const exportWidth = scale === 8 ? 3720 : 1860;
-    const exportHeight = scale === 8 ? 5262 : 2631;
+    const exportWidth = scale === 8 ? 1860 : 1240;
+    const exportHeight = scale === 8 ? 2631 : 1754;
     await drawShareArt(evaluation, exportWidth, exportHeight);
     const canvas = $("shareCanvas");
-    const fileName = `performance-${evaluation?.employeeSnapshot?.name || "avaliacao"}.png`.replace(/\s+/g,"-").toLowerCase();
-    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png", 0.92));
+    const fileName = `performance-${evaluation?.employeeSnapshot?.name || "avaliacao"}.jpg`.replace(/\s+/g,"-").toLowerCase();
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", 0.9));
     if(!blob) throw new Error("Falha ao gerar blob da imagem");
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -1822,7 +1867,7 @@ async function downloadArt(scale){
     alert("Não foi possível gerar a imagem. Gere a prévia novamente e tente baixar outra vez.");
   }finally{
     if(button){ button.disabled = false; button.textContent = originalLabel || "Baixar imagem"; }
-    setTimeout(() => drawShareArt(evaluation, 1240, 1754), 120);
+    setTimeout(() => { const t=document.getElementById("appToast"); if(t){ t.style.opacity="0"; setTimeout(()=>t.remove(),260); } }, 2600);
   }
 }
 
@@ -5706,4 +5751,44 @@ else init();
   }
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", inject, {once:true});
   else inject();
+})();
+
+
+/* AJUSTE v22 - acentos, toast, velocidade e mensagem de pontos fortes */
+(function sobralFinalV22(){
+  const originalNotify = window.notify;
+  window.notify = function(message){
+    if(typeof originalNotify === "function") originalNotify(repairText(message));
+    else alert(repairText(message));
+    clearTimeout(window.__sobralToastHardRemove);
+    window.__sobralToastHardRemove = setTimeout(() => {
+      const toast = document.getElementById("appToast");
+      if(toast){
+        toast.style.opacity = "0";
+        toast.style.transform = "translateX(-50%) translateY(12px)";
+        setTimeout(() => toast.remove(), 280);
+      }
+    }, 2800);
+  };
+  function polishText(){
+    document.querySelectorAll("#view-reports .exec-report, #reportOutput").forEach(root => repairVisibleText(root));
+  }
+  document.addEventListener("click", e => {
+    if(e.target.closest("#saveEvalButton,#downloadImageButton,#downloadPdfButton,#whatsappButton,.tab-button,.side-link")){
+      setTimeout(polishText, 80);
+      setTimeout(polishText, 500);
+    }
+  }, true);
+  const style = document.createElement("style");
+  style.id = "sobralFinalV22Style";
+  style.textContent = `
+    #appToast{transition:opacity .22s ease,transform .22s ease!important;pointer-events:none!important;}
+    #view-reports .exec-opportunity-table td:nth-child(5),
+    #view-reports .exec-opportunity-table td:nth-child(6),
+    #view-reports .exec-block p{ text-align:justify!important; text-justify:inter-word!important; hyphens:auto!important; }
+    #view-reports .positive-badges span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  `;
+  if(document.head && !document.getElementById("sobralFinalV22Style")) document.head.appendChild(style);
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", polishText, {once:true});
+  else setTimeout(polishText, 80);
 })();

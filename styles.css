@@ -405,3 +405,12 @@ dialog{border:0;border-radius:14px;width:min(92vw,640px);padding:0;box-shadow:0 
   text-overflow:ellipsis!important;
   white-space:nowrap!important;
 }
+
+/* AJUSTE FINAL v27 - oculta atalhos de relatórios auxiliares */
+#view-reports .report-shortcuts-hidden{display:none!important;}
+#weeklyReportButton,#fortnightReportButton,#monthlyReportButton,#compareReportButton,#pdiReportButton{display:none!important;}
+
+
+/* AJUSTE FINAL v28 - oculta atalhos auxiliares definitivamente */
+#weeklyReportButton,#fortnightReportButton,#monthlyReportButton,#compareReportButton,#pdiReportButton{display:none!important;visibility:hidden!important;pointer-events:none!important;}
+#view-reports .report-actions:has(#weeklyReportButton){display:none!important;}

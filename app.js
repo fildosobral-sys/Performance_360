@@ -6054,13 +6054,15 @@ else init();
       setTimeout(() => document.getElementById('appToast')?.remove(), 2300);
     }
   }
-  document.addEventListener('click', event => {
+  // v27: desativado. O download rápido agora é controlado por um único listener dedicado no botão,
+  // evitando processamento duplicado que deixava a geração da imagem muito lenta.
+  /* document.addEventListener('click', event => {
     const btn = event.target.closest?.('#downloadImageButton');
     if(!btn) return;
     event.preventDefault();
     event.stopImmediatePropagation();
     fastDownloadCurrentCanvas();
-  }, true);
+  }, true); */
 
   // Ao limpar, a plataforma volta limpa, sem colaboradores demonstrativos.
   function blankState(){
@@ -6180,4 +6182,237 @@ else init();
   document.addEventListener('DOMContentLoaded', bootV26, {once:true});
   setTimeout(bootV26, 100);
   setTimeout(bootV26, 800);
+})();
+
+/* ============================================================
+   AJUSTE FINAL v27 - ajustes cirúrgicos:
+   1) oculta botões de relatórios auxiliares;
+   2) download da imagem sem redesenho duplicado.
+   ============================================================ */
+(function(){
+  function hideAuxReportButtonsV27(){
+    const ids = ['weeklyReportButton','fortnightReportButton','monthlyReportButton','compareReportButton','pdiReportButton'];
+    ids.forEach(id => document.getElementById(id)?.setAttribute('hidden',''));
+    const firstButton = document.getElementById('weeklyReportButton');
+    const wrap = firstButton?.closest('.report-actions');
+    if(wrap) wrap.classList.add('report-shortcuts-hidden');
+  }
+
+  async function downloadVisibleCanvasV27(event){
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    const button = document.getElementById('downloadImageButton');
+    const canvas = document.getElementById('shareCanvas');
+    const evaluation = (typeof selectedEvaluation === 'function') ? selectedEvaluation() : null;
+    if(!button || !canvas) return;
+    if(!evaluation){ alert('Selecione uma avaliação para baixar.'); return; }
+
+    const originalText = button.textContent || 'Baixar imagem';
+    button.disabled = true;
+    button.textContent = 'Gerando...';
+
+    try{
+      // Não redesenha a arte se ela já aparece na tela. Isso elimina a demora causada por chamadas duplicadas.
+      if((!canvas.width || !canvas.height) && typeof drawShareArt === 'function'){
+        await drawShareArt(evaluation, 1080, 1528);
+      }
+
+      const safeName = String(evaluation.employeeSnapshot?.name || 'avaliacao')
+        .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+        .replace(/[^a-zA-Z0-9]+/g,'-')
+        .replace(/^-+|-+$/g,'')
+        .toLowerCase() || 'avaliacao';
+
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.86));
+      if(!blob) throw new Error('Falha ao gerar imagem.');
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `performance-${safeName}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 900);
+      if(typeof notify === 'function') notify('Imagem gerada com sucesso.');
+    }catch(error){
+      console.error(error);
+      alert('Não foi possível gerar a imagem. Tente novamente.');
+    }finally{
+      button.disabled = false;
+      button.textContent = originalText;
+      setTimeout(() => document.getElementById('appToast')?.remove(), 1800);
+    }
+  }
+
+  function installV27(){
+    hideAuxReportButtonsV27();
+    const button = document.getElementById('downloadImageButton');
+    if(button && button.dataset.fastV27 !== '1'){
+      // remove onclick inline, se existir, e usa um único listener em captura no próprio botão.
+      button.onclick = null;
+      button.dataset.fastV27 = '1';
+      button.addEventListener('click', downloadVisibleCanvasV27, true);
+    }
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', installV27, {once:true});
+  else installV27();
+  setTimeout(installV27, 300);
+  setTimeout(installV27, 1200);
+})();
+
+/* ============================================================
+   AJUSTE FINAL v28 - travamento inicial + download instantâneo
+   - evita desenhar a arte pesada na abertura da plataforma;
+   - desenha a arte somente quando a aba Relatórios está aberta;
+   - substitui o botão Baixar imagem por um único listener limpo;
+   - mantém layout, feedback e estrutura sem alterações.
+   ============================================================ */
+(function(){
+  let canvasReadyPromise = Promise.resolve();
+  let lastCanvasKey = "";
+
+  function reportsViewIsActive(){
+    return document.getElementById('view-reports')?.classList.contains('is-active');
+  }
+
+  function safeName(value){
+    return String(value || 'avaliacao')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/[^a-zA-Z0-9]+/g,'-')
+      .replace(/^-+|-+$/g,'')
+      .toLowerCase() || 'avaliacao';
+  }
+
+  const originalRenderSelectedReportV28 = (typeof renderSelectedReport === 'function') ? renderSelectedReport : null;
+  const originalRenderReportSelectorsV28 = (typeof renderReportSelectors === 'function') ? renderReportSelectors : null;
+
+  // Versão leve do seletor: não desenha canvas enquanto o usuário não estiver em Relatórios.
+  if(typeof renderReportSelectors === 'function'){
+    renderReportSelectors = function(){
+      const select = document.getElementById('reportEvaluation');
+      if(!select) return;
+      const evaluations = (state.evaluations || []).slice().sort((a,b)=>new Date(b.createdAt || b.date || 0)-new Date(a.createdAt || a.date || 0));
+      select.innerHTML = evaluations.map(item => `<option value="${item.id}">${dateText(item.date)} - ${esc(item.employeeSnapshot?.name || employeeById(item.employeeId)?.name || "Colaborador")} - ${scoreText(item.score)}</option>`).join("");
+      const preferred = state.selectedReportId && evaluations.some(item => item.id === state.selectedReportId) ? state.selectedReportId : (evaluations[0]?.id || "");
+      if(preferred) select.value = preferred;
+
+      if(reportsViewIsActive()){
+        renderSelectedReport();
+      }else{
+        const output = document.getElementById('reportOutput');
+        if(output && !output.innerHTML.trim()) output.innerHTML = reportHtml('monthly', null);
+      }
+    };
+  }
+
+  // Render do relatório com desenho controlado e aguardável.
+  if(typeof renderSelectedReport === 'function'){
+    renderSelectedReport = function(type='monthly'){
+      const evaluation = selectedEvaluation();
+      if(evaluation){
+        state.selectedReportId = evaluation.id;
+        try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch{}
+      }
+      const output = document.getElementById('reportOutput');
+      if(output) output.innerHTML = reportHtml(type, evaluation).replaceAll('Filial:', 'Setor:');
+
+      if(!evaluation){
+        lastCanvasKey = '';
+        return;
+      }
+
+      // Só desenha a arte quando a tela de relatórios está aberta. Isso remove o travamento inicial.
+      if(reportsViewIsActive()){
+        const key = `${evaluation.id}|${evaluation.updatedAt || evaluation.createdAt || evaluation.date || ''}`;
+        lastCanvasKey = key;
+        canvasReadyPromise = Promise.resolve(drawShareArt(evaluation, 1240, 1754)).catch(error => {
+          console.error(error);
+          lastCanvasKey = '';
+        });
+      }
+    };
+  }
+
+  async function downloadReadyCanvasV28(event){
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    const button = document.getElementById('downloadImageButton');
+    const canvas = document.getElementById('shareCanvas');
+    const evaluation = (typeof selectedEvaluation === 'function') ? selectedEvaluation() : null;
+    if(!button || !canvas) return;
+    if(!evaluation){ alert('Selecione uma avaliação para baixar.'); return; }
+
+    const original = button.textContent || 'Baixar imagem';
+    button.disabled = true;
+    button.textContent = 'Gerando...';
+
+    try{
+      // Se a arte já está sendo montada pela prévia, apenas aguarda. Não redesenha de novo.
+      await Promise.race([
+        canvasReadyPromise,
+        new Promise(resolve => setTimeout(resolve, 2500))
+      ]);
+
+      // Caso a tela tenha sido aberta sem canvas válido, desenha uma única vez.
+      if(!canvas.width || !canvas.height){
+        await drawShareArt(evaluation, 1240, 1754);
+      }
+
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.78));
+      if(!blob) throw new Error('Falha ao gerar imagem.');
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `performance-${safeName(evaluation.employeeSnapshot?.name)}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 800);
+      if(typeof notify === 'function') notify('Imagem gerada com sucesso.');
+    }catch(error){
+      console.error(error);
+      alert('Não foi possível baixar a imagem. Gere a prévia novamente e tente baixar.');
+    }finally{
+      button.disabled = false;
+      button.textContent = original;
+      setTimeout(() => document.getElementById('appToast')?.remove(), 1800);
+    }
+  }
+
+  function replaceDownloadButtonV28(){
+    const oldButton = document.getElementById('downloadImageButton');
+    if(!oldButton || oldButton.dataset.v28 === '1') return;
+    const newButton = oldButton.cloneNode(true);
+    newButton.dataset.v28 = '1';
+    newButton.disabled = false;
+    newButton.textContent = 'Baixar imagem';
+    oldButton.replaceWith(newButton);
+    newButton.addEventListener('click', downloadReadyCanvasV28, true);
+  }
+
+  function forceHideAuxButtonsV28(){
+    ['weeklyReportButton','fortnightReportButton','monthlyReportButton','compareReportButton','pdiReportButton'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el){ el.hidden = true; el.style.display = 'none'; }
+    });
+  }
+
+  function bootV28(){
+    forceHideAuxButtonsV28();
+    replaceDownloadButtonV28();
+    // Se o usuário já estiver em Relatórios ao carregar, monta a arte depois que os botões responderem.
+    if(reportsViewIsActive()) setTimeout(() => { try{ renderSelectedReport(); }catch(e){ console.error(e); } }, 80);
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootV28, {once:true});
+  else bootV28();
+  setTimeout(bootV28, 400);
+  setTimeout(bootV28, 1400);
 })();

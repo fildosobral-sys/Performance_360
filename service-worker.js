@@ -1,4 +1,4 @@
-const CACHE_NAME = 'performance360-cache-v25-20260708';
+const CACHE_NAME = 'performance360-cache-v26-20260708';
 const APP_SHELL = ['./','./index.html','./styles.css','./app.js','./manifest.json','./icone-192.png'];
 
 self.addEventListener('install', event => {

@@ -6086,3 +6086,98 @@ else init();
     }, true);
   }
 })();
+
+/* ============================================================
+   AJUSTE FINAL v26 - apenas 2 pontos:
+   1) remove emotes duplicados das linhas dos rankings;
+   2) acelera o botão Baixar imagem usando a arte já renderizada.
+   Não altera layout, feedback, PDF ou estrutura de dados.
+   ============================================================ */
+(function(){
+  function removeRankLineEmojis360(){
+    ['rankingSector','rankingCategory','topOccurrences'].forEach(id => {
+      const root = document.getElementById(id);
+      if(!root) return;
+      root.querySelectorAll('.ranking-row > .ranking-icon').forEach(icon => icon.remove());
+      root.querySelectorAll('.ranking-row').forEach(row => {
+        if(!row.querySelector('img')) row.classList.add('ranking-no-line-icon');
+      });
+    });
+  }
+
+  const previousRenderDashboard360 = window.renderDashboard;
+  if(typeof previousRenderDashboard360 === 'function'){
+    window.renderDashboard = function(){
+      previousRenderDashboard360.apply(this, arguments);
+      removeRankLineEmojis360();
+      setTimeout(removeRankLineEmojis360, 0);
+    };
+  }
+
+  function installFastImageDownload360(){
+    const button = document.getElementById('downloadImageButton');
+    const canvas = document.getElementById('shareCanvas');
+    if(!button || !canvas || button.dataset.fastV26 === '1') return;
+    button.dataset.fastV26 = '1';
+
+    button.addEventListener('click', async function(event){
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      const evaluation = (typeof selectedEvaluation === 'function') ? selectedEvaluation() : null;
+      if(!evaluation){ alert('Selecione uma avaliação para baixar.'); return; }
+
+      const original = button.textContent;
+      button.disabled = true;
+      button.textContent = 'Gerando...';
+
+      try{
+        // Usa a arte já exibida na tela. Só redesenha se o canvas ainda não foi montado.
+        if((!canvas.width || !canvas.height) && typeof drawShareArt === 'function'){
+          await drawShareArt(evaluation, 1240, 1754);
+        }
+
+        const name = (evaluation.employeeSnapshot?.name || 'avaliacao')
+          .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+          .replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-+|-+$/g,'').toLowerCase();
+        const fileName = `performance-${name || 'avaliacao'}.jpg`;
+
+        const blob = await new Promise(resolve => {
+          // JPEG reduz muito o peso e costuma baixar bem mais rápido no Android.
+          canvas.toBlob(resolve, 'image/jpeg', 0.9);
+        });
+        if(!blob) throw new Error('Falha ao gerar imagem.');
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1200);
+
+        if(typeof notify === 'function') notify('Imagem gerada com sucesso.');
+      }catch(error){
+        console.error(error);
+        alert('Não foi possível gerar a imagem. Tente abrir a prévia novamente e baixar outra vez.');
+      }finally{
+        button.disabled = false;
+        button.textContent = original || 'Baixar imagem';
+        setTimeout(() => {
+          const toast = document.getElementById('appToast');
+          if(toast) toast.remove();
+        }, 2400);
+      }
+    }, true);
+  }
+
+  function bootV26(){
+    removeRankLineEmojis360();
+    installFastImageDownload360();
+  }
+
+  document.addEventListener('DOMContentLoaded', bootV26, {once:true});
+  setTimeout(bootV26, 100);
+  setTimeout(bootV26, 800);
+})();

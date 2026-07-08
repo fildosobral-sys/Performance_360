@@ -377,3 +377,31 @@ dialog{border:0;border-radius:14px;width:min(92vw,640px);padding:0;box-shadow:0 
 .exec-opportunity-table th:nth-child(5),.exec-opportunity-table td:nth-child(5){width:25%!important;padding-right:14px!important;}
 .exec-opportunity-table th:nth-child(6),.exec-opportunity-table td:nth-child(6){width:25%!important;padding-left:14px!important;padding-right:14px!important;}
 #appToast{pointer-events:none!important;}
+
+/* ============================================================
+   AJUSTE FINAL v26 - estabilidade visual dos rankings
+   - usa somente o botão/gráfico do card como indicação visual
+   - remove emotes duplicados das linhas para não alternar com/sem ícone
+   ============================================================ */
+#rankingSector .ranking-row > .ranking-icon,
+#rankingCategory .ranking-row > .ranking-icon,
+#topOccurrences .ranking-row > .ranking-icon{
+  display:none!important;
+}
+#rankingSector .ranking-row:has(> .ranking-icon),
+#rankingCategory .ranking-row:has(> .ranking-icon),
+#topOccurrences .ranking-row:has(> .ranking-icon){
+  grid-template-columns:minmax(0,1fr) auto!important;
+}
+#rankingSector .ranking-row > div,
+#rankingCategory .ranking-row > div,
+#topOccurrences .ranking-row > div{
+  min-width:0!important;
+}
+#rankingSector .ranking-row > div strong,
+#rankingCategory .ranking-row > div strong,
+#topOccurrences .ranking-row > div strong{
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}

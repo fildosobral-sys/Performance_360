@@ -758,6 +758,16 @@ function actionPlanText(item){
   return "Definir aÃ§Ã£o corretiva objetiva, executar na rotina e apresentar evidÃªncia de melhoria no prÃ³ximo acompanhamento.";
 }
 
+function compactArtFeedback(value, max=210){
+  const text = repairText(String(value || ""))
+    .replace(/\s+/g, " ")
+    .trim();
+  if(text.length <= max) return text;
+  const sentence = text.split(/(?<=[.!?])\s+/).find(part => part.length >= 70 && part.length <= max);
+  if(sentence) return sentence;
+  return `${text.slice(0, Math.max(0, max - 3)).trim()}...`;
+}
+
 function automaticFeedback(occurrence, categoryName="", criteriaName=""){
   const status = occurrence?.status || "";
   const criteria = cleanCriterionText(criteriaName);
@@ -1630,7 +1640,7 @@ async function drawShareArt(evaluation, width=1240, height=1754){
       qtd:String(qtd),
       status,
       action: actionPlanText(item),
-      feedback: directionalOccurrenceFeedback(item, evaluation)
+      feedback: compactArtFeedback(directionalOccurrenceFeedback(item, evaluation), 210)
     };
   });
 
@@ -4683,6 +4693,208 @@ else init();
     document.head.appendChild(st);
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', injectV13, {once:true}); else injectV13();
+})();
+
+/* AJUSTE v18 - graficos densos, rankings setoriais e arte mais legivel */
+(function executiveDensityV18(){
+  function cleanTextV18(value){
+    const fixed = typeof repairText === "function" ? repairText(String(value || "")) : String(value || "");
+    return fixed
+      .replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu, "")
+      .replace(/ðŸ\S*|âœ\S*|âš\S*|â\S*/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+  function ellipsisV18(value, max=30){
+    const text = cleanTextV18(value);
+    return text.length > max ? `${text.slice(0, Math.max(0, max - 3)).trim()}...` : text;
+  }
+  function escV18(value){
+    return typeof esc === "function" ? esc(value) : String(value || "").replace(/[&<>"']/g, s => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[s]));
+  }
+  function sourceV18(type){
+    try{
+      const fn = window.chartRows || (typeof chartRows === "function" ? chartRows : null);
+      return fn ? fn(type) : {title:"Dashboard grafico", metric:"Registros", rows:[]};
+    }catch{
+      return {title:"Dashboard grafico", metric:"Registros", rows:[]};
+    }
+  }
+  function chartRowsV18(data){
+    return (data.rows || [])
+      .filter(row => cleanTextV18(row.label) && !normalize(cleanTextV18(row.label)).includes("sem dados"))
+      .slice(0, 18)
+      .map(row => ({...row, label:cleanTextV18(row.label), shortLabel:ellipsisV18(row.label, 26)}));
+  }
+  function patchRankingsV18(){
+    [["rankingSector", 26], ["rankingCategory", 30]].forEach(([id, max]) => {
+      const root = document.getElementById(id);
+      if(!root) return;
+      root.querySelectorAll(".ranking-row").forEach(row => {
+        row.classList.add(`ranking-${id === "rankingSector" ? "sector" : "category"}-row-v18`);
+        row.querySelectorAll(".ranking-icon,.rank-emoji").forEach(icon => icon.remove());
+        const label = row.querySelector("div strong");
+        const value = row.querySelector(":scope > strong:last-child");
+        if(label){
+          const full = cleanTextV18(label.getAttribute("title") || label.textContent);
+          label.title = full;
+          label.textContent = ellipsisV18(full, max);
+        }
+        if(value) value.classList.add("ranking-value-v18");
+      });
+    });
+  }
+  function renderVerticalChartV18(rows, data, isScore){
+    const max = isScore ? 10 : Math.max(...rows.map(row => Number(row.value) || 0), 1);
+    return `<div class="vertical-chart v18-chart ${rows.length > 8 ? "is-many" : ""}">
+      <div class="axis-line y100">${isScore ? "10" : max}</div><div class="axis-line y50">${isScore ? "5" : Math.round(max / 2)}</div><div class="axis-line y0">0</div>
+      ${rows.map(row => {
+        const value = Number(row.value) || 0;
+        const h = Math.max(value ? 6 : 2, Math.min(100, (value / max) * 100));
+        return `<div class="vbar-item" style="--h:${h}%"><b>${escV18(row.text ?? scoreText(value))}</b><i></i><strong title="${escV18(row.label)}">${escV18(ellipsisV18(row.label, 18))}</strong></div>`;
+      }).join("")}
+    </div>`;
+  }
+  function renderHorizontalChartV18(rows){
+    const max = Math.max(...rows.map(row => Number(row.value) || 0), 1);
+    return `<div class="horizontal-chart-v18">
+      ${rows.map(row => {
+        const value = Number(row.value) || 0;
+        const width = Math.max(value ? 5 : 1, Math.min(100, (value / max) * 100));
+        return `<div class="hbar-row-v18"><strong title="${escV18(row.label)}">${escV18(ellipsisV18(row.label, 36))}</strong><span><i style="width:${width}%"></i></span><b>${escV18(row.text ?? scoreText(value))}</b></div>`;
+      }).join("")}
+    </div>`;
+  }
+  window.openDashboardChart = function(type){
+    const data = sourceV18(type);
+    const rows = chartRowsV18(data);
+    const dialog = ensureChartDialog();
+    const printable = dialog.querySelector("#chartPrintable");
+    const title = cleanTextV18(data.title || "Dashboard grafico");
+    const metric = cleanTextV18(data.metric || "Registros");
+    if(!rows.length){
+      printable.innerHTML = `<header class="chart-exec-header"><span>METODO SOBRAL</span><h2>${escV18(title)}</h2><p>${escV18(metric)} - ${dateText(new Date().toISOString().slice(0,10))}</p></header>
+        <div class="chart-exec-body"><div class="chart-empty-state"><strong>Sem dados para gerar grafico.</strong><span>Salve avaliacoes ou ocorrencias para visualizar este indicador.</span></div></div>`;
+      dialog.querySelectorAll(".chart-close").forEach(button => button.textContent = "X");
+      dialog.showModal();
+      return;
+    }
+    const isScore = metric === "Nota" || metric === "Media" || metric === "Média";
+    const useHorizontal = rows.length > 6 || /ocorr|categoria|setor/i.test(title);
+    printable.innerHTML = `<header class="chart-exec-header"><span>METODO SOBRAL</span><h2>${escV18(title)}</h2><p>${escV18(metric)} - ${dateText(new Date().toISOString().slice(0,10))}</p></header>
+      <div class="chart-exec-body"><div class="chart-plot-card occurrence-plot-card"><h3>Dashboard grafico</h3><p>${useHorizontal ? "Ranking organizado por quantidade" : "Barras ordenadas do maior para o menor"}</p>
+      ${useHorizontal ? renderHorizontalChartV18(rows) : renderVerticalChartV18(rows, data, isScore)}
+      </div></div>`;
+    dialog.querySelectorAll(".chart-close").forEach(button => button.textContent = "X");
+    dialog.showModal();
+  };
+  window.downloadChartImage = function(){
+    const printable = document.getElementById("chartPrintable");
+    const title = cleanTextV18(printable?.querySelector("h2")?.textContent || "grafico");
+    const rows = [...(printable?.querySelectorAll(".hbar-row-v18") || [])].map(item => ({
+      label: cleanTextV18(item.querySelector("strong")?.textContent || ""),
+      value: cleanTextV18(item.querySelector("b")?.textContent || ""),
+      width: parseFloat(item.querySelector("i")?.style.width || "0")
+    }));
+    const verticalRows = [...(printable?.querySelectorAll(".vbar-item") || [])].map(item => ({
+      label: cleanTextV18(item.querySelector("strong")?.textContent || ""),
+      value: cleanTextV18(item.querySelector("b")?.textContent || ""),
+      h: parseFloat(getComputedStyle(item).getPropertyValue("--h")) || 0
+    }));
+    const useHorizontal = rows.length > 0;
+    const dataRows = useHorizontal ? rows : verticalRows;
+    const canvas = document.createElement("canvas");
+    canvas.width = 1600;
+    canvas.height = 900;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#eef2f7"; ctx.fillRect(0,0,1600,900);
+    ctx.fillStyle = "#101827"; ctx.fillRect(0,0,1600,150);
+    ctx.fillStyle = "#fff"; ctx.font = "700 44px Arial"; ctx.textAlign = "left"; ctx.fillText(title,80,74);
+    ctx.font = "500 24px Arial"; ctx.fillText("Metodo Sobral - Performance Individual 360",80,116);
+    ctx.fillStyle = "#fff"; roundRect(ctx,60,185,1480,655,28,true,false);
+    ctx.fillStyle = "#334155"; ctx.font = "700 28px Arial"; ctx.textAlign = "left"; ctx.fillText("Dashboard grafico",120,242);
+    if(useHorizontal){
+      const top = 295;
+      const rowH = Math.min(54, Math.floor(490 / Math.max(dataRows.length, 1)));
+      dataRows.forEach((row, index) => {
+        const y = top + index * rowH;
+        ctx.fillStyle = "#0f172a"; ctx.font = "700 18px Arial"; ctx.textAlign = "right"; ctx.textBaseline = "middle";
+        ctx.fillText(ellipsisV18(row.label, 30), 430, y + rowH / 2);
+        ctx.fillStyle = "#e8eef7"; roundRect(ctx,455,y + rowH * .22,780,rowH * .56,12,true,false);
+        ctx.fillStyle = "#2563eb"; roundRect(ctx,455,y + rowH * .22,Math.max(12,780 * (row.width / 100)),rowH * .56,12,true,false);
+        ctx.fillStyle = "#0f172a"; ctx.font = "800 18px Arial"; ctx.textAlign = "left";
+        ctx.fillText(row.value, 1260, y + rowH / 2);
+      });
+    }else{
+      ctx.strokeStyle = "#dbe3ee"; ctx.lineWidth = 2;
+      [330,470,610].forEach(y => { ctx.beginPath(); ctx.moveTo(135,y); ctx.lineTo(1465,y); ctx.stroke(); });
+      const count = Math.max(dataRows.length, 1);
+      const gap = count > 8 ? 18 : 30;
+      const barW = Math.max(50, Math.min(96, (1180 - (count - 1) * gap) / count));
+      const totalW = count * barW + (count - 1) * gap;
+      let x = 800 - totalW / 2;
+      dataRows.forEach(row => {
+        const h = Math.max(8, 320 * (row.h / 100));
+        const y = 650 - h;
+        const cx = x + barW / 2;
+        ctx.fillStyle = "#2563eb"; roundRect(ctx,x,y,barW,h,12,true,false);
+        ctx.fillStyle = "#0f172a"; ctx.font = "700 20px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic"; ctx.fillText(row.value,cx,y-12);
+        ctx.font = "700 15px Arial"; ctx.textBaseline = "top"; ctx.fillText(ellipsisV18(row.label, 18), cx, 690);
+        x += barW + gap;
+      });
+    }
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png", 1);
+    a.download = `${title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-")}.png`;
+    a.click();
+  };
+  function injectV18(){
+    if(!document.getElementById("sobralExecutiveV18Style")){
+      const style = document.createElement("style");
+      style.id = "sobralExecutiveV18Style";
+      style.textContent = `
+        #rankingSector .ranking-row,#rankingCategory .ranking-row{display:grid!important;grid-template-columns:minmax(0,1fr) 58px!important;gap:12px!important;align-items:center!important;min-height:58px!important;padding:12px 14px!important;}
+        #rankingSector .ranking-row img,#rankingSector .ranking-row .ranking-icon,#rankingSector .ranking-row .rank-emoji,#rankingCategory .ranking-row .ranking-icon,#rankingCategory .ranking-row .rank-emoji{display:none!important;}
+        #rankingSector .ranking-row div,#rankingCategory .ranking-row div{min-width:0!important;}
+        #rankingSector .ranking-row div strong,#rankingCategory .ranking-row div strong{display:block!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;line-height:1.15!important;}
+        #rankingSector .ranking-row div small,#rankingCategory .ranking-row div small{display:block!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;margin-top:3px!important;}
+        #rankingSector .ranking-row>strong:last-child,#rankingCategory .ranking-row>strong:last-child{text-align:right!important;justify-self:end!important;font-size:20px!important;line-height:1!important;min-width:46px!important;}
+        .horizontal-chart-v18{display:flex!important;flex-direction:column!important;gap:13px!important;padding:20px 10px 8px!important;}
+        .hbar-row-v18{display:grid!important;grid-template-columns:minmax(150px,260px) minmax(160px,1fr) 52px!important;gap:14px!important;align-items:center!important;min-height:30px!important;}
+        .hbar-row-v18 strong{font-size:13px!important;line-height:1.1!important;text-align:right!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;color:#0f172a!important;}
+        .hbar-row-v18 span{height:18px!important;border-radius:999px!important;background:#e8eef7!important;overflow:hidden!important;}
+        .hbar-row-v18 span i{display:block!important;height:100%!important;border-radius:999px!important;background:#2563eb!important;}
+        .hbar-row-v18 b{font-size:13px!important;color:#0f172a!important;}
+        .vertical-chart.v18-chart{height:390px!important;padding:42px 24px 72px 56px!important;gap:30px!important;align-items:flex-end!important;overflow:hidden!important;}
+        .vertical-chart.v18-chart .y0{bottom:72px!important;}
+        .vertical-chart.v18-chart .vbar-item{position:relative!important;min-width:92px!important;flex:0 0 92px!important;}
+        .vertical-chart.v18-chart .vbar-item b{bottom:calc(var(--h) + 80px)!important;}
+        .vertical-chart.v18-chart .vbar-item strong{position:absolute!important;left:50%!important;bottom:-32px!important;width:112px!important;transform:translateX(-50%)!important;text-align:center!important;font-size:12px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+        #view-reports .exec-opportunity-table{font-size:10.5px!important;}
+        #view-reports .exec-opportunity-table th:nth-child(2),#view-reports .exec-opportunity-table td:nth-child(2){width:16%!important;}
+        #view-reports .exec-opportunity-table th:nth-child(5),#view-reports .exec-opportunity-table td:nth-child(5){width:22%!important;}
+        #view-reports .exec-opportunity-table th:nth-child(6),#view-reports .exec-opportunity-table td:nth-child(6){width:35%!important;line-height:1.25!important;}
+        @media(max-width:720px){
+          #rankingSector .ranking-row,#rankingCategory .ranking-row{grid-template-columns:minmax(0,1fr) 50px!important;}
+          .hbar-row-v18{grid-template-columns:minmax(120px,170px) minmax(100px,1fr) 42px!important;gap:10px!important;}
+          .hbar-row-v18 strong{font-size:11px!important;}
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    patchRankingsV18();
+    const dash = document.getElementById("view-dashboard");
+    if(dash && dash.dataset.v18Watch !== "true"){
+      dash.dataset.v18Watch = "true";
+      new MutationObserver(() => setTimeout(patchRankingsV18, 30)).observe(dash, {childList:true, subtree:true, characterData:true});
+    }
+  }
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", injectV18, {once:true});
+  }else{
+    injectV18();
+  }
+  [200, 700, 1500, 3000].forEach(delay => setTimeout(injectV18, delay));
 })();
 
 /* Correção final de codificação e ícones seguros para mobile/exportação. */

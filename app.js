@@ -713,28 +713,35 @@ function directionalOccurrenceFeedback(occurrence={}, evaluation={}){
     item.occurrences?.[occurrence.criteriaId]?.checked
   ).length;
   const category = normalize(occurrence.categoryName);
-  const parts = [];
-  if(score >= 9){
-    parts.push("Como a nota geral esta em nivel excelente, trate este ponto como ajuste fino para proteger a consistencia e manter o colaborador como referencia positiva.");
-  }else if(score >= 7){
-    parts.push("Como o resultado geral esta em faixa positiva, o proximo passo e corrigir esta oportunidade com constancia para aproximar a entrega da excelencia.");
-  }else{
-    parts.push("Como a nota pede acompanhamento, combine uma acao simples, valide a execucao na rotina e registre a evolucao no proximo ciclo.");
-  }
-  if(sector){
-    parts.push(`No setor ${sector}, priorize rotinas visuais de conferencia, comunicacao clara e apoio entre equipe para prevenir repeticao.`);
-  }
+  const quantity = Number(occurrence?.quantity || 0);
+  const notes = [];
   if(previous > 0){
-    parts.push("Como ja existe historico deste ponto, acompanhe por alguns dias ate estabilizar e reconheca rapidamente qualquer evolucao observada.");
+    notes.push("Por haver histórico, acompanhe a correção por alguns dias e registre a evolução observada.");
+  }
+  if(quantity >= 5){
+    notes.push("Priorize a regularização no mesmo turno e valide se a causa foi removida.");
+  }else if(quantity >= 3){
+    notes.push("Ajuste o ponto com o colaborador e confira novamente na próxima ronda do setor.");
   }
   if(category.includes("atendimento")){
-    parts.push("Direcione a conversa para acolhimento, escuta ativa, abordagem consultiva e pos-venda consistente.");
+    notes.push("Reforce escuta, acolhimento e condução consultiva antes de medir novo resultado.");
   }else if(category.includes("produto") || category.includes("servico")){
-    parts.push("Reforce conhecimento, argumentacao correta e oferta constante para melhorar eficiencia e resultado.");
+    notes.push("Conecte o ajuste ao padrão de oferta, argumentação e clareza para o cliente.");
   }else if(category.includes("organiz") || category.includes("limpeza")){
-    parts.push("Use uma rotina curta de abertura, meio do expediente e fechamento para manter o padrao sem depender de cobranca.");
+    notes.push("Inclua este ponto na checagem rápida de abertura ou fechamento do setor.");
+  }else if(category.includes("meta") || category.includes("resultado")){
+    notes.push("Transforme o indicador em ação diária simples e acompanhe a evolução no período.");
   }
-  return [base, ...parts].join(" ");
+  if(score >= 9 && !notes.length){
+    notes.push("Trate como ajuste preventivo para manter o padrão de excelência.");
+  }else if(score < 7 && !notes.length){
+    notes.push("Defina um próximo passo claro e revise a execução com prazo curto.");
+  }
+  if(sector && notes.length > 1){
+    notes[0] = notes[0].replace("setor", `setor ${sector}`);
+  }
+  const index = notes.length ? Math.abs(textHash(`${evaluation?.id}|${occurrence?.criteriaId}|${quantity}|${score}`)) % notes.length : -1;
+  return index >= 0 ? `${base} ${notes[index]}` : base;
 }
 
 function actionPlanText(item){
@@ -1443,7 +1450,7 @@ function reportHtml(type, evaluation){
     </div>
     <section class="exec-block"><h4>Resumo Executivo</h4><p>Este relatÃ³rio consolida desempenho, ocorrÃªncias, aÃ§Ãµes corretivas e oportunidades de evoluÃ§Ã£o do colaborador no perÃ­odo avaliado.</p></section>
     <section class="exec-block"><h4>Pontos Fortes</h4><div class="positive-badges">${positiveCategoryBadges(evaluation).map(item=>`<span>OK ${esc(cleanPositiveBadgeLabel(item))}</span>`).join("") || `<span>Foco total nas oportunidades registradas neste ciclo.</span>`}</div></section>
-    <section class="exec-block"><h4>Oportunidades de Melhoria</h4><table class="exec-table exec-opportunity-table"><tr><th>Categoria</th><th>CritÃ©rio</th><th>Qtd</th><th>Status</th><th>AÃ§Ã£o / Feedback</th></tr>${stats.records.map(item => `<tr><td>${esc(item.categoryName)}</td><td>${esc(item.criteriaName)}</td><td>${Number(item.quantity || 0) || "-"}</td><td>${esc(statusShort(item.status))}</td><td>${esc(directionalOccurrenceFeedback(item, evaluation))}</td></tr>`).join("") || `<tr><td colspan="5">Nenhuma ocorrÃªncia registrada.</td></tr>`}</table></section>
+    <section class="exec-block"><h4>Oportunidades de Melhoria</h4><table class="exec-table exec-opportunity-table"><tr><th>Categoria</th><th>CritÃ©rio</th><th>Qtd</th><th>Status</th><th>AÃ§Ã£o Recomendada</th><th>Feedback</th></tr>${stats.records.map(item => `<tr><td>${esc(item.categoryName)}</td><td>${esc(item.criteriaName)}</td><td>${Number(item.quantity || 0) || "-"}</td><td>${esc(statusShort(item.status))}</td><td>${esc(actionPlanText(item))}</td><td>${esc(directionalOccurrenceFeedback(item, evaluation))}</td></tr>`).join("") || `<tr><td colspan="6">Nenhuma ocorrÃªncia registrada.</td></tr>`}</table></section>
     <section class="exec-block"><h4>ObservaÃ§Ã£o do Gestor</h4><p>${esc(evaluation.generalNote || "Sem observaÃ§Ã£o geral registrada.")}</p></section>
     <section class="exec-block"><h4>Justificativa do Colaborador</h4><p>${esc(evaluation.justification || "Sem justificativa registrada.")}</p></section>
     <section class="exec-block"><h4>Plano de Desenvolvimento</h4><table class="exec-table"><tr><th>Ãrea</th><th>Foco</th><th>AÃ§Ã£o</th><th>Prazo</th><th>EvidÃªncia</th></tr>${pdi || `<tr><td colspan="5">Manter desempenho e registrar boas prÃ¡ticas.</td></tr>`}</table></section>
@@ -1622,6 +1629,7 @@ async function drawShareArt(evaluation, width=1240, height=1754){
       criteria: item.criteriaName || "-",
       qtd:String(qtd),
       status,
+      action: actionPlanText(item),
       feedback: directionalOccurrenceFeedback(item, evaluation)
     };
   });
@@ -1630,7 +1638,7 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   setFont(700,15);
   let rowsHeight = 46;
   rowData.forEach(row => {
-    const lines = Math.max(wrapLines(row.criteria, 360).length, wrapLines(row.feedback, 330).length, 1);
+    const lines = Math.max(wrapLines(row.criteria, 250).length, wrapLines(row.action, 185).length, wrapLines(row.feedback, 340).length, 1);
     rowsHeight += Math.max(42, lines * 18 + 20);
   });
   const evidenceHeight = photoEvidence.length ? (108 + Math.ceil(Math.min(photoEvidence.length,12) / 6) * 158) : 0;
@@ -1691,10 +1699,11 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   ctx.fillStyle = "#eef2f7"; roundRect(ctx,sx(tableX+28),sx(startY),sx(tableW-56),sx(30),sx(8)); ctx.fill();
   setFont(800,11,"#475467");
   ctx.fillText("CATEGORIA", sx(tableX+44), sx(startY+20));
-  ctx.fillText("CRITERIO / OPORTUNIDADE", sx(tableX+220), sx(startY+20));
-  ctx.fillText("QTD", sx(tableX+602), sx(startY+20));
-  ctx.fillText("STATUS", sx(tableX+656), sx(startY+20));
-  ctx.fillText("AÃ‡ÃƒO / FEEDBACK", sx(tableX+780), sx(startY+20));
+  ctx.fillText("CRITERIO", sx(tableX+202), sx(startY+20));
+  ctx.fillText("QTD", sx(tableX+470), sx(startY+20));
+  ctx.fillText("STATUS", sx(tableX+528), sx(startY+20));
+  ctx.fillText("ACAO RECOMENDADA", sx(tableX+630), sx(startY+20));
+  ctx.fillText("FEEDBACK", sx(tableX+822), sx(startY+20));
 
   let rowY = startY + 46;
   if(!rowData.length){
@@ -1703,16 +1712,18 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   }else{
     rowData.forEach((row,index)=>{
       setFont(700,14,"#101827");
-      const criteriaLines = wrapLines(row.criteria,360).length;
-      const feedbackLines = wrapLines(row.feedback,330).length;
-      const rowH = Math.max(42, Math.max(criteriaLines, feedbackLines, 1) * 18 + 20);
+      const criteriaLines = wrapLines(row.criteria,250).length;
+      const actionLines = wrapLines(row.action,185).length;
+      const feedbackLines = wrapLines(row.feedback,340).length;
+      const rowH = Math.max(42, Math.max(criteriaLines, actionLines, feedbackLines, 1) * 18 + 20);
       ctx.fillStyle = index % 2 ? "#fff" : "#fbfcfe";
       roundRect(ctx,sx(tableX+28),sx(rowY-24),sx(tableW-56),sx(rowH),sx(8)); ctx.fill();
       setFont(700,13,"#334155"); textBlock(row.category,tableX+44,rowY,155,16,3);
-      setFont(700,13,"#101827"); textBlock(row.criteria,tableX+220,rowY,360,18,0);
-      setFont(800,13,"#101827"); ctx.fillText(row.qtd, sx(tableX+610), sx(rowY));
-      setFont(700,13,"#334155"); textBlock(row.status,tableX+656,rowY,104,16,2);
-      setFont(600,13,"#475467"); textBlock(row.feedback,tableX+780,rowY,330,18,0);
+      setFont(700,13,"#101827"); textBlock(row.criteria,tableX+202,rowY,250,18,0);
+      setFont(800,13,"#101827"); ctx.fillText(row.qtd, sx(tableX+478), sx(rowY));
+      setFont(700,13,"#334155"); textBlock(row.status,tableX+528,rowY,104,16,2);
+      setFont(600,13,"#344054"); textBlock(row.action,tableX+630,rowY,176,18,0);
+      setFont(600,13,"#475467"); textBlock(row.feedback,tableX+822,rowY,340,18,0);
       rowY += rowH + 2;
     });
   }
@@ -4939,5 +4950,190 @@ else init();
   }else{
     run();
   }
+})();
+
+/* AJUSTE v17 - rankings, graficos e relatorios executivos sem quebra visual */
+(function executiveDashboardReportV17(){
+  function cleanText(value){
+    const fixed = typeof repairText === "function" ? repairText(String(value || "")) : String(value || "");
+    return fixed
+      .replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu, "")
+      .replace(/ðŸ\S*|âœ\S*|âš\S*|â\S*/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+  function shortText(value, max=24){
+    const text = cleanText(value);
+    return text.length > max ? `${text.slice(0, Math.max(0, max - 3)).trim()}...` : text;
+  }
+  function safeEsc(value){
+    return typeof esc === "function" ? esc(value) : String(value || "").replace(/[&<>"']/g, s => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[s]));
+  }
+  function chartSource(type){
+    try{
+      const fn = window.chartRows || (typeof chartRows === "function" ? chartRows : null);
+      return fn ? fn(type) : {title:"Dashboard grafico", metric:"Registros", rows:[]};
+    }catch{
+      return {title:"Dashboard grafico", metric:"Registros", rows:[]};
+    }
+  }
+  function realChartRows(data){
+    return (data.rows || [])
+      .filter(row => cleanText(row.label) && !normalize(cleanText(row.label)).includes("sem dados"))
+      .slice(0, 30)
+      .map(row => ({...row, label:cleanText(row.label), shortLabel:shortText(row.label, 22)}));
+  }
+  function patchRankingCategory(){
+    const root = document.getElementById("rankingCategory");
+    if(!root) return;
+    root.querySelectorAll(".ranking-row").forEach(row => {
+      row.classList.add("ranking-category-row-v17");
+      row.querySelectorAll(".ranking-icon,.rank-emoji").forEach(icon => icon.remove());
+      const label = row.querySelector("div strong");
+      const value = row.querySelector(":scope > strong:last-child");
+      if(label){
+        label.title = cleanText(label.textContent);
+        label.textContent = shortText(label.textContent, 34);
+      }
+      if(value) value.classList.add("ranking-value-v17");
+    });
+  }
+  function patchDashboardText(){
+    document.querySelectorAll("#view-dashboard .ranking-row div strong").forEach(label => {
+      label.title = cleanText(label.textContent);
+      label.textContent = shortText(label.textContent, label.closest("#rankingCategory") ? 34 : 42);
+    });
+    document.querySelectorAll("#view-dashboard .ranking-icon,.rank-emoji").forEach(icon => {
+      if(icon.closest("#rankingCategory")) icon.remove();
+      else icon.textContent = "";
+    });
+    document.querySelectorAll(".chart-toggle").forEach(button => {
+      button.textContent = "↗";
+      button.title = "Abrir grafico";
+      button.setAttribute("aria-label", "Abrir grafico");
+    });
+    patchRankingCategory();
+  }
+  window.displayIconForLabel = function(){ return ""; };
+  window.openDashboardChart = function(type){
+    const data = chartSource(type);
+    const rows = realChartRows(data);
+    const dialog = ensureChartDialog();
+    const printable = dialog.querySelector("#chartPrintable");
+    if(!rows.length){
+      printable.innerHTML = `<header class="chart-exec-header"><span>METODO SOBRAL</span><h2>${safeEsc(cleanText(data.title || "Dashboard grafico"))}</h2><p>${safeEsc(cleanText(data.metric || "Registros"))} - ${dateText(new Date().toISOString().slice(0,10))}</p></header>
+        <div class="chart-exec-body"><div class="chart-empty-state"><strong>Sem dados para gerar grafico.</strong><span>Salve avaliacoes ou ocorrencias para visualizar este indicador.</span></div></div>`;
+      dialog.querySelectorAll(".chart-close").forEach(button => button.textContent = "X");
+      dialog.showModal();
+      return;
+    }
+    const isScore = cleanText(data.metric) === "Nota" || cleanText(data.metric) === "Media" || cleanText(data.metric) === "Média";
+    const max = isScore ? 10 : Math.max(...rows.map(row => Number(row.value) || 0), 1);
+    printable.innerHTML = `<header class="chart-exec-header"><span>METODO SOBRAL</span><h2>${safeEsc(cleanText(data.title || "Dashboard grafico"))}</h2><p>${safeEsc(cleanText(data.metric || "Registros"))} - ${dateText(new Date().toISOString().slice(0,10))}</p></header>
+      <div class="chart-exec-body"><div class="chart-plot-card occurrence-plot-card"><h3>Dashboard grafico</h3><p>Barras ordenadas do maior para o menor</p>
+      <div class="vertical-chart v17-chart ${rows.length > 10 ? "is-many" : ""}">
+        <div class="axis-line y100">${isScore ? "10" : max}</div><div class="axis-line y50">${isScore ? "5" : Math.round(max / 2)}</div><div class="axis-line y0">0</div>
+        ${rows.map(row => {
+          const value = Number(row.value) || 0;
+          const h = Math.max(value ? 6 : 2, Math.min(100, (value / max) * 100));
+          return `<div class="vbar-item" style="--h:${h}%"><b>${safeEsc(row.text ?? scoreText(value))}</b><i></i><strong title="${safeEsc(row.label)}"><span class="chart-full-label">${safeEsc(row.shortLabel)}</span></strong></div>`;
+        }).join("")}
+      </div></div></div>`;
+    dialog.querySelectorAll(".chart-close").forEach(button => button.textContent = "X");
+    dialog.showModal();
+  };
+  window.downloadChartImage = function(){
+    const printable = document.getElementById("chartPrintable");
+    const title = cleanText(printable?.querySelector("h2")?.textContent || "grafico");
+    const rows = [...(printable?.querySelectorAll(".vbar-item") || [])].map(item => ({
+      label: shortText(item.querySelector(".chart-full-label")?.textContent || item.querySelector("strong")?.textContent || "", 18),
+      value: cleanText(item.querySelector("b")?.textContent || ""),
+      h: parseFloat(getComputedStyle(item).getPropertyValue("--h")) || 0
+    }));
+    const canvas = document.createElement("canvas");
+    canvas.width = 1600;
+    canvas.height = 900;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#eef2f7"; ctx.fillRect(0,0,1600,900);
+    ctx.fillStyle = "#101827"; ctx.fillRect(0,0,1600,150);
+    ctx.fillStyle = "#fff"; ctx.font = "700 44px Arial"; ctx.textAlign = "left"; ctx.fillText(title,80,74);
+    ctx.font = "500 24px Arial"; ctx.fillText("Metodo Sobral - Performance Individual 360",80,116);
+    ctx.fillStyle = "#fff"; roundRect(ctx,60,185,1480,655,28,true,false);
+    ctx.fillStyle = "#334155"; ctx.font = "700 28px Arial"; ctx.textAlign = "left"; ctx.fillText("Dashboard grafico",120,242);
+    ctx.strokeStyle = "#dbe3ee"; ctx.lineWidth = 2;
+    [330,470,610].forEach(y => { ctx.beginPath(); ctx.moveTo(135,y); ctx.lineTo(1465,y); ctx.stroke(); });
+    const count = Math.max(rows.length, 1);
+    const gap = count > 18 ? 10 : count > 10 ? 14 : 24;
+    const barW = Math.max(22, Math.min(86, (1260 - (count - 1) * gap) / count));
+    const totalW = count * barW + (count - 1) * gap;
+    let x = 800 - totalW / 2;
+    rows.forEach(row => {
+      const h = Math.max(8, 320 * (row.h / 100));
+      const y = 650 - h;
+      const cx = x + barW / 2;
+      ctx.fillStyle = "#2563eb"; roundRect(ctx,x,y,barW,h,12,true,false);
+      ctx.fillStyle = "#0f172a"; ctx.font = "700 20px Arial"; ctx.textAlign = "center"; ctx.fillText(row.value,cx,y-12);
+      ctx.font = count > 16 ? "700 13px Arial" : "700 15px Arial";
+      ctx.textBaseline = "top";
+      ctx.fillText(row.label, cx, 690);
+      x += barW + gap;
+    });
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png", 1);
+    a.download = `${title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-")}.png`;
+    a.click();
+  };
+  function inject(){
+    if(document.getElementById("sobralExecutiveV17Style")) return;
+    const style = document.createElement("style");
+    style.id = "sobralExecutiveV17Style";
+    style.textContent = `
+      #rankingCategory .ranking-row{grid-template-columns:minmax(0,1fr) 46px!important;min-height:58px!important;height:auto!important;align-items:center!important;gap:12px!important;padding:11px 14px!important;}
+      #rankingCategory .ranking-row .ranking-icon,#rankingCategory .ranking-row .rank-emoji{display:none!important;}
+      #rankingCategory .ranking-row div{min-width:0!important;}
+      #rankingCategory .ranking-row div strong{display:block!important;max-width:100%!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;line-height:1.2!important;}
+      #rankingCategory .ranking-row div small{display:block!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+      #rankingCategory .ranking-value-v17,#rankingCategory .ranking-row>strong:last-child{justify-self:end!important;text-align:center!important;min-width:38px!important;font-size:20px!important;line-height:1!important;color:#101827!important;}
+      #view-dashboard .ranking-row{overflow:hidden!important;}
+      #view-dashboard .ranking-row div{min-width:0!important;}
+      #view-dashboard .ranking-row div strong{overflow:hidden!important;text-overflow:ellipsis!important;}
+      .chart-toggle{font-family:Arial,sans-serif!important;font-size:18px!important;}
+      .vertical-chart.v17-chart{height:390px!important;padding:42px 24px 74px 56px!important;gap:24px!important;overflow-x:auto!important;overflow-y:hidden!important;align-items:flex-end!important;}
+      .vertical-chart.v17-chart .y0{bottom:74px!important;}
+      .vertical-chart.v17-chart .vbar-item{position:relative!important;min-width:88px!important;flex:1 0 88px!important;}
+      .vertical-chart.v17-chart.is-many .vbar-item{min-width:74px!important;flex:1 0 74px!important;}
+      .vertical-chart.v17-chart .vbar-item b{bottom:calc(var(--h) + 82px)!important;}
+      .vertical-chart.v17-chart .vbar-item strong{position:absolute!important;left:50%!important;bottom:-34px!important;width:104px!important;height:18px!important;transform:translateX(-50%)!important;text-align:center!important;font-size:12px!important;font-weight:700!important;line-height:18px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;color:#0f172a!important;}
+      .vertical-chart.v17-chart .chart-full-label{display:block!important;width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;}
+      #view-reports .exec-opportunity-table{table-layout:fixed!important;width:100%!important;min-width:980px!important;font-size:11px!important;}
+      #view-reports .exec-opportunity-table th:nth-child(1),#view-reports .exec-opportunity-table td:nth-child(1){width:13%!important;}
+      #view-reports .exec-opportunity-table th:nth-child(2),#view-reports .exec-opportunity-table td:nth-child(2){width:19%!important;}
+      #view-reports .exec-opportunity-table th:nth-child(3),#view-reports .exec-opportunity-table td:nth-child(3){width:6%!important;text-align:center!important;}
+      #view-reports .exec-opportunity-table th:nth-child(4),#view-reports .exec-opportunity-table td:nth-child(4){width:10%!important;}
+      #view-reports .exec-opportunity-table th:nth-child(5),#view-reports .exec-opportunity-table td:nth-child(5){width:20%!important;}
+      #view-reports .exec-opportunity-table th:nth-child(6),#view-reports .exec-opportunity-table td:nth-child(6){width:32%!important;font-size:10.8px!important;line-height:1.32!important;}
+      @media(max-width:720px){
+        #rankingCategory .ranking-row{grid-template-columns:minmax(0,1fr) 42px!important;min-height:54px!important;}
+        .vertical-chart.v17-chart{height:360px!important;padding:40px 18px 70px 44px!important;gap:18px!important;}
+        .vertical-chart.v17-chart .y0{bottom:70px!important;}
+        .vertical-chart.v17-chart .vbar-item{min-width:72px!important;}
+        .vertical-chart.v17-chart .vbar-item b{bottom:calc(var(--h) + 78px)!important;}
+        .vertical-chart.v17-chart .vbar-item strong{bottom:-32px!important;width:90px!important;font-size:11px!important;}
+      }
+    `;
+    document.head.appendChild(style);
+    patchDashboardText();
+    const dash = document.getElementById("view-dashboard");
+    if(dash && dash.dataset.v17Watch !== "true"){
+      dash.dataset.v17Watch = "true";
+      new MutationObserver(() => setTimeout(patchDashboardText, 20)).observe(dash, {childList:true, subtree:true, characterData:true});
+    }
+  }
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", inject, {once:true});
+  }else{
+    inject();
+  }
+  [200, 700, 1600, 2800].forEach(delay => setTimeout(() => { window.displayIconForLabel = function(){ return ""; }; patchDashboardText(); }, delay));
 })();
 

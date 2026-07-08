@@ -555,26 +555,6 @@ function cleanPositiveBadgeLabel(value=""){
     .trim();
 }
 
-function strengthsMessage(evaluation){
-  const badges = positiveCategoryBadges(evaluation).map(cleanPositiveBadgeLabel).filter(Boolean);
-  const stats = reportStats(evaluation);
-  const joined = badges.length ? badges.slice(0,4).join(", ") : "disciplina, foco e evolução";
-  const perfect = !stats.active.length;
-  const templatesPerfect = [
-    `Parabéns pela entrega deste ciclo. Seus pontos fortes em ${joined} mostram consistência, cuidado com a rotina e postura de referência para a equipe.`,
-    `Excelente desempenho. A combinação de ${joined} demonstra maturidade profissional e fortalece o padrão que esperamos manter na loja.`,
-    `Resultado muito positivo. Continue usando ${joined} como base para inspirar boas práticas, apoiar colegas e sustentar a excelência.`
-  ];
-  const templatesBalance = [
-    `Seus pontos fortes em ${joined} são uma base importante. Use essa força para corrigir as oportunidades registradas e elevar ainda mais a consistência.`,
-    `Há qualidades claras em ${joined}. O próximo passo é transformar esses comportamentos em padrão diário também nos pontos que precisam de ajuste.`,
-    `O desempenho mostra potencial em ${joined}. Mantenha esses acertos e trate as oportunidades como compromissos objetivos de evolução.`
-  ];
-  const list = perfect ? templatesPerfect : templatesBalance;
-  const seed = `${evaluation?.id || ""}|${evaluation?.employeeId || ""}|${evaluation?.date || ""}|${joined}|${stats.active.length}`;
-  return list[Math.abs(textHash(seed)) % list.length];
-}
-
 function reportStats(evaluation){
   const active = occurrenceList(evaluation);
   const resolvedRecords = resolvedOccurrenceList(evaluation);
@@ -833,25 +813,27 @@ function normalizeEvidenceList(value){
 }
 
 function notify(message){
-  let box = document.getElementById("appToast");
-  if(!box){
-    box = document.createElement("div");
-    box.id = "appToast";
-    box.style.cssText = "position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(12px);z-index:99999;background:#101827;color:#fff;padding:12px 16px;border-radius:16px;font:700 14px system-ui,-apple-system,Segoe UI,sans-serif;box-shadow:0 18px 45px rgba(16,24,39,.22);max-width:88vw;text-align:center;opacity:0;transition:opacity .22s ease, transform .22s ease;pointer-events:none";
-    document.body.appendChild(box);
-  }
-  box.textContent = message;
-  box.style.opacity = "1";
-  box.style.transform = "translateX(-50%) translateY(0)";
+  const previous = document.getElementById("appToast");
+  if(previous) previous.remove();
   clearTimeout(window.__toastTimer);
   clearTimeout(window.__toastRemoveTimer);
-  window.__toastTimer = setTimeout(() => {
+  const box = document.createElement("div");
+  box.id = "appToast";
+  box.textContent = repairText(message);
+  box.style.cssText = "position:fixed;left:50%;bottom:calc(104px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(10px);z-index:99999;background:#101827;color:#fff;padding:12px 16px;border-radius:16px;font:700 14px system-ui,-apple-system,Segoe UI,sans-serif;box-shadow:0 18px 45px rgba(16,24,39,.22);max-width:86vw;text-align:center;opacity:0;transition:opacity .18s ease, transform .18s ease;pointer-events:none";
+  document.body.appendChild(box);
+  requestAnimationFrame(() => {
+    box.style.opacity = "1";
+    box.style.transform = "translateX(-50%) translateY(0)";
+  });
+  const closeToast = () => {
     const current = document.getElementById("appToast");
     if(!current) return;
     current.style.opacity = "0";
-    current.style.transform = "translateX(-50%) translateY(12px)";
-    window.__toastRemoveTimer = setTimeout(() => current.remove(), 320);
-  }, 2300);
+    current.style.transform = "translateX(-50%) translateY(10px)";
+    window.__toastRemoveTimer = setTimeout(() => current?.remove(), 240);
+  };
+  window.__toastTimer = setTimeout(closeToast, 1800);
 }
 
 function renderEmployees(){
@@ -1486,10 +1468,10 @@ function reportHtml(type, evaluation){
       </div>
     </div>
     <div class="exec-summary">
-      ${[["OcorrÃªncias",stats.active.length],["Pontos descontados",pointsText(stats.discount)],["Qtd. registros",stats.totalQuantity],["Resolvidas",stats.resolved],["Pendentes",stats.pending],["Tempo mÃ©dio",stats.avgRegularization]].map(([label,value])=>`<div><span>${label}</span><strong>${value}</strong></div>`).join("")}
+      ${[["Ocorrências",stats.active.length],["Pontos descontados",pointsText(stats.discount)],["Qtd. registros",stats.totalQuantity],["Resolvidas",stats.resolved],["Pendentes",stats.pending],["Tempo médio",stats.avgRegularization]].map(([label,value])=>`<div><span>${label}</span><strong>${value}</strong></div>`).join("")}
     </div>
     <section class="exec-block"><h4>Resumo Executivo</h4><p>Este relatÃ³rio consolida desempenho, ocorrÃªncias, aÃ§Ãµes corretivas e oportunidades de evoluÃ§Ã£o do colaborador no perÃ­odo avaliado.</p></section>
-    <section class="exec-block"><h4>Pontos Fortes</h4><div class="positive-badges">${positiveCategoryBadges(evaluation).map(item=>`<span>OK ${esc(cleanPositiveBadgeLabel(item))}</span>`).join("") || `<span>Foco total nas oportunidades registradas neste ciclo.</span>`}</div></section>
+    <section class="exec-block"><h4>Pontos Fortes</h4><div class="positive-badges">${positiveCategoryBadges(evaluation).map(item=>`<span>${esc(cleanPositiveBadgeLabel(item))}</span>`).join("") || `<span>Foco total nas oportunidades registradas neste ciclo.</span>`}</div><p class="strong-points-note">${esc(strongPointsMessage(evaluation))}</p></section>
     <section class="exec-block"><h4>Oportunidades de Melhoria</h4><table class="exec-table exec-opportunity-table"><tr><th>Categoria</th><th>CritÃ©rio</th><th>Qtd</th><th>Status</th><th>AÃ§Ã£o Recomendada</th><th>Feedback</th></tr>${stats.records.map(item => `<tr><td>${esc(item.categoryName)}</td><td>${esc(item.criteriaName)}</td><td>${Number(item.quantity || 0) || "-"}</td><td>${esc(statusShort(item.status))}</td><td>${esc(actionPlanText(item))}</td><td>${esc(directionalOccurrenceFeedback(item, evaluation))}</td></tr>`).join("") || `<tr><td colspan="6">Nenhuma ocorrÃªncia registrada.</td></tr>`}</table></section>
     <section class="exec-block"><h4>ObservaÃ§Ã£o do Gestor</h4><p>${esc(evaluation.generalNote || "Sem observaÃ§Ã£o geral registrada.")}</p></section>
     <section class="exec-block"><h4>Justificativa do Colaborador</h4><p>${esc(evaluation.justification || "Sem justificativa registrada.")}</p></section>
@@ -1544,16 +1526,13 @@ function drawContainImage(ctx,img,x,y,w,h){
 }
 
 function canvasText(value){
-  return repairText(String(value ?? ""))
+  return repairText(value)
     .replaceAll("âœ“", "OK")
     .replaceAll("â˜…", "★")
     .replaceAll("â˜†", "☆")
     .replaceAll("ï¿½", "")
+    .replace(/\s+/g, " ")
     .trim();
-}
-
-function stripCanvasEmoji(value){
-  return canvasText(value).replace(/[\u{1F300}-\u{1FAFF}]/gu, "").trim();
 }
 
 function drawWrappedText(ctx,text,x,y,maxWidth,lineHeight,maxLines){
@@ -1636,31 +1615,6 @@ async function drawShareArt(evaluation, width=1240, height=1754){
     lines.forEach((line,i)=>ctx.fillText(line,sx(x),sx(y + i*lineHeight)));
     return lines.length * lineHeight;
   };
-  const textBlockJustified = (text,x,y,maxWidth,lineHeight,maxLines=0) => {
-    let lines = wrapLines(text,maxWidth);
-    if(maxLines && lines.length > maxLines){
-      lines = lines.slice(0,maxLines);
-      let last = lines[lines.length-1];
-      while(ctx.measureText(`${last}...`).width > sx(maxWidth) && last.length > 4) last = last.slice(0,-3);
-      lines[lines.length-1] = `${last}...`;
-    }
-    lines.forEach((line,i)=>{
-      const words = line.split(/\s+/).filter(Boolean);
-      const isLast = i === lines.length - 1 || words.length < 3;
-      if(isLast){
-        ctx.fillText(line,sx(x),sx(y + i*lineHeight));
-        return;
-      }
-      const wordsWidth = words.reduce((sum,w)=>sum + ctx.measureText(w).width,0);
-      const gap = Math.max(ctx.measureText(" ").width, (sx(maxWidth) - wordsWidth) / (words.length - 1));
-      let cx = sx(x);
-      words.forEach((word,idx)=>{
-        ctx.fillText(word,cx,sx(y + i*lineHeight));
-        cx += ctx.measureText(word).width + (idx < words.length - 1 ? gap : 0);
-      });
-    });
-    return lines.length * lineHeight;
-  };
 
   if(!evaluation){
     ctx.fillStyle = "#f4f6f9";
@@ -1702,8 +1656,8 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   setFont(700,15);
   let rowsHeight = 46;
   rowData.forEach(row => {
-    const lines = Math.max(wrapLines(row.criteria, 250).length, wrapLines(row.action, 175).length, wrapLines(row.feedback, 300).length, 1);
-    rowsHeight += Math.max(42, lines * 18 + 20);
+    const lines = Math.max(wrapLines(row.criteria, 220).length, wrapLines(row.action, 200).length, wrapLines(row.feedback, 325).length, 1);
+    rowsHeight += Math.max(48, lines * 18 + 22);
   });
   const evidenceHeight = photoEvidence.length ? (108 + Math.ceil(Math.min(photoEvidence.length,12) / 6) * 158) : 0;
   const finalHeight = Math.max(height, sx(760 + rowsHeight + evidenceHeight + 360));
@@ -1717,14 +1671,14 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   ctx.fillRect(0,0,width,sx(142));
   ctx.fillStyle = "#dbeafe";
   ctx.fillRect(sx(880),0,sx(360),sx(142));
-  setFont(800,15,"#cbd5e1"); ctx.fillText("METODO SOBRAL", sx(54), sx(36));
+  setFont(800,15,"#cbd5e1"); ctx.fillText("MÉTODO SOBRAL", sx(54), sx(36));
   setFont(900,34,"#fff"); ctx.fillText("Performance Individual 360", sx(54), sx(76));
-  setFont(600,17,"#d8dee8"); ctx.fillText("Relatorio Executivo de Desenvolvimento", sx(54), sx(108));
+  setFont(600,17,"#d8dee8"); ctx.fillText("Relatório Executivo de Desenvolvimento", sx(54), sx(108));
   const brandBoxX = sx(880), brandBoxW = sx(360), brandCenter = brandBoxX + brandBoxW / 2;
   drawContainImage(ctx,logoZenirImg,brandCenter - sx(150),sx(8),sx(300),sx(66));
   ctx.textAlign = "center";
   setFont(800,15,"#0f172a"); ctx.fillText(state.settings.company || "Empresa", brandCenter, sx(104));
-  setFont(600,12,"#334155"); ctx.fillText(`Data: ${dateText(evaluation.date)} | Periodo: ${evaluation.month || "-"}`, brandCenter, sx(122));
+  setFont(600,12,"#334155"); ctx.fillText(`Data: ${dateText(evaluation.date)} | Período: ${evaluation.month || "-"}`, brandCenter, sx(122));
   ctx.textAlign = "left";
 
   // Colaborador + nota
@@ -1733,8 +1687,8 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   setFont(800,12,"#667085"); ctx.fillText("COLABORADOR", sx(220), sx(204));
   setFont(900,32,"#101827"); textBlock(evaluation.employeeSnapshot.name || "Colaborador",220,248,330,34,2);
   setFont(600,16,"#475467"); textBlock(`${evaluation.employeeSnapshot.role || "-"} | ${evaluation.employeeSnapshot.sector || "-"}`,220,292,380,19,2);
-  textBlock(`Gestor responsavel: ${evaluation.manager || "-"}`,220,326,380,18,1);
-  drawContainImage(ctx,logoFocoImg,sx(574),sx(194),sx(144),sx(144));
+  textBlock(`Gestor responsável: ${evaluation.manager || "-"}`,220,326,380,18,1);
+  drawContainImage(ctx,logoFocoImg,sx(570),sx(192),sx(136),sx(136));
 
   fillCard(750,174,440,170,24);
   ctx.fillStyle = exec.soft; roundRect(ctx,sx(778),sx(202),sx(145),sx(110),sx(18)); ctx.fill();
@@ -1744,7 +1698,7 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   setFont(800,22,exec.color); ctx.fillText(exec.stars, sx(955), sx(272));
   setFont(600,13,"#475467"); textBlock(feedback,955,302,190,16,2);
 
-  const summary = [["OcorrÃªncias",stats.active.length],["Pontos descontados",pointsText(stats.discount)],["Qtd. registros",stats.totalQuantity],["Resolvidas",stats.resolved],["Pendentes",stats.pending],["Tempo mÃ©dio",stats.avgRegularization]];
+  const summary = [["Ocorrências",stats.active.length],["Pontos descontados",pointsText(stats.discount)],["Qtd. registros",stats.totalQuantity],["Resolvidas",stats.resolved],["Pendentes",stats.pending],["Tempo médio",stats.avgRegularization]];
   summary.forEach(([label,value],index)=>{
     const x = 50 + index*190;
     fillCard(x,370,168,78,16,"#fff",false);
@@ -1758,16 +1712,16 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   let y = 482;
   const tableX = 50, tableW = 1140;
   fillCard(tableX,y,tableW,rowsHeight + 38,24,"#fff");
-  setFont(900,24,"#101827"); ctx.fillText("OcorrÃªncias e Status", sx(tableX+28), sx(y+42));
+  setFont(900,24,"#101827"); ctx.fillText("Ocorrências e Status", sx(tableX+28), sx(y+42));
   const startY = y + 70;
   ctx.fillStyle = "#eef2f7"; roundRect(ctx,sx(tableX+28),sx(startY),sx(tableW-56),sx(30),sx(8)); ctx.fill();
   setFont(800,11,"#475467");
   ctx.fillText("CATEGORIA", sx(tableX+44), sx(startY+20));
-  ctx.fillText("CRITERIO", sx(tableX+202), sx(startY+20));
-  ctx.fillText("QTD", sx(tableX+470), sx(startY+20));
-  ctx.fillText("STATUS", sx(tableX+528), sx(startY+20));
-  ctx.fillText("ACAO RECOMENDADA", sx(tableX+630), sx(startY+20));
-  ctx.fillText("FEEDBACK", sx(tableX+812), sx(startY+20));
+  ctx.fillText("CRITÉRIO", sx(tableX+184), sx(startY+20));
+  ctx.fillText("QTD", sx(tableX+438), sx(startY+20));
+  ctx.fillText("STATUS", sx(tableX+492), sx(startY+20));
+  ctx.fillText("AÇÃO RECOMENDADA", sx(tableX+592), sx(startY+20));
+  ctx.fillText("FEEDBACK", sx(tableX+825), sx(startY+20));
 
   let rowY = startY + 46;
   if(!rowData.length){
@@ -1776,30 +1730,32 @@ async function drawShareArt(evaluation, width=1240, height=1754){
   }else{
     rowData.forEach((row,index)=>{
       setFont(700,14,"#101827");
-      const criteriaLines = wrapLines(row.criteria,250).length;
-      const actionLines = wrapLines(row.action,175).length;
-      const feedbackLines = wrapLines(row.feedback,300).length;
-      const rowH = Math.max(42, Math.max(criteriaLines, actionLines, feedbackLines, 1) * 18 + 20);
-      ctx.fillStyle = index % 2 ? "#fff" : "#fbfcfe";
+      const criteriaLines = wrapLines(row.criteria,220).length;
+      const actionLines = wrapLines(row.action,200).length;
+      const feedbackLines = wrapLines(row.feedback,325).length;
+      const rowH = Math.max(48, Math.max(criteriaLines, actionLines, feedbackLines, 1) * 18 + 22);
+      ctx.fillStyle = index % 2 ? "#ffffff" : "#f8fafc";
       roundRect(ctx,sx(tableX+28),sx(rowY-24),sx(tableW-56),sx(rowH),sx(8)); ctx.fill();
-      setFont(700,13,"#334155"); textBlock(row.category,tableX+44,rowY,155,16,3);
-      setFont(700,13,"#101827"); textBlock(row.criteria,tableX+202,rowY,250,18,0);
-      setFont(800,13,"#101827"); ctx.fillText(row.qtd, sx(tableX+478), sx(rowY));
-      setFont(700,13,"#334155"); textBlock(row.status,tableX+528,rowY,104,16,2);
-      setFont(600,13,"#344054"); textBlockJustified(row.action,tableX+630,rowY,166,18,0);
-      setFont(600,13,"#475467"); textBlockJustified(row.feedback,tableX+812,rowY,292,18,0);
+      ctx.strokeStyle = "#e2e8f0"; ctx.lineWidth = Math.max(1, sx(1));
+      ctx.beginPath(); ctx.moveTo(sx(tableX+34), sx(rowY + rowH - 24)); ctx.lineTo(sx(tableX + tableW - 34), sx(rowY + rowH - 24)); ctx.stroke();
+      setFont(700,13,"#334155"); textBlock(row.category,tableX+44,rowY,125,16,3);
+      setFont(700,13,"#101827"); textBlock(row.criteria,tableX+184,rowY,220,18,0);
+      setFont(800,13,"#101827"); ctx.fillText(row.qtd, sx(tableX+446), sx(rowY));
+      setFont(700,13,"#334155"); textBlock(row.status,tableX+492,rowY,88,16,2);
+      setFont(600,13,"#344054"); textBlock(row.action,tableX+592,rowY,200,18,0);
+      setFont(600,13,"#475467"); textBlock(row.feedback,tableX+825,rowY,325,18,0);
       rowY += rowH + 2;
     });
   }
   y = rowY + 34;
 
-  // EvidÃªncias fotogrÃ¡ficas das ocorrÃªncias.
+  // Evidências fotográficas das ocorrências.
   if(photoEvidence.length){
     const thumbs = photoEvidence.slice(0,12);
     const rows = Math.ceil(thumbs.length / 6);
     const cardH = 82 + rows * 158;
     fillCard(50,y,1140,cardH,24,"#fff");
-    setFont(900,22,"#101827"); ctx.fillText("EvidÃªncias fotogrÃ¡ficas", sx(78), sx(y+42));
+    setFont(900,22,"#101827"); ctx.fillText("Evidências fotográficas", sx(78), sx(y+42));
     for(let i=0;i<thumbs.length;i++){
       const evImg = await loadImage(thumbs[i].data);
       const col = i % 6;
@@ -1808,12 +1764,12 @@ async function drawShareArt(evaluation, width=1240, height=1754){
       const ty = y + 66 + row * 158;
       ctx.fillStyle = "#f8fafc"; roundRect(ctx,sx(tx),sx(ty),sx(150),sx(112),sx(14)); ctx.fill();
       if(evImg) drawRoundedImage(ctx,evImg,sx(tx),sx(ty),sx(150),sx(112),sx(14));
-      setFont(700,10,"#475467"); textBlock(thumbs[i].criteriaName || "Evidencia",tx,ty+132,150,12,2);
+      setFont(700,10,"#475467"); textBlock(thumbs[i].criteriaName || "Evidência",tx,ty+132,150,12,2);
     }
     y += cardH + 26;
   }
 
-  // Pontos fortes e mensagem motivacional depois das ocorrÃªncias.
+  // Pontos fortes e mensagem motivacional depois das ocorrências.
   fillCard(50,y,540,220,24,"#fff");
   setFont(900,22,"#101827"); ctx.fillText("Pontos Fortes", sx(78), sx(y+42));
   const badges = positiveCategoryBadges(evaluation).slice(0,6);
@@ -1821,22 +1777,24 @@ async function drawShareArt(evaluation, width=1240, height=1754){
     badges.forEach((badge,index)=>{
       const bx = 78 + (index%2)*238, by = y + 68 + Math.floor(index/2)*42;
       ctx.fillStyle = "#ecfdf3"; roundRect(ctx,sx(bx),sx(by),sx(210),sx(28),sx(14)); ctx.fill();
-      setFont(800,12,"#166534"); textBlock(`OK ${cleanPositiveBadgeLabel(badge)}`,bx+12,by+19,185,13,1);
+      setFont(800,12,"#166534"); textBlock(cleanPositiveBadgeLabel(badge),bx+12,by+19,185,13,1);
     });
   }else{
     setFont(700,14,"#475467"); textBlock("Neste ciclo, os pontos fortes ficam concentrados nas oportunidades que precisam de ajuste.",78,y+78,470,18,3);
   }
-  setFont(600,14,"#475467"); textBlockJustified(strengthsMessage(evaluation),78,y+188,470,17,2);
+  setFont(600,13,"#475467"); textBlock(`Observacao do gestor: ${evaluation.generalNote || "Sem observacao geral registrada."}`,78,y+192,470,16,2);
 
   fillCard(620,y,570,220,24,"#fff");
   setFont(900,22,"#101827"); ctx.fillText("Mensagem ao colaborador", sx(648), sx(y+42));
-  const strongMsg = strengthsMessage(evaluation);
   const message = stats.active.length
-    ? "Existem oportunidades que precisam de atenção e acompanhamento. Ajuste a rotina, cumpra os combinados e transforme cada ponto em evolução visível no próximo ciclo."
-    : strongMsg;
-  setFont(600,18,"#475467"); textBlockJustified(message,648,y+82,488,28,5);
+    ? "Cada ponto registrado representa uma oportunidade clara de evolução. Ajuste a rotina, acompanhe as ações e transforme melhoria em resultado consistente."
+    : "Excelente entrega neste ciclo. Mantenha a disciplina, registre boas práticas e continue sendo referência positiva para a equipe.";
+  setFont(600,18,"#475467"); textBlock(message,648,y+82,488,28,5);
 
-  setFont(700,12,"#98a2b3"); ctx.fillText("Gerado pelo Metodo Sobral Performance 360", sx(50), sx(height/s - 32));
+  setFont(700,12,"#98a2b3"); ctx.fillText("Gerado pelo Método Sobral Performance 360", sx(50), sx(height/s - 32));
+  ctx.textAlign = "right";
+  ctx.fillText("Developed by Fildo Sobral", sx(width/s - 50), sx(height/s - 32));
+  ctx.textAlign = "left";
 }
 async function downloadArt(scale){
   const evaluation = selectedEvaluation();
@@ -1845,13 +1803,11 @@ async function downloadArt(scale){
   const originalLabel = button?.textContent;
   if(button){ button.disabled = true; button.textContent = "Gerando..."; }
   try{
-    // Tamanho otimizado para celular: mantém boa definição e reduz bastante o tempo de geração.
-    const exportWidth = scale === 8 ? 1860 : 1240;
-    const exportHeight = scale === 8 ? 2631 : 1754;
-    await drawShareArt(evaluation, exportWidth, exportHeight);
+    // Geração rápida: baixa a arte já no tamanho da prévia executiva, evitando recriar uma imagem gigante no celular.
+    await drawShareArt(evaluation, 1240, 1754);
     const canvas = $("shareCanvas");
-    const fileName = `performance-${evaluation?.employeeSnapshot?.name || "avaliacao"}.jpg`.replace(/\s+/g,"-").toLowerCase();
-    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", 0.9));
+    const fileName = `performance-${evaluation?.employeeSnapshot?.name || "avaliacao"}.png`.replace(/\s+/g,"-").toLowerCase();
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png", 0.92));
     if(!blob) throw new Error("Falha ao gerar blob da imagem");
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -1867,7 +1823,7 @@ async function downloadArt(scale){
     alert("Não foi possível gerar a imagem. Gere a prévia novamente e tente baixar outra vez.");
   }finally{
     if(button){ button.disabled = false; button.textContent = originalLabel || "Baixar imagem"; }
-    setTimeout(() => { const t=document.getElementById("appToast"); if(t){ t.style.opacity="0"; setTimeout(()=>t.remove(),260); } }, 2600);
+    document.getElementById("appToast")?.remove();
   }
 }
 
@@ -5753,42 +5709,255 @@ else init();
   else inject();
 })();
 
+/* AJUSTE v24 - atualização PWA, backup seguro, menu superior e acabamento final */
+(function sobralUpdateBackupMenuV24(){
+  const APP_INTERNAL_VERSION = "20260708-v24";
+  const BACKUP_KEY = `${STORAGE_KEY}_snapshots_v1`;
 
-/* AJUSTE v22 - acentos, toast, velocidade e mensagem de pontos fortes */
-(function sobralFinalV22(){
-  const originalNotify = window.notify;
-  window.notify = function(message){
-    if(typeof originalNotify === "function") originalNotify(repairText(message));
-    else alert(repairText(message));
-    clearTimeout(window.__sobralToastHardRemove);
-    window.__sobralToastHardRemove = setTimeout(() => {
-      const toast = document.getElementById("appToast");
-      if(toast){
-        toast.style.opacity = "0";
-        toast.style.transform = "translateX(-50%) translateY(12px)";
-        setTimeout(() => toast.remove(), 280);
-      }
-    }, 2800);
-  };
-  function polishText(){
-    document.querySelectorAll("#view-reports .exec-report, #reportOutput").forEach(root => repairVisibleText(root));
+  function safeJsonParse(value, fallback){ try{return JSON.parse(value);}catch{return fallback;} }
+  function backupPayload(reason="manual"){
+    return {
+      app:"Performance Individual 360",
+      version:APP_INTERNAL_VERSION,
+      reason,
+      exportedAt:new Date().toISOString(),
+      storageKey:STORAGE_KEY,
+      data:state
+    };
   }
-  document.addEventListener("click", e => {
-    if(e.target.closest("#saveEvalButton,#downloadImageButton,#downloadPdfButton,#whatsappButton,.tab-button,.side-link")){
-      setTimeout(polishText, 80);
-      setTimeout(polishText, 500);
+  function createLocalSnapshot(reason="seguranca"){
+    try{
+      const list = safeJsonParse(localStorage.getItem(BACKUP_KEY) || "[]", []);
+      list.unshift(backupPayload(reason));
+      localStorage.setItem(BACKUP_KEY, JSON.stringify(list.slice(0,8)));
+      return true;
+    }catch(error){ console.warn("Snapshot não criado", error); return false; }
+  }
+  window.sobralCreateLocalSnapshot = createLocalSnapshot;
+
+  const originalSaveState = window.saveState || saveState;
+  window.saveState = function(){
+    const result = originalSaveState.apply(this, arguments);
+    try{ localStorage.setItem(`${STORAGE_KEY}_lastSafeCopy`, JSON.stringify(backupPayload("copia-segura"))); }catch{}
+    return result;
+  };
+
+  window.exportBackup = function(){
+    try{ originalSaveState(); }catch{}
+    const payload = backupPayload("exportacao-manual");
+    const blob = new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Performance360_Backup_${todayISO()}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    notify("Backup exportado com segurança.");
+  };
+
+  window.importBackup = function(file){
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const raw = JSON.parse(reader.result);
+        const data = raw && raw.data && raw.storageKey ? raw.data : raw;
+        if(!data || !Array.isArray(data.employees) || !Array.isArray(data.categories)) throw new Error("Formato inválido");
+        createLocalSnapshot("antes-da-importacao");
+        state = data;
+        originalSaveState();
+        currentEval = emptyEvaluation();
+        renderAll();
+        notify("Backup importado. Dados restaurados.");
+      }catch(error){
+        console.error(error);
+        alert("Arquivo inválido. Selecione um backup exportado pelo Performance 360.");
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  window.cleanPositiveBadgeLabel = function(value=""){
+    return repairText(String(value || ""))
+      .replace(/^[\s✓✔✅]+/gu, "")
+      .replace(/^ok[\s:;\-–—]+/i, "")
+      .replace(/^ok(?=[A-ZÁÉÍÓÚÂÊÔÃÕÇ])/i, "")
+      .replace(/\s+/g," ")
+      .trim();
+  };
+
+  window.strongPointsMessage = function(evaluation){
+    const names = positiveCategoryBadges(evaluation).map(window.cleanPositiveBadgeLabel).filter(Boolean);
+    const stats = reportStats(evaluation);
+    if(!names.length) return "Neste ciclo, o foco principal é corrigir as oportunidades registradas e transformar os combinados em evolução visível.";
+    const joined = names.slice(0,4).join(", ");
+    if(!stats.active.length){
+      return `Excelente ciclo. Os pontos fortes em ${joined} mostram disciplina, consistência e cuidado com o padrão esperado. Continue sustentando esse desempenho e servindo de referência positiva para a equipe.`;
     }
-  }, true);
-  const style = document.createElement("style");
-  style.id = "sobralFinalV22Style";
-  style.textContent = `
-    #appToast{transition:opacity .22s ease,transform .22s ease!important;pointer-events:none!important;}
-    #view-reports .exec-opportunity-table td:nth-child(5),
-    #view-reports .exec-opportunity-table td:nth-child(6),
-    #view-reports .exec-block p{ text-align:justify!important; text-justify:inter-word!important; hyphens:auto!important; }
-    #view-reports .positive-badges span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  `;
-  if(document.head && !document.getElementById("sobralFinalV22Style")) document.head.appendChild(style);
-  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", polishText, {once:true});
-  else setTimeout(polishText, 80);
+    if(stats.active.length <= 2){
+      return `Há bons fundamentos em ${joined}. Corrija os pontos de oportunidade com atenção e mantenha esses comportamentos fortes como base para evoluir no próximo ciclo.`;
+    }
+    return `Os pontos fortes em ${joined} devem ser usados como apoio para corrigir as oportunidades registradas, cumprir os combinados e entregar evolução consistente.`;
+  };
+
+  window.collaboratorMessage = function(evaluation){
+    const stats = reportStats(evaluation);
+    if(!stats.active.length) return "Parabéns pelo excelente ciclo. Não houve pontos de oportunidade registrados; mantenha a disciplina, preserve o padrão e continue sendo referência positiva para a equipe.";
+    if(stats.active.length <= 2) return "O desempenho apresenta bons sinais, mas os pontos registrados precisam ser tratados com atenção. Ajuste a rotina, cumpra os combinados e transforme cada oportunidade em melhoria concreta.";
+    return "Existem oportunidades que precisam de atenção e acompanhamento. Ajuste a rotina, cumpra os combinados e transforme cada ponto em evolução visível no próximo ciclo.";
+  };
+
+  const previousLoadImage = window.loadImage || loadImage;
+  const imageCache = new Map();
+  window.loadImage = function(src){
+    const key = src || "__default";
+    if(imageCache.has(key)) return imageCache.get(key);
+    const promise = previousLoadImage(src);
+    imageCache.set(key, promise);
+    if(imageCache.size > 35){ const first = imageCache.keys().next().value; imageCache.delete(first); }
+    return promise;
+  };
+
+  const previousDownloadArt = window.downloadArt || downloadArt;
+  window.downloadArt = async function(){
+    const evaluation = selectedEvaluation();
+    if(!evaluation) return alert("Selecione uma avaliação para baixar.");
+    const button = $("downloadImageButton");
+    const originalLabel = button?.textContent || "Baixar imagem";
+    if(button){ button.disabled = true; button.textContent = "Gerando..."; }
+    try{
+      // Tamanho executivo mais leve para celular, mantendo boa definição e reduzindo tempo de download.
+      await drawShareArt(evaluation, 1080, 1528);
+      const canvas = $("shareCanvas");
+      const fileName = `performance-${evaluation?.employeeSnapshot?.name || "avaliacao"}.png`.replace(/\s+/g,"-").toLowerCase();
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png", 0.88));
+      if(!blob) throw new Error("Falha ao gerar imagem");
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),1200);
+      notify("Imagem gerada com sucesso.");
+    }catch(error){
+      console.error(error);
+      return previousDownloadArt();
+    }finally{
+      if(button){ button.disabled = false; button.textContent = originalLabel; }
+      setTimeout(()=>document.getElementById("appToast")?.remove(),2600);
+    }
+  };
+
+  // Pequeno reforço visual depois que o relatório é renderizado.
+  const previousRenderSelectedReport = window.renderSelectedReport || renderSelectedReport;
+  window.renderSelectedReport = function(){
+    const result = previousRenderSelectedReport.apply(this, arguments);
+    setTimeout(() => {
+      document.querySelectorAll(".positive-badges span").forEach(span => { span.textContent = window.cleanPositiveBadgeLabel(span.textContent); });
+      const evaluation = selectedEvaluation();
+      const note = document.querySelector(".strong-points-note");
+      if(note && evaluation) note.textContent = window.strongPointsMessage(evaluation);
+      const blocks = [...document.querySelectorAll(".exec-block")];
+      blocks.forEach(block => {
+        if((block.querySelector("h4")?.textContent || "").includes("Mensagem")){
+          const p = block.querySelector("p");
+          if(p && evaluation) p.textContent = window.collaboratorMessage(evaluation);
+        }
+      });
+    }, 30);
+    return result;
+  };
+
+  function closeMenu(){
+    const panel = $("appMenuPanel"), button = $("appMenuButton");
+    if(panel) panel.hidden = true;
+    if(button) button.setAttribute("aria-expanded","false");
+  }
+  function clearPlatform(){
+    if(!confirm("Antes de limpar, será criada uma cópia de segurança local. Deseja continuar?")) return;
+    createLocalSnapshot("antes-de-limpar");
+    if(!confirm("Confirma apagar os dados desta plataforma neste aparelho?")) return;
+    localStorage.removeItem(STORAGE_KEY);
+    state = structuredClone(defaults);
+    currentEval = emptyEvaluation();
+    originalSaveState();
+    renderAll();
+    notify("Plataforma limpa neste aparelho.");
+  }
+
+  let refreshing = false;
+  function showUpdateBanner(registration){
+    if(document.getElementById("appUpdateBanner")) return;
+    createLocalSnapshot("antes-da-atualizacao");
+    const banner = document.createElement("div");
+    banner.id = "appUpdateBanner";
+    banner.className = "app-update-banner";
+    banner.innerHTML = `<span>Nova atualização disponível.</span><div><button class="update-now" type="button">Atualizar agora</button><button class="update-later" type="button">Depois</button></div>`;
+    document.body.appendChild(banner);
+    banner.querySelector(".update-later").addEventListener("click", () => banner.remove());
+    banner.querySelector(".update-now").addEventListener("click", () => {
+      createLocalSnapshot("atualizacao-confirmada");
+      if(registration?.waiting) registration.waiting.postMessage({type:"SKIP_WAITING"});
+      else location.reload();
+    });
+  }
+  function setupUpdates(){
+    if(!("serviceWorker" in navigator)) return;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if(refreshing) return;
+      refreshing = true;
+      location.reload();
+    });
+    navigator.serviceWorker.getRegistration().then(reg => {
+      if(!reg) return;
+      if(reg.waiting) showUpdateBanner(reg);
+      reg.addEventListener("updatefound", () => {
+        const worker = reg.installing;
+        if(!worker) return;
+        worker.addEventListener("statechange", () => {
+          if(worker.state === "installed" && navigator.serviceWorker.controller) showUpdateBanner(reg);
+        });
+      });
+      setInterval(()=>reg.update().catch(()=>{}), 1000 * 60 * 30);
+    });
+  }
+
+  function bindMenu(){
+    const btn = $("appMenuButton"), panel = $("appMenuPanel");
+    btn?.addEventListener("click", event => {
+      event.stopPropagation();
+      panel.hidden = !panel.hidden;
+      btn.setAttribute("aria-expanded", String(!panel.hidden));
+    });
+    document.addEventListener("click", event => { if(panel && !event.target.closest(".app-menu-wrap")) closeMenu(); });
+    $("menuExportBackupButton")?.addEventListener("click", () => { closeMenu(); window.exportBackup(); });
+    $("menuImportBackupButton")?.addEventListener("click", () => { closeMenu(); $("importBackupInput")?.click(); });
+    $("menuClearPlatformButton")?.addEventListener("click", () => { closeMenu(); clearPlatform(); });
+    $("checkUpdateButton")?.addEventListener("click", async () => {
+      closeMenu();
+      const reg = await navigator.serviceWorker?.getRegistration?.();
+      if(reg){ await reg.update().catch(()=>{}); if(reg.waiting) showUpdateBanner(reg); else notify("Sistema verificado. Se houver atualização, ela aparecerá automaticamente."); }
+      else notify("Atualização automática ativa quando o app estiver instalado.");
+    });
+    // Reaplica os listeners do app original para os botões que agora ficam dentro do menu.
+    $("quickShareButton")?.addEventListener("click", () => { closeMenu(); setView("reports"); renderSelectedReport(); });
+  }
+
+  // Remove toasts presos de versões anteriores.
+  setInterval(() => {
+    const toast = document.getElementById("appToast");
+    if(toast && Date.now() - (Number(toast.dataset.createdAt || 0) || 0) > 3200) toast.remove();
+  }, 1200);
+  const originalNotify = window.notify || notify;
+  window.notify = function(message){
+    originalNotify(message);
+    const toast = document.getElementById("appToast");
+    if(toast){ toast.dataset.createdAt = String(Date.now()); setTimeout(()=>toast.remove(), 2600); }
+  };
+
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => { bindMenu(); setupUpdates(); }, {once:true});
+  else { bindMenu(); setupUpdates(); }
 })();

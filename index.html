@@ -27,9 +27,16 @@
       <h1>Performance Individual 360</h1>
       <p>Ocorrências, feedback, histórico e desenvolvimento contínuo.</p>
     </div>
-    <div class="topbar-actions">
-      <button class="ghost-button" id="installAppButton" type="button" hidden>Instalar app</button>
-      <button class="ghost-button" id="quickShareButton" type="button">Compartilhar</button>
+    <div class="topbar-actions app-menu-wrap">
+      <button class="menu-dot-button" id="appMenuButton" type="button" aria-label="Abrir menu" aria-expanded="false">⋮</button>
+      <div class="app-menu-panel" id="appMenuPanel" hidden>
+        <button id="installAppButton" type="button" hidden>Instalar app</button>
+        <button id="quickShareButton" type="button">Compartilhar plataforma</button>
+        <button id="checkUpdateButton" type="button">Verificar atualização</button>
+        <button id="menuExportBackupButton" type="button">Exportar backup</button>
+        <button id="menuImportBackupButton" type="button">Importar backup</button>
+        <button id="menuClearPlatformButton" type="button" class="danger-menu">Limpar plataforma</button>
+      </div>
     </div>
   </header>
 

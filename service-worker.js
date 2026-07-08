@@ -1,59 +1,38 @@
-const CACHE_NAME = "performance360-v20-final";
-const APP_SHELL = [
-  "./",
-  "./index.html",
-  "./styles.css",
-  "./app.js",
-  "./manifest.json",
-  "./icone-192.png",
-  "./icone-512.png",
-  "./maskable-512.png",
-  "./logo-zenir.png",
-  "./logo-foco.png"
-];
+const CACHE_NAME = 'performance360-cache-v24-20260708';
+const APP_SHELL = ['./','./index.html','./styles.css','./app.js','./manifest.json','./icone-192.png'];
 
-self.addEventListener("install", event => {
-  self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).catch(() => undefined)
-  );
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL).catch(()=>null)));
 });
 
-self.addEventListener("activate", event => {
+self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))))
+    caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))))
       .then(() => self.clients.claim())
   );
 });
 
-self.addEventListener("fetch", event => {
-  if(event.request.method !== "GET") return;
+self.addEventListener('message', event => {
+  if(event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
+});
 
-  const url = new URL(event.request.url);
-  const isAppFile = url.pathname.endsWith("/") ||
-    url.pathname.endsWith("/index.html") ||
-    url.pathname.endsWith("/manifest.json") ||
-    url.pathname.endsWith("/service-worker.js");
-
+self.addEventListener('fetch', event => {
+  const request = event.request;
+  if(request.method !== 'GET') return;
+  const url = new URL(request.url);
+  const isAppFile = url.origin === self.location.origin && /\/(index\.html|styles\.css|app\.js|service-worker\.js)?$/.test(url.pathname);
   if(isAppFile){
     event.respondWith(
-      fetch(event.request, {cache:"no-store"})
-        .then(response => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy)).catch(() => undefined);
-          return response;
-        })
-        .catch(() => caches.match(event.request).then(cached => cached || caches.match("./index.html")))
+      fetch(request, {cache:'no-store'}).then(response => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+        return response;
+      }).catch(() => caches.match(request).then(cached => cached || caches.match('./index.html')))
     );
     return;
   }
-
-  event.respondWith(
-    caches.match(event.request).then(cached => cached || fetch(event.request).then(response => {
-      const copy = response.clone();
-      caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy)).catch(() => undefined);
-      return response;
-    }))
-  );
+  event.respondWith(caches.match(request).then(cached => cached || fetch(request).then(response => {
+    if(response && response.ok){ const copy = response.clone(); caches.open(CACHE_NAME).then(cache => cache.put(request, copy)); }
+    return response;
+  }).catch(()=>cached)));
 });

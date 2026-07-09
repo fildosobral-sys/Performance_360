@@ -1,4 +1,4 @@
-﻿"use strict";
+"use strict";
 
 const STORAGE_KEY = "fsPerformanceIndividual360_v1";
 const $ = id => document.getElementById(id);
@@ -2207,7 +2207,7 @@ function setupEvents(){
     if(event.target.id === "dashboardSector") renderDashboard();
     if(event.target.id === "reportEvaluation") renderSelectedReport();
     if(event.target.id === "employeePhoto" && event.target.files[0]) fileToDataUrl(event.target.files[0]).then(src => $("employeePhotoPreview").src = src);
-    if(event.target.id === "importBackupInput" && event.target.files[0]) importBackup(event.target.files[0]);
+    if(event.target.id === "importBackupInput" && event.target.files[0]) window.importBackup(event.target.files[0]);
     if(event.target.id === "correctiveAction") $("correctiveOtherWrap").hidden = event.target.value !== "Outro";
     if(event.target.closest("#view-settings")) persistSettingsFromInputs();
   });
@@ -2232,7 +2232,7 @@ function setupEvents(){
   $("downloadPdfButton").addEventListener("click", () => window.print());
   $("whatsappButton").addEventListener("click", sendEvaluationWhatsApp);
   $("quickShareButton").addEventListener("click", () => { setView("reports"); renderSelectedReport(); });
-  $("exportBackupButton").addEventListener("click", exportBackup);
+  $("exportBackupButton").addEventListener("click", () => window.exportBackup());
   $("resetDataButton").addEventListener("click", () => { if(confirm("Apagar todos os dados locais?")){ localStorage.removeItem(STORAGE_KEY); state = structuredClone(defaults); currentEval = emptyEvaluation(); renderAll(); } });
   $("evalDate").addEventListener("change", () => currentEval.date = $("evalDate").value);
   $("evalMonth").addEventListener("change", () => currentEval.month = $("evalMonth").value);
@@ -5751,39 +5751,85 @@ else init();
     return result;
   };
 
-  window.exportBackup = function(){
-    try{ originalSaveState(); }catch{}
-    const payload = backupPayload("exportacao-manual");
-    const blob = new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  async function saveBlobOnDevice(blob, fileName, successMessage){
+    const file = new File([blob], fileName, {type: blob.type || "application/json"});
+    const canShareFile = Boolean(navigator.canShare && navigator.canShare({files:[file]}));
+    if(canShareFile){
+      try{
+        await navigator.share({files:[file], title:fileName, text:"Backup do Performance 360"});
+        notify(successMessage || "Arquivo pronto para salvar/compartilhar.");
+        return true;
+      }catch(error){
+        if(error && error.name === "AbortError") return false;
+        console.warn("Compartilhamento indisponível, tentando download direto", error);
+      }
+    }
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `Performance360_Backup_${todayISO()}.json`;
+    link.download = fileName;
+    link.rel = "noopener";
     document.body.appendChild(link);
     link.click();
     link.remove();
-    setTimeout(()=>URL.revokeObjectURL(url),1000);
-    notify("Backup exportado com segurança.");
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+    notify(successMessage || "Download iniciado.");
+    return true;
+  }
+
+  window.Performance360DataService = {
+    storageKey: STORAGE_KEY,
+    carregarDados(){ return safeJsonParse(localStorage.getItem(STORAGE_KEY) || "null", null); },
+    salvarDados(nextState){ localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState)); },
+    exportarBackup(){ return backupPayload("exportacao-manual"); },
+    importarBackup(raw){ return raw && raw.data && raw.storageKey ? raw.data : raw; },
+    sincronizarDados(){
+      console.info("Sincronização em tempo real exige banco online, como Firebase Firestore ou Supabase. localStorage não sincroniza entre aparelhos nem por Wi-Fi.");
+      return false;
+    }
+  };
+
+  window.exportBackup = async function(){
+    try{ originalSaveState(); }catch{}
+    const payload = backupPayload("exportacao-manual");
+    const fileName = `Performance360_Backup_${todayISO()}.json`;
+    const blob = new Blob([JSON.stringify(payload,null,2)],{type:"application/json;charset=utf-8"});
+    await saveBlobOnDevice(blob, fileName, "Backup exportado com segurança.");
   };
 
   window.importBackup = function(file){
+    if(!file) return;
     const reader = new FileReader();
     reader.onload = () => {
       try{
         const raw = JSON.parse(reader.result);
-        const data = raw && raw.data && raw.storageKey ? raw.data : raw;
-        if(!data || !Array.isArray(data.employees) || !Array.isArray(data.categories)) throw new Error("Formato inválido");
+        const data = window.Performance360DataService.importarBackup(raw);
+        const isWrapper = Boolean(raw && raw.app === "Performance Individual 360" && raw.storageKey === STORAGE_KEY && raw.data);
+        const isLegacy = Boolean(data && Array.isArray(data.employees) && Array.isArray(data.categories));
+        if(!isLegacy) throw new Error("Formato inválido");
+        if(raw && raw.storageKey && raw.storageKey !== STORAGE_KEY) throw new Error("Chave de armazenamento diferente");
+        const totalEmployees = Array.isArray(data.employees) ? data.employees.length : 0;
+        const totalEvaluations = Array.isArray(data.evaluations) ? data.evaluations.length : 0;
+        const message = isWrapper
+          ? `Importar este backup do Performance 360?\n\nExportado em: ${dateTimeText(raw.exportedAt)}\nColaboradores: ${totalEmployees}\nAvaliações: ${totalEvaluations}\n\nOs dados atuais deste aparelho serão substituídos.`
+          : `Importar este arquivo de backup?\n\nColaboradores: ${totalEmployees}\nAvaliações: ${totalEvaluations}\n\nOs dados atuais deste aparelho serão substituídos.`;
+        if(!confirm(message)) return;
         createLocalSnapshot("antes-da-importacao");
-        state = data;
+        state = {...structuredClone(defaults), ...data, settings:{...defaults.settings, ...(data.settings || {})}};
+        migrateCoreCategories(state);
         originalSaveState();
         currentEval = emptyEvaluation();
         renderAll();
-        notify("Backup importado. Dados restaurados.");
+        notify("Backup importado. Dados restaurados neste aparelho.");
       }catch(error){
         console.error(error);
-        alert("Arquivo inválido. Selecione um backup exportado pelo Performance 360.");
+        alert("Arquivo inválido. Selecione um backup JSON exportado pelo Performance 360.");
+      }finally{
+        const input = $("importBackupInput");
+        if(input) input.value = "";
       }
     };
+    reader.onerror = () => alert("Não foi possível ler o arquivo. Tente selecionar o backup novamente.");
     reader.readAsText(file);
   };
 

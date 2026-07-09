@@ -1,4 +1,4 @@
-const CACHE_NAME = 'p360-v29';
+const CACHE_NAME = 'p360-v30-backup-mobile';
 const APP_SHELL = ['./','./index.html','./styles.css','./app.js','./manifest.json','./icone-192.png'];
 
 self.addEventListener('install', event => {

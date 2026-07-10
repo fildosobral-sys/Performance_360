@@ -7207,5 +7207,163 @@ else init();
   setTimeout(boot, 1800);
 })();
 
-/* AJUSTE v38 - sincronizacao Wi-Fi anexada no fim absoluto */
+/* AJUSTE v41 - sincronizacao por Google Sheets */
+(function sobralSheetsSyncV41(){
+  const CLOUD_URL = "https://script.google.com/macros/s/AKfycbwnEFspShYAV7nJDH9fbnP1xPS_ywKm208AKpFRUctoM9TruYTojHQE1AqhJQlJf-2J/exec";
+  const STAMP_KEY = `${STORAGE_KEY}_cloud_updated_at`;
+  const SYNC_INTERVAL = 45000;
+  let pulling = false;
+  let pushing = false;
+  let booted = false;
+  let lastRemoteStamp = localStorage.getItem(STAMP_KEY) || "";
+  let pushTimer = null;
+  let originalSaveState = null;
+
+  function hasUsefulData(data){
+    return Boolean(data && (
+      (Array.isArray(data.employees) && data.employees.length) ||
+      (Array.isArray(data.evaluations) && data.evaluations.length) ||
+      (Array.isArray(data.categories) && data.categories.length)
+    ));
+  }
+
+  function normalizeRemoteState(data){
+    const base = typeof defaults !== "undefined" ? structuredClone(defaults) : {};
+    const next = {...base, ...(data || {}), settings:{...(base.settings || {}), ...((data || {}).settings || {})}};
+    if(typeof migrateCoreCategories === "function") migrateCoreCategories(next);
+    return next;
+  }
+
+  function status(text, ok){
+    let el = document.getElementById("cloudSyncStatus");
+    if(!el){
+      el = document.createElement("button");
+      el.id = "cloudSyncStatus";
+      el.type = "button";
+      el.setAttribute("aria-label", "Status da nuvem");
+      el.style.cssText = "position:fixed;right:12px;top:12px;z-index:99998;border:0;border-radius:999px;padding:8px 10px;font:800 11px system-ui,-apple-system,Segoe UI,sans-serif;box-shadow:0 10px 25px rgba(15,23,42,.14);background:#eef2ff;color:#334155;opacity:.94";
+      document.body.appendChild(el);
+    }
+    el.textContent = text;
+    el.style.background = ok ? "#dcfce7" : "#eef2ff";
+    el.style.color = ok ? "#166534" : "#334155";
+    clearTimeout(el._hideTimer);
+    el._hideTimer = setTimeout(() => { el.style.opacity = ".22"; }, ok ? 2500 : 4200);
+  }
+
+  function jsonp(action){
+    return new Promise((resolve, reject) => {
+      const callback = `p360Cloud_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+      const script = document.createElement("script");
+      const separator = CLOUD_URL.includes("?") ? "&" : "?";
+      const timeout = setTimeout(() => {
+        cleanup();
+        reject(new Error("Tempo esgotado ao consultar a nuvem"));
+      }, 15000);
+
+      function cleanup(){
+        clearTimeout(timeout);
+        delete window[callback];
+        script.remove();
+      }
+
+      window[callback] = payload => {
+        cleanup();
+        resolve(payload || {});
+      };
+
+      script.onerror = () => {
+        cleanup();
+        reject(new Error("Nao foi possivel consultar a nuvem"));
+      };
+
+      script.src = `${CLOUD_URL}${separator}action=${encodeURIComponent(action)}&callback=${encodeURIComponent(callback)}&_=${Date.now()}`;
+      document.head.appendChild(script);
+    });
+  }
+
+  async function pullCloud(initial){
+    if(pulling) return;
+    pulling = true;
+    try{
+      const payload = await jsonp("state");
+      if(!payload || payload.ok === false) throw new Error(payload?.error || "Resposta invalida da nuvem");
+
+      const remoteData = payload.data || {};
+      const remoteStamp = payload.updatedAt || "";
+
+      if(hasUsefulData(remoteData) && remoteStamp && remoteStamp !== lastRemoteStamp){
+        state = normalizeRemoteState(remoteData);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        lastRemoteStamp = remoteStamp;
+        localStorage.setItem(STAMP_KEY, lastRemoteStamp);
+        if(typeof renderAll === "function") renderAll();
+        status("Nuvem atualizada", true);
+      }else if(initial && !hasUsefulData(remoteData) && hasUsefulData(state)){
+        status("Enviando para nuvem", false);
+        await pushCloud("primeira-carga");
+      }else{
+        status("Nuvem conectada", true);
+      }
+    }catch(error){
+      console.warn("P360 cloud pull", error);
+      status("Nuvem offline", false);
+    }finally{
+      pulling = false;
+    }
+  }
+
+  async function pushCloud(reason){
+    if(pushing || pulling) return;
+    pushing = true;
+    try{
+      const payload = {
+        action: "saveState",
+        source: reason || "app",
+        clientTime: new Date().toISOString(),
+        data: state
+      };
+      await fetch(CLOUD_URL, {
+        method: "POST",
+        mode: "no-cors",
+        body: JSON.stringify(payload)
+      });
+      lastRemoteStamp = new Date().toISOString();
+      localStorage.setItem(STAMP_KEY, lastRemoteStamp);
+      status("Salvo na nuvem", true);
+    }catch(error){
+      console.warn("P360 cloud push", error);
+      status("Nuvem sem salvar", false);
+    }finally{
+      pushing = false;
+    }
+  }
+
+  function schedulePush(reason){
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(() => pushCloud(reason || "saveState"), 900);
+  }
+
+  function wrapSaveState(){
+    if(originalSaveState || typeof saveState !== "function") return;
+    originalSaveState = saveState;
+    saveState = function(){
+      const result = originalSaveState.apply(this, arguments);
+      schedulePush("saveState");
+      return result;
+    };
+  }
+
+  function boot(){
+    if(booted) return;
+    booted = true;
+    wrapSaveState();
+    status("Conectando nuvem", false);
+    pullCloud(true);
+    setInterval(() => pullCloud(false), SYNC_INTERVAL);
+  }
+
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, {once:true});
+  else boot();
+})();
 

@@ -68,9 +68,11 @@ Para trocar de aparelho ou preservar os registros, use o botao `Backup JSON` e d
 
 ## Planilha na nuvem
 
-Para usar uma base central entre computador e celular, crie um backend no Google Sheets com o arquivo `GOOGLE_SHEETS_BACKEND.gs`.
+Para usar uma base central entre computador e celular, foi criado um backend no Google Sheets com o arquivo `GOOGLE_SHEETS_BACKEND.gs`.
 
 O passo a passo esta em `COMO_USAR_PLANILHA_NUVEM.txt`.
+
+A URL do Web App ja esta configurada no `app.js`.
 
 ## Observacao
 

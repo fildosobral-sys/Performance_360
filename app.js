@@ -2601,6 +2601,410 @@ else init();
   }
 })();
 
+/* AJUSTE v33 - performance: bloqueia handlers duplicados de imagem e backup */
+(function sobralPerformanceGuardV33(){
+  let imageBusy = false;
+  let backupBusy = false;
+
+  function cleanFileNameV33(value){
+    return String(value || "colaborador")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/gi, "-")
+      .replace(/^-+|-+$/g, "")
+      .toLowerCase() || "colaborador";
+  }
+
+  function notifyV33(message){
+    if(typeof notify === "function") notify(message);
+  }
+
+  function selectedReportEvaluationV33(){
+    try{
+      if(typeof selectedEvaluation === "function"){
+        const selected = selectedEvaluation();
+        if(selected) return selected;
+      }
+    }catch{}
+    const id = document.getElementById("reportEvaluation")?.value;
+    if(id && Array.isArray(state?.evaluations)){
+      const found = state.evaluations.find(item => item.id === id);
+      if(found) return found;
+    }
+    if(Array.isArray(state?.evaluations) && state.evaluations.length){
+      return state.evaluations[state.evaluations.length - 1];
+    }
+    return null;
+  }
+
+  function downloadBlobV33(blob, fileName){
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.rel = "noopener";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1200);
+  }
+
+  async function downloadImageV33(button){
+    if(imageBusy) return;
+    imageBusy = true;
+    const original = button?.textContent || "Baixar imagem";
+    if(button){
+      button.disabled = true;
+      button.textContent = "Gerando...";
+    }
+    try{
+      const evaluation = selectedReportEvaluationV33();
+      if(!evaluation) throw new Error("Nenhuma avaliacao selecionada.");
+      await Promise.resolve(drawShareArt(evaluation, 1080, 1528));
+      const canvas = document.getElementById("shareCanvas");
+      if(!canvas || !canvas.width || !canvas.height) throw new Error("Canvas da arte nao encontrado.");
+      const blob = await new Promise(resolve => {
+        try{ canvas.toBlob(resolve, "image/jpeg", 0.76); }catch{ resolve(null); }
+      });
+      const fileName = `performance-${cleanFileNameV33(evaluation.employeeSnapshot?.name)}.jpg`;
+      if(blob) downloadBlobV33(blob, fileName);
+      else{
+        const link = document.createElement("a");
+        link.href = canvas.toDataURL("image/jpeg", 0.76);
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }
+      notifyV33("Imagem gerada com sucesso.");
+    }catch(error){
+      console.error(error);
+      alert("Nao foi possivel baixar a imagem. Abra Relatorios, selecione uma avaliacao e tente novamente.");
+    }finally{
+      imageBusy = false;
+      if(button){
+        button.disabled = false;
+        button.textContent = original;
+      }
+    }
+  }
+
+  function exportBackupV33(button){
+    if(backupBusy) return;
+    backupBusy = true;
+    const original = button?.textContent || "Backup JSON";
+    if(button){
+      button.disabled = true;
+      button.textContent = "Gerando...";
+    }
+    try{
+      if(typeof saveState === "function") saveState();
+      const payload = {
+        app: "Performance Individual 360",
+        version: "20260710-v33-performance",
+        exportedAt: new Date().toISOString(),
+        storageKey: typeof STORAGE_KEY !== "undefined" ? STORAGE_KEY : "performance360",
+        data: state
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json;charset=utf-8"});
+      const date = typeof todayISO === "function" ? todayISO() : new Date().toISOString().slice(0,10);
+      downloadBlobV33(blob, `Performance360_Backup_${date}.json`);
+      notifyV33("Backup JSON gerado.");
+    }catch(error){
+      console.error(error);
+      alert("Nao foi possivel gerar o backup neste aparelho.");
+    }finally{
+      backupBusy = false;
+      if(button){
+        button.disabled = false;
+        button.textContent = original;
+      }
+    }
+  }
+
+  window.addEventListener("click", event => {
+    const imageButton = event.target?.closest?.("#downloadImageButton");
+    if(imageButton){
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      downloadImageV33(imageButton);
+      return;
+    }
+    const backupButton = event.target?.closest?.("#exportBackupButton");
+    if(backupButton){
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      exportBackupV33(backupButton);
+    }
+  }, true);
+
+  function inject(){
+    if(!document.getElementById("sobralPerformanceGuardV33Style")){
+      const style = document.createElement("style");
+      style.id = "sobralPerformanceGuardV33Style";
+      style.textContent = `
+        #downloadImageButton:disabled,#exportBackupButton:disabled{opacity:.72!important;cursor:wait!important}
+      `;
+      document.head.appendChild(style);
+    }
+    document.getElementById("downloadImageButton")?.removeAttribute("disabled");
+    document.getElementById("exportBackupButton")?.removeAttribute("disabled");
+  }
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", inject, {once:true});
+  else inject();
+  setTimeout(inject, 500);
+  setTimeout(inject, 1800);
+})();
+
+/* AJUSTE v31 - ultima camada obrigatoria: grafico sem sobreposicao e colaborador fechado */
+(function sobralFinalV31(){
+  const clean = value => {
+    const text = typeof repairText === "function" ? repairText(String(value || "")) : String(value || "");
+    return text.replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu,"").replace(/ðŸ\S*|âœ\S*|âš\S*|â\S*/g,"").replace(/\s+/g," ").trim();
+  };
+  const short = (value, max=34) => {
+    const text = clean(value);
+    return text.length > max ? `${text.slice(0, max - 3).trim()}...` : text;
+  };
+  const safe = value => typeof esc === "function" ? esc(value) : String(value || "").replace(/[&<>"']/g, s => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[s]));
+
+  function currentRows(type){
+    try{
+      const fn = window.chartRows || (typeof chartRows === "function" ? chartRows : null);
+      const data = fn ? fn(type) : {title:"Dashboard grafico", metric:"Registros", rows:[]};
+      return {
+        title: clean(data.title || "Dashboard grafico"),
+        metric: clean(data.metric || "Registros"),
+        rows: (data.rows || []).filter(row => clean(row.label) && !normalize(clean(row.label)).includes("sem dados")).slice(0, 12)
+      };
+    }catch{
+      return {title:"Dashboard grafico", metric:"Registros", rows:[]};
+    }
+  }
+
+  function horizontalHtml(data){
+    const max = Math.max(...data.rows.map(row => Number(row.value) || 0), 1);
+    return `<div class="horizontal-chart-v31">${data.rows.map(row => {
+      const value = Number(row.value) || 0;
+      const pct = Math.max(value ? 4 : 1, Math.min(100, (value / max) * 100));
+      const label = clean(row.label);
+      const text = clean(row.text ?? scoreText(value));
+      return `<div class="hbar-row-v31"><strong title="${safe(label)}">${safe(short(label, 34))}</strong><span><i style="width:${pct}%"></i></span><b>${safe(text)}</b></div>`;
+    }).join("")}</div>`;
+  }
+
+  window.openDashboardChart = function(type){
+    const data = currentRows(type);
+    const dialog = ensureChartDialog();
+    const printable = dialog.querySelector("#chartPrintable");
+    if(!data.rows.length){
+      printable.innerHTML = `<header class="chart-exec-header"><span>METODO SOBRAL</span><h2>${safe(data.title)}</h2><p>${safe(data.metric)} - ${dateText(new Date().toISOString().slice(0,10))}</p></header><div class="chart-exec-body"><div class="chart-empty-state"><strong>Sem dados para gerar grafico.</strong><span>Salve avaliacoes para visualizar este indicador.</span></div></div>`;
+    }else{
+      printable.innerHTML = `<header class="chart-exec-header"><span>METODO SOBRAL</span><h2>${safe(data.title)}</h2><p>${safe(data.metric)} - ${dateText(new Date().toISOString().slice(0,10))}</p></header><div class="chart-exec-body"><div class="chart-plot-card v31-chart-card"><h3>Dashboard grafico</h3><p>Ranking organizado para leitura executiva</p>${horizontalHtml(data)}</div></div>`;
+    }
+    dialog.querySelectorAll(".chart-close").forEach(button => button.textContent = "X");
+    dialog.showModal();
+  };
+
+  window.downloadChartImage = function(){
+    const printable = document.getElementById("chartPrintable");
+    const title = clean(printable?.querySelector("h2")?.textContent || "grafico");
+    const rows = [...(printable?.querySelectorAll(".hbar-row-v31") || [])].map(node => ({
+      label: clean(node.querySelector("strong")?.getAttribute("title") || node.querySelector("strong")?.textContent || ""),
+      text: clean(node.querySelector("b")?.textContent || ""),
+      pct: parseFloat(node.querySelector("i")?.style.width || "0")
+    }));
+    const canvas = document.createElement("canvas");
+    canvas.width = 1600;
+    canvas.height = 900;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#eef2f7"; ctx.fillRect(0,0,1600,900);
+    ctx.fillStyle = "#101827"; ctx.fillRect(0,0,1600,150);
+    ctx.fillStyle = "#fff"; ctx.font = "700 44px Arial"; ctx.textAlign = "left"; ctx.fillText(title,80,74);
+    ctx.font = "500 24px Arial"; ctx.fillText("Metodo Sobral - Performance Individual 360",80,116);
+    ctx.fillStyle = "#fff"; roundRect(ctx,60,185,1480,655,28,true,false);
+    ctx.fillStyle = "#334155"; ctx.font = "700 28px Arial"; ctx.fillText("Dashboard grafico",120,242);
+    const list = rows.length ? rows : [{label:"Sem dados", text:"0", pct:0}];
+    const rowH = Math.min(56, Math.floor(470 / Math.max(list.length, 1)));
+    list.forEach((row, index) => {
+      const y = 305 + index * rowH;
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "#0f172a"; ctx.font = "700 18px Arial"; ctx.textAlign = "right"; ctx.fillText(short(row.label, 32), 455, y + rowH / 2);
+      ctx.fillStyle = "#e8eef7"; roundRect(ctx,485,y + rowH * .22,760,rowH * .56,12,true,false);
+      ctx.fillStyle = "#2563eb"; roundRect(ctx,485,y + rowH * .22,Math.max(10,760 * (row.pct / 100)),rowH * .56,12,true,false);
+      ctx.fillStyle = "#0f172a"; ctx.font = "800 18px Arial"; ctx.textAlign = "left"; ctx.fillText(row.text, 1272, y + rowH / 2);
+    });
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png", 1);
+    a.download = `${title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-")}.png`;
+    a.click();
+  };
+
+  function patch(){
+    const form = document.getElementById("employeeForm");
+    if(form && !form.dataset.userOpened && !form.querySelector("#employeeId")?.value) form.hidden = true;
+    document.querySelectorAll("#rankingSector .ranking-row,#rankingCategory .ranking-row").forEach(row => {
+      row.querySelectorAll(".ranking-icon,.rank-emoji").forEach(icon => icon.remove());
+      const label = row.querySelector("div strong");
+      if(label){
+        const full = clean(label.title || label.textContent);
+        label.title = full;
+        label.textContent = short(full, row.closest("#rankingCategory") ? 30 : 26);
+      }
+    });
+  }
+
+  function inject(){
+    if(!document.getElementById("sobralFinalV31Style")){
+      const style = document.createElement("style");
+      style.id = "sobralFinalV31Style";
+      style.textContent = `
+        #employeeForm[hidden]{display:none!important}
+        #rankingSector .ranking-row,#rankingCategory .ranking-row{display:grid!important;grid-template-columns:minmax(0,1fr) 54px!important;gap:12px!important;align-items:center!important;min-height:58px!important}
+        #rankingSector .ranking-icon,#rankingCategory .ranking-icon,#rankingSector .rank-emoji,#rankingCategory .rank-emoji{display:none!important}
+        #rankingSector .ranking-row div,#rankingCategory .ranking-row div{min-width:0!important}
+        #rankingSector .ranking-row div strong,#rankingCategory .ranking-row div strong{display:block!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+        #rankingSector .ranking-row div small,#rankingCategory .ranking-row div small{display:block!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+        .v31-chart-card{overflow:hidden!important}
+        .horizontal-chart-v31{display:flex!important;flex-direction:column!important;gap:14px!important;padding:20px 8px 4px!important}
+        .hbar-row-v31{display:grid!important;grid-template-columns:minmax(150px,270px) minmax(180px,1fr) 54px!important;gap:14px!important;align-items:center!important;min-height:30px!important}
+        .hbar-row-v31 strong{text-align:right!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;font-size:13px!important;color:#0f172a!important}
+        .hbar-row-v31 span{height:18px!important;border-radius:999px!important;background:#e8eef7!important;overflow:hidden!important}
+        .hbar-row-v31 i{display:block!important;height:100%!important;border-radius:999px!important;background:#2563eb!important}
+        .hbar-row-v31 b{font-size:13px!important;color:#0f172a!important}
+        @media(max-width:720px){.hbar-row-v31{grid-template-columns:minmax(105px,155px) minmax(90px,1fr) 38px!important;gap:8px!important}.hbar-row-v31 strong,.hbar-row-v31 b{font-size:11px!important}}
+      `;
+      document.head.appendChild(style);
+    }
+    patch();
+  }
+
+  document.addEventListener("click", event => {
+    if(event.target.closest("#newEmployeeButton,[data-edit-employee]")){
+      const form = document.getElementById("employeeForm");
+      if(form){ form.dataset.userOpened = "true"; form.hidden = false; }
+    }
+    if(event.target.closest("#cancelEmployeeButton")){
+      const form = document.getElementById("employeeForm");
+      if(form){ delete form.dataset.userOpened; form.hidden = true; }
+    }
+  }, true);
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", inject, {once:true});
+  else inject();
+  [200,800,1800,3200].forEach(delay => setTimeout(inject, delay));
+})();
+
+/* AJUSTE v34 - guarda final real para download e backup */
+(function sobralLastPerformanceGuardV34(){
+  let imageBusy = false;
+  let backupBusy = false;
+  const fileName = value => String(value || "colaborador").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/gi,"-").replace(/^-+|-+$/g,"").toLowerCase() || "colaborador";
+  const toast = message => { if(typeof notify === "function") notify(message); };
+  function currentEvaluation(){
+    try{ if(typeof selectedEvaluation === "function"){ const item = selectedEvaluation(); if(item) return item; } }catch{}
+    const id = document.getElementById("reportEvaluation")?.value;
+    if(id && Array.isArray(state?.evaluations)){
+      const found = state.evaluations.find(item => item.id === id);
+      if(found) return found;
+    }
+    return Array.isArray(state?.evaluations) && state.evaluations.length ? state.evaluations[state.evaluations.length - 1] : null;
+  }
+  function saveBlob(blob, name){
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = name;
+    link.rel = "noopener";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1200);
+  }
+  async function imageDownload(button){
+    if(imageBusy) return;
+    imageBusy = true;
+    const original = button?.textContent || "Baixar imagem";
+    if(button){ button.disabled = true; button.textContent = "Gerando..."; }
+    try{
+      const evaluation = currentEvaluation();
+      if(!evaluation) throw new Error("Sem avaliacao selecionada.");
+      await Promise.resolve(drawShareArt(evaluation, 1080, 1528));
+      const canvas = document.getElementById("shareCanvas");
+      if(!canvas || !canvas.width || !canvas.height) throw new Error("Canvas nao encontrado.");
+      const blob = await new Promise(resolve => { try{ canvas.toBlob(resolve, "image/jpeg", 0.76); }catch{ resolve(null); } });
+      const name = `performance-${fileName(evaluation.employeeSnapshot?.name)}.jpg`;
+      if(blob) saveBlob(blob, name);
+      else{
+        const link = document.createElement("a");
+        link.href = canvas.toDataURL("image/jpeg", 0.76);
+        link.download = name;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }
+      toast("Imagem gerada com sucesso.");
+    }catch(error){
+      console.error(error);
+      alert("Nao foi possivel baixar a imagem. Abra Relatorios, selecione uma avaliacao e tente novamente.");
+    }finally{
+      imageBusy = false;
+      if(button){ button.disabled = false; button.textContent = original; }
+    }
+  }
+  function backupDownload(button){
+    if(backupBusy) return;
+    backupBusy = true;
+    const original = button?.textContent || "Backup JSON";
+    if(button){ button.disabled = true; button.textContent = "Gerando..."; }
+    try{
+      if(typeof saveState === "function") saveState();
+      const payload = {
+        app:"Performance Individual 360",
+        version:"20260710-v34-performance",
+        exportedAt:new Date().toISOString(),
+        storageKey:typeof STORAGE_KEY !== "undefined" ? STORAGE_KEY : "performance360",
+        data:state
+      };
+      const date = typeof todayISO === "function" ? todayISO() : new Date().toISOString().slice(0,10);
+      saveBlob(new Blob([JSON.stringify(payload,null,2)], {type:"application/json;charset=utf-8"}), `Performance360_Backup_${date}.json`);
+      toast("Backup JSON gerado.");
+    }catch(error){
+      console.error(error);
+      alert("Nao foi possivel gerar o backup neste aparelho.");
+    }finally{
+      backupBusy = false;
+      if(button){ button.disabled = false; button.textContent = original; }
+    }
+  }
+  window.addEventListener("click", event => {
+    const imageButton = event.target?.closest?.("#downloadImageButton");
+    if(imageButton){
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      imageDownload(imageButton);
+      return;
+    }
+    const backupButton = event.target?.closest?.("#exportBackupButton");
+    if(backupButton){
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      backupDownload(backupButton);
+    }
+  }, true);
+  function boot(){
+    document.getElementById("downloadImageButton")?.removeAttribute("disabled");
+    document.getElementById("exportBackupButton")?.removeAttribute("disabled");
+  }
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, {once:true});
+  else boot();
+  setTimeout(boot, 500);
+  setTimeout(boot, 1800);
+})();
+
 
 /* =========================================================
    AJUSTE FINAL V2 - Ãcones, grÃ¡ficos e acabamento dos relatÃ³rios
@@ -6556,4 +6960,248 @@ else init();
   document.addEventListener('click', instantDownload, true);
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot, {once:true}); else boot();
   setTimeout(boot,300); setTimeout(boot,1200);
+})();
+
+/* AJUSTE v32 - override no fim real do arquivo */
+(function sobralLastWordV32(){
+  const clean = value => {
+    const text = typeof repairText === "function" ? repairText(String(value || "")) : String(value || "");
+    return text.replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/gu,"").replace(/ðŸ\S*|âœ\S*|âš\S*|â\S*/g,"").replace(/\s+/g," ").trim();
+  };
+  const short = (value, max=34) => {
+    const text = clean(value);
+    return text.length > max ? `${text.slice(0, max - 3).trim()}...` : text;
+  };
+  const safe = value => typeof esc === "function" ? esc(value) : String(value || "").replace(/[&<>"']/g, s => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[s]));
+
+  function chartData(type){
+    try{
+      const fn = window.chartRows || (typeof chartRows === "function" ? chartRows : null);
+      const data = fn ? fn(type) : {title:"Dashboard grafico", metric:"Registros", rows:[]};
+      return {
+        title: clean(data.title || "Dashboard grafico"),
+        metric: clean(data.metric || "Registros"),
+        rows: (data.rows || []).filter(row => clean(row.label) && !normalize(clean(row.label)).includes("sem dados")).slice(0,12)
+      };
+    }catch{
+      return {title:"Dashboard grafico", metric:"Registros", rows:[]};
+    }
+  }
+
+  function rowsHtml(data){
+    const max = Math.max(...data.rows.map(row => Number(row.value) || 0), 1);
+    return `<div class="horizontal-chart-v32">${data.rows.map(row => {
+      const value = Number(row.value) || 0;
+      const pct = Math.max(value ? 4 : 1, Math.min(100, (value / max) * 100));
+      const label = clean(row.label);
+      const text = clean(row.text ?? scoreText(value));
+      return `<div class="hbar-row-v32"><strong title="${safe(label)}">${safe(short(label,34))}</strong><span><i style="width:${pct}%"></i></span><b>${safe(text)}</b></div>`;
+    }).join("")}</div>`;
+  }
+
+  window.openDashboardChart = function(type){
+    const data = chartData(type);
+    const dialog = ensureChartDialog();
+    const printable = dialog.querySelector("#chartPrintable");
+    printable.innerHTML = !data.rows.length
+      ? `<header class="chart-exec-header"><span>METODO SOBRAL</span><h2>${safe(data.title)}</h2><p>${safe(data.metric)} - ${dateText(new Date().toISOString().slice(0,10))}</p></header><div class="chart-exec-body"><div class="chart-empty-state"><strong>Sem dados para gerar grafico.</strong><span>Salve avaliacoes para visualizar este indicador.</span></div></div>`
+      : `<header class="chart-exec-header"><span>METODO SOBRAL</span><h2>${safe(data.title)}</h2><p>${safe(data.metric)} - ${dateText(new Date().toISOString().slice(0,10))}</p></header><div class="chart-exec-body"><div class="chart-plot-card v32-chart-card"><h3>Dashboard grafico</h3><p>Ranking organizado para leitura executiva</p>${rowsHtml(data)}</div></div>`;
+    dialog.querySelectorAll(".chart-close").forEach(button => button.textContent = "X");
+    dialog.showModal();
+  };
+
+  window.downloadChartImage = function(){
+    const printable = document.getElementById("chartPrintable");
+    const title = clean(printable?.querySelector("h2")?.textContent || "grafico");
+    const rows = [...(printable?.querySelectorAll(".hbar-row-v32") || [])].map(node => ({
+      label: clean(node.querySelector("strong")?.getAttribute("title") || node.querySelector("strong")?.textContent || ""),
+      text: clean(node.querySelector("b")?.textContent || ""),
+      pct: parseFloat(node.querySelector("i")?.style.width || "0")
+    }));
+    const canvas = document.createElement("canvas");
+    canvas.width = 1600; canvas.height = 900;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#eef2f7"; ctx.fillRect(0,0,1600,900);
+    ctx.fillStyle = "#101827"; ctx.fillRect(0,0,1600,150);
+    ctx.fillStyle = "#fff"; ctx.font = "700 44px Arial"; ctx.textAlign = "left"; ctx.fillText(title,80,74);
+    ctx.font = "500 24px Arial"; ctx.fillText("Metodo Sobral - Performance Individual 360",80,116);
+    ctx.fillStyle = "#fff"; roundRect(ctx,60,185,1480,655,28,true,false);
+    ctx.fillStyle = "#334155"; ctx.font = "700 28px Arial"; ctx.fillText("Dashboard grafico",120,242);
+    const list = rows.length ? rows : [{label:"Sem dados",text:"0",pct:0}];
+    const rowH = Math.min(56, Math.floor(470 / Math.max(list.length,1)));
+    list.forEach((row,index) => {
+      const y = 305 + index * rowH;
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "#0f172a"; ctx.font = "700 18px Arial"; ctx.textAlign = "right"; ctx.fillText(short(row.label,32),455,y + rowH / 2);
+      ctx.fillStyle = "#e8eef7"; roundRect(ctx,485,y + rowH * .22,760,rowH * .56,12,true,false);
+      ctx.fillStyle = "#2563eb"; roundRect(ctx,485,y + rowH * .22,Math.max(10,760 * (row.pct / 100)),rowH * .56,12,true,false);
+      ctx.fillStyle = "#0f172a"; ctx.font = "800 18px Arial"; ctx.textAlign = "left"; ctx.fillText(row.text,1272,y + rowH / 2);
+    });
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png",1);
+    a.download = `${title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-")}.png`;
+    a.click();
+  };
+
+  function patch(){
+    const form = document.getElementById("employeeForm");
+    if(form && !form.dataset.userOpened && !form.querySelector("#employeeId")?.value) form.hidden = true;
+    document.querySelectorAll("#rankingSector .ranking-row,#rankingCategory .ranking-row").forEach(row => {
+      row.querySelectorAll(".ranking-icon,.rank-emoji").forEach(icon => icon.remove());
+      const label = row.querySelector("div strong");
+      if(label){
+        const full = clean(label.title || label.textContent);
+        label.title = full;
+        label.textContent = short(full, row.closest("#rankingCategory") ? 30 : 26);
+      }
+    });
+  }
+
+  function inject(){
+    if(!document.getElementById("sobralLastWordV32Style")){
+      const style = document.createElement("style");
+      style.id = "sobralLastWordV32Style";
+      style.textContent = `
+        #employeeForm[hidden]{display:none!important}
+        #rankingSector .ranking-row,#rankingCategory .ranking-row{display:grid!important;grid-template-columns:minmax(0,1fr) 54px!important;gap:12px!important;align-items:center!important;min-height:58px!important}
+        #rankingSector .ranking-icon,#rankingCategory .ranking-icon,#rankingSector .rank-emoji,#rankingCategory .rank-emoji{display:none!important}
+        #rankingSector .ranking-row div,#rankingCategory .ranking-row div{min-width:0!important}
+        #rankingSector .ranking-row div strong,#rankingCategory .ranking-row div strong{display:block!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+        #rankingSector .ranking-row div small,#rankingCategory .ranking-row div small{display:block!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+        .v32-chart-card{overflow:hidden!important}
+        .horizontal-chart-v32{display:flex!important;flex-direction:column!important;gap:14px!important;padding:20px 8px 4px!important}
+        .hbar-row-v32{display:grid!important;grid-template-columns:minmax(150px,270px) minmax(180px,1fr) 54px!important;gap:14px!important;align-items:center!important;min-height:30px!important}
+        .hbar-row-v32 strong{text-align:right!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;font-size:13px!important;color:#0f172a!important}
+        .hbar-row-v32 span{height:18px!important;border-radius:999px!important;background:#e8eef7!important;overflow:hidden!important}
+        .hbar-row-v32 i{display:block!important;height:100%!important;border-radius:999px!important;background:#2563eb!important}
+        .hbar-row-v32 b{font-size:13px!important;color:#0f172a!important}
+        @media(max-width:720px){.hbar-row-v32{grid-template-columns:minmax(105px,155px) minmax(90px,1fr) 38px!important;gap:8px!important}.hbar-row-v32 strong,.hbar-row-v32 b{font-size:11px!important}}
+      `;
+      document.head.appendChild(style);
+    }
+    patch();
+  }
+
+  document.addEventListener("click", event => {
+    if(event.target.closest("#newEmployeeButton,[data-edit-employee]")){
+      const form = document.getElementById("employeeForm");
+      if(form){ form.dataset.userOpened = "true"; form.hidden = false; }
+    }
+    if(event.target.closest("#cancelEmployeeButton")){
+      const form = document.getElementById("employeeForm");
+      if(form){ delete form.dataset.userOpened; form.hidden = true; }
+    }
+  }, true);
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", inject, {once:true});
+  else inject();
+  [200,800,1800,3200].forEach(delay => setTimeout(inject, delay));
+})();
+
+/* AJUSTE v34 - guarda final real para download e backup */
+(function sobralLastPerformanceGuardV34(){
+  let imageBusy = false;
+  let backupBusy = false;
+  const fileName = value => String(value || "colaborador").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/gi,"-").replace(/^-+|-+$/g,"").toLowerCase() || "colaborador";
+  const toast = message => { if(typeof notify === "function") notify(message); };
+  function currentEvaluation(){
+    try{ if(typeof selectedEvaluation === "function"){ const item = selectedEvaluation(); if(item) return item; } }catch{}
+    const id = document.getElementById("reportEvaluation")?.value;
+    if(id && Array.isArray(state?.evaluations)){
+      const found = state.evaluations.find(item => item.id === id);
+      if(found) return found;
+    }
+    return Array.isArray(state?.evaluations) && state.evaluations.length ? state.evaluations[state.evaluations.length - 1] : null;
+  }
+  function saveBlob(blob, name){
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = name;
+    link.rel = "noopener";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1200);
+  }
+  async function imageDownload(button){
+    if(imageBusy) return;
+    imageBusy = true;
+    const original = button?.textContent || "Baixar imagem";
+    if(button){ button.disabled = true; button.textContent = "Gerando..."; }
+    try{
+      const evaluation = currentEvaluation();
+      if(!evaluation) throw new Error("Sem avaliacao selecionada.");
+      await Promise.resolve(drawShareArt(evaluation, 1080, 1528));
+      const canvas = document.getElementById("shareCanvas");
+      if(!canvas || !canvas.width || !canvas.height) throw new Error("Canvas nao encontrado.");
+      const blob = await new Promise(resolve => { try{ canvas.toBlob(resolve, "image/jpeg", 0.76); }catch{ resolve(null); } });
+      const name = `performance-${fileName(evaluation.employeeSnapshot?.name)}.jpg`;
+      if(blob) saveBlob(blob, name);
+      else{
+        const link = document.createElement("a");
+        link.href = canvas.toDataURL("image/jpeg", 0.76);
+        link.download = name;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }
+      toast("Imagem gerada com sucesso.");
+    }catch(error){
+      console.error(error);
+      alert("Nao foi possivel baixar a imagem. Abra Relatorios, selecione uma avaliacao e tente novamente.");
+    }finally{
+      imageBusy = false;
+      if(button){ button.disabled = false; button.textContent = original; }
+    }
+  }
+  function backupDownload(button){
+    if(backupBusy) return;
+    backupBusy = true;
+    const original = button?.textContent || "Backup JSON";
+    if(button){ button.disabled = true; button.textContent = "Gerando..."; }
+    try{
+      if(typeof saveState === "function") saveState();
+      const payload = {
+        app:"Performance Individual 360",
+        version:"20260710-v34-performance",
+        exportedAt:new Date().toISOString(),
+        storageKey:typeof STORAGE_KEY !== "undefined" ? STORAGE_KEY : "performance360",
+        data:state
+      };
+      const date = typeof todayISO === "function" ? todayISO() : new Date().toISOString().slice(0,10);
+      saveBlob(new Blob([JSON.stringify(payload,null,2)], {type:"application/json;charset=utf-8"}), `Performance360_Backup_${date}.json`);
+      toast("Backup JSON gerado.");
+    }catch(error){
+      console.error(error);
+      alert("Nao foi possivel gerar o backup neste aparelho.");
+    }finally{
+      backupBusy = false;
+      if(button){ button.disabled = false; button.textContent = original; }
+    }
+  }
+  window.addEventListener("click", event => {
+    const imageButton = event.target?.closest?.("#downloadImageButton");
+    if(imageButton){
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      imageDownload(imageButton);
+      return;
+    }
+    const backupButton = event.target?.closest?.("#exportBackupButton");
+    if(backupButton){
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      backupDownload(backupButton);
+    }
+  }, true);
+  function boot(){
+    document.getElementById("downloadImageButton")?.removeAttribute("disabled");
+    document.getElementById("exportBackupButton")?.removeAttribute("disabled");
+  }
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, {once:true});
+  else boot();
+  setTimeout(boot, 500);
+  setTimeout(boot, 1800);
 })();

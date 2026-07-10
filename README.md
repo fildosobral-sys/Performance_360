@@ -4,11 +4,9 @@ Sistema mobile-first para avaliacao individual de colaboradores, com checklist p
 
 ## Acesso
 
-Abra pelo navegador:
+Publique os arquivos no GitHub Pages e acesse pelo navegador ou pelo atalho instalado como aplicativo.
 
-`http://127.0.0.1:8765/index.html`
-
-Para uso no celular, publique no GitHub Pages ou acesse pelo endereco de rede do servidor local, mantendo computador e celular no mesmo Wi-Fi.
+O modelo de sincronizacao por rede local/Wi-Fi foi removido. Para centralizar dados entre computador e celular, use o modelo de planilha na nuvem descrito em `COMO_USAR_PLANILHA_NUVEM.txt`.
 
 ## Instalar como aplicativo
 
@@ -34,10 +32,16 @@ Suba estes arquivos e pastas na raiz do repositorio:
 - `app.js`
 - `manifest.json`
 - `service-worker.js`
-- `assets/`
-- `icons/`
+- `logo-zenir.png`
+- `logo-foco.png`
+- `icon-512.png`
+- `icone-192.png`
+- `maskable-512.png`
 
-O arquivo `PERFORMANCE_360_AVALIACAO_ATUALIZADO.html` e uma versao avulsa para teste/local, mas para site publicado o ideal e usar os arquivos separados acima.
+Arquivos opcionais para configuracao da nuvem:
+
+- `GOOGLE_SHEETS_BACKEND.gs`
+- `COMO_USAR_PLANILHA_NUVEM.txt`
 
 ## Recursos principais
 
@@ -61,6 +65,12 @@ O arquivo `PERFORMANCE_360_AVALIACAO_ATUALIZADO.html` e uma versao avulsa para t
 Os dados ficam no `localStorage` do navegador utilizado.
 
 Para trocar de aparelho ou preservar os registros, use o botao `Backup JSON` e depois `Importar backup`.
+
+## Planilha na nuvem
+
+Para usar uma base central entre computador e celular, crie um backend no Google Sheets com o arquivo `GOOGLE_SHEETS_BACKEND.gs`.
+
+O passo a passo esta em `COMO_USAR_PLANILHA_NUVEM.txt`.
 
 ## Observacao
 

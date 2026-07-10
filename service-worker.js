@@ -1,4 +1,4 @@
-const CACHE_NAME = 'p360-v34-performance';
+const CACHE_NAME = 'p360-v40-cloud-ready';
 const APP_SHELL = ['./','./index.html','./styles.css','./app.js','./manifest.json','./icone-192.png'];
 
 self.addEventListener('install', event => {

@@ -2601,6 +2601,8 @@ else init();
   }
 })();
 
+
+
 /* AJUSTE v33 - performance: bloqueia handlers duplicados de imagem e backup */
 (function sobralPerformanceGuardV33(){
   let imageBusy = false;
@@ -3004,7 +3006,6 @@ else init();
   setTimeout(boot, 500);
   setTimeout(boot, 1800);
 })();
-
 
 /* =========================================================
    AJUSTE FINAL V2 - Ãcones, grÃ¡ficos e acabamento dos relatÃ³rios
@@ -7205,3 +7206,6 @@ else init();
   setTimeout(boot, 500);
   setTimeout(boot, 1800);
 })();
+
+/* AJUSTE v38 - sincronizacao Wi-Fi anexada no fim absoluto */
+

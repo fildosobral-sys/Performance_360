@@ -7317,6 +7317,7 @@ else init();
     if(pushing || pulling) return;
     pushing = true;
     try{
+      const beforeStamp = lastRemoteStamp;
       const payload = {
         action: "saveState",
         source: reason || "app",
@@ -7328,12 +7329,21 @@ else init();
         mode: "no-cors",
         body: JSON.stringify(payload)
       });
-      lastRemoteStamp = new Date().toISOString();
+      status("Conferindo nuvem", false);
+      await new Promise(resolve => setTimeout(resolve, 2400));
+      const verify = await jsonp("state");
+      if(!verify || verify.ok === false) throw new Error(verify?.error || "Nuvem nao confirmou salvamento");
+      const remoteData = verify.data || {};
+      const remoteStamp = verify.updatedAt || "";
+      if(!remoteStamp || remoteStamp === beforeStamp || !hasUsefulData(remoteData)){
+        throw new Error("Salvamento ainda nao apareceu na planilha");
+      }
+      lastRemoteStamp = remoteStamp;
       localStorage.setItem(STAMP_KEY, lastRemoteStamp);
       status("Salvo na nuvem", true);
     }catch(error){
       console.warn("P360 cloud push", error);
-      status("Nuvem sem salvar", false);
+      status("Verifique a nuvem", false);
     }finally{
       pushing = false;
     }

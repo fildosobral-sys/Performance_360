@@ -1307,6 +1307,7 @@ function resolveOpportunity(encoded){
   evaluation.score = calculateScore(evaluation);
   saveState();
   renderAll();
+  if(window.p360PushCloudNow) window.p360PushCloudNow("linha-do-tempo-resolvida");
 }
 
 function contestOccurrence(encoded){
@@ -1351,6 +1352,7 @@ function contestOccurrence(encoded){
   evaluation.score = calculateScore(evaluation);
   saveState();
   renderAll();
+  if(window.p360PushCloudNow) window.p360PushCloudNow("linha-do-tempo-status");
 }
 
 function renderSettings(){
@@ -7207,13 +7209,13 @@ else init();
   setTimeout(boot, 1800);
 })();
 
-/* AJUSTE v43 - sincronizacao viva por Google Sheets */
-(function sobralSheetsSyncV43(){
+/* AJUSTE v44 - sincronizacao viva por Google Sheets */
+(function sobralSheetsSyncV44(){
   const CLOUD_URL = "https://script.google.com/macros/s/AKfycbwnEFspShYAV7nJDH9fbnP1xPS_ywKm208AKpFRUctoM9TruYTojHQE1AqhJQlJf-2J/exec";
   const STAMP_KEY = `${STORAGE_KEY}_cloud_updated_at`;
   const HASH_KEY = `${STORAGE_KEY}_cloud_hash`;
   const CLIENT_KEY = `${STORAGE_KEY}_cloud_client`;
-  const SYNC_INTERVAL = 9000;
+  const SYNC_INTERVAL = 6000;
   let pulling = false;
   let pushing = false;
   let applyingRemote = false;
@@ -7222,6 +7224,7 @@ else init();
   let lastRemoteHash = localStorage.getItem(HASH_KEY) || "";
   let pushTimer = null;
   let originalSaveState = null;
+  let originalSetView = null;
   let clientId = localStorage.getItem(CLIENT_KEY);
 
   if(!clientId){
@@ -7414,13 +7417,28 @@ else init();
     clearTimeout(requestFreshCloud._timer);
     requestFreshCloud._timer = setTimeout(() => {
       if(!pushing) pullCloud(false);
-    }, reason === "focus" ? 250 : 900);
+    }, reason === "focus" || reason === "view" ? 250 : 900);
+  }
+
+  function wrapSetView(){
+    if(originalSetView || typeof setView !== "function") return;
+    originalSetView = setView;
+    setView = function(view){
+      const result = originalSetView.apply(this, arguments);
+      if(["dashboard", "history", "reports", "team"].includes(view)){
+        requestFreshCloud("view");
+      }
+      return result;
+    };
   }
 
   function boot(){
     if(booted) return;
     booted = true;
     wrapSaveState();
+    wrapSetView();
+    window.p360PullCloudNow = () => pullCloud(false);
+    window.p360PushCloudNow = reason => pushCloud(reason || "manual");
     status("Conectando nuvem", false);
     pullCloud(true);
     setInterval(() => pullCloud(false), SYNC_INTERVAL);

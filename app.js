@@ -7207,17 +7207,27 @@ else init();
   setTimeout(boot, 1800);
 })();
 
-/* AJUSTE v41 - sincronizacao por Google Sheets */
-(function sobralSheetsSyncV41(){
+/* AJUSTE v43 - sincronizacao viva por Google Sheets */
+(function sobralSheetsSyncV43(){
   const CLOUD_URL = "https://script.google.com/macros/s/AKfycbwnEFspShYAV7nJDH9fbnP1xPS_ywKm208AKpFRUctoM9TruYTojHQE1AqhJQlJf-2J/exec";
   const STAMP_KEY = `${STORAGE_KEY}_cloud_updated_at`;
-  const SYNC_INTERVAL = 45000;
+  const HASH_KEY = `${STORAGE_KEY}_cloud_hash`;
+  const CLIENT_KEY = `${STORAGE_KEY}_cloud_client`;
+  const SYNC_INTERVAL = 9000;
   let pulling = false;
   let pushing = false;
+  let applyingRemote = false;
   let booted = false;
   let lastRemoteStamp = localStorage.getItem(STAMP_KEY) || "";
+  let lastRemoteHash = localStorage.getItem(HASH_KEY) || "";
   let pushTimer = null;
   let originalSaveState = null;
+  let clientId = localStorage.getItem(CLIENT_KEY);
+
+  if(!clientId){
+    clientId = `p360_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+    localStorage.setItem(CLIENT_KEY, clientId);
+  }
 
   function hasUsefulData(data){
     return Boolean(data && (
@@ -7232,6 +7242,35 @@ else init();
     const next = {...base, ...(data || {}), settings:{...(base.settings || {}), ...((data || {}).settings || {})}};
     if(typeof migrateCoreCategories === "function") migrateCoreCategories(next);
     return next;
+  }
+
+  function stateHash(data){
+    try{
+      const json = JSON.stringify(data || {});
+      let hash = 0;
+      for(let i = 0; i < json.length; i += 1){
+        hash = ((hash << 5) - hash + json.charCodeAt(i)) | 0;
+      }
+      return `${json.length}:${hash}`;
+    }catch{
+      return `${Date.now()}:erro`;
+    }
+  }
+
+  function applyRemoteState(remoteData, remoteStamp, message){
+    applyingRemote = true;
+    try{
+      state = normalizeRemoteState(remoteData);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      lastRemoteStamp = remoteStamp || lastRemoteStamp || new Date().toISOString();
+      lastRemoteHash = stateHash(state);
+      localStorage.setItem(STAMP_KEY, lastRemoteStamp);
+      localStorage.setItem(HASH_KEY, lastRemoteHash);
+      if(typeof renderAll === "function") renderAll();
+      status(message || "Nuvem atualizada", true);
+    }finally{
+      applyingRemote = false;
+    }
   }
 
   function status(text, ok){
@@ -7292,13 +7331,9 @@ else init();
       const remoteData = payload.data || {};
       const remoteStamp = payload.updatedAt || "";
 
-      if(hasUsefulData(remoteData) && remoteStamp && remoteStamp !== lastRemoteStamp){
-        state = normalizeRemoteState(remoteData);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        lastRemoteStamp = remoteStamp;
-        localStorage.setItem(STAMP_KEY, lastRemoteStamp);
-        if(typeof renderAll === "function") renderAll();
-        status("Nuvem atualizada", true);
+      const remoteChanged = Boolean(remoteStamp && remoteStamp !== lastRemoteStamp);
+      if(hasUsefulData(remoteData) && remoteChanged){
+        applyRemoteState(remoteData, remoteStamp, initial ? "Dados carregados da nuvem" : "Nuvem atualizada");
       }else if(initial && !hasUsefulData(remoteData) && hasUsefulData(state)){
         status("Enviando para nuvem", false);
         await pushCloud("primeira-carga");
@@ -7314,15 +7349,22 @@ else init();
   }
 
   async function pushCloud(reason){
-    if(pushing || pulling) return;
+    if(pushing) return;
+    if(pulling){
+      schedulePush(reason || "saveState");
+      return;
+    }
     pushing = true;
     try{
       const beforeStamp = lastRemoteStamp;
+      const beforeHash = lastRemoteHash;
+      const localData = structuredClone(state);
       const payload = {
         action: "saveState",
         source: reason || "app",
+        clientId,
         clientTime: new Date().toISOString(),
-        data: state
+        data: localData
       };
       await fetch(CLOUD_URL, {
         method: "POST",
@@ -7335,11 +7377,14 @@ else init();
       if(!verify || verify.ok === false) throw new Error(verify?.error || "Nuvem nao confirmou salvamento");
       const remoteData = verify.data || {};
       const remoteStamp = verify.updatedAt || "";
+      const remoteHash = stateHash(remoteData);
       if(!remoteStamp || remoteStamp === beforeStamp || !hasUsefulData(remoteData)){
         throw new Error("Salvamento ainda nao apareceu na planilha");
       }
       lastRemoteStamp = remoteStamp;
+      lastRemoteHash = remoteHash || beforeHash;
       localStorage.setItem(STAMP_KEY, lastRemoteStamp);
+      localStorage.setItem(HASH_KEY, lastRemoteHash);
       status("Salvo na nuvem", true);
     }catch(error){
       console.warn("P360 cloud push", error);
@@ -7350,6 +7395,7 @@ else init();
   }
 
   function schedulePush(reason){
+    if(applyingRemote) return;
     clearTimeout(pushTimer);
     pushTimer = setTimeout(() => pushCloud(reason || "saveState"), 900);
   }
@@ -7364,6 +7410,13 @@ else init();
     };
   }
 
+  function requestFreshCloud(reason){
+    clearTimeout(requestFreshCloud._timer);
+    requestFreshCloud._timer = setTimeout(() => {
+      if(!pushing) pullCloud(false);
+    }, reason === "focus" ? 250 : 900);
+  }
+
   function boot(){
     if(booted) return;
     booted = true;
@@ -7371,6 +7424,11 @@ else init();
     status("Conectando nuvem", false);
     pullCloud(true);
     setInterval(() => pullCloud(false), SYNC_INTERVAL);
+    window.addEventListener("focus", () => requestFreshCloud("focus"));
+    window.addEventListener("online", () => requestFreshCloud("online"));
+    document.addEventListener("visibilitychange", () => {
+      if(!document.hidden) requestFreshCloud("focus");
+    });
   }
 
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, {once:true});

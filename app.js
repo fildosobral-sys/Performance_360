@@ -6,16 +6,49 @@ const $$ = selector => [...document.querySelectorAll(selector)];
 const uid = prefix => `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 const todayISO = () => new Date().toISOString().slice(0,10);
 const monthISO = () => todayISO().slice(0,7);
-const repairText = value => String(value ?? "")
+function decodeBrokenUtf8_(value){
+  const text = String(value ?? "");
+  if(!/[ÃÂâð]/.test(text) || typeof TextDecoder === "undefined") return text;
+  const cp1252 = {
+    0x20AC:0x80,0x201A:0x82,0x0192:0x83,0x201E:0x84,0x2026:0x85,0x2020:0x86,0x2021:0x87,0x02C6:0x88,
+    0x2030:0x89,0x0160:0x8A,0x2039:0x8B,0x0152:0x8C,0x017D:0x8E,0x2018:0x91,0x2019:0x92,0x201C:0x93,
+    0x201D:0x94,0x2022:0x95,0x2013:0x96,0x2014:0x97,0x02DC:0x98,0x2122:0x99,0x0161:0x9A,0x203A:0x9B,
+    0x0153:0x9C,0x017E:0x9E,0x0178:0x9F
+  };
+  const bytes = [];
+  for(const char of text){
+    const code = char.charCodeAt(0);
+    if(code <= 255) bytes.push(code);
+    else if(cp1252[code]) bytes.push(cp1252[code]);
+    else return text;
+  }
+  try{
+    const decoded = new TextDecoder("utf-8", { fatal:false }).decode(new Uint8Array(bytes));
+    if(decoded && !decoded.includes("\uFFFD")) return decoded;
+  }catch(error){}
+  return text;
+}
+const repairText = value => decodeBrokenUtf8_(String(value ?? ""))
   .replaceAll("ÃƒÂ¡","Ã¡").replaceAll("Ãƒ ","Ã ").replaceAll("ÃƒÂ¢","Ã¢").replaceAll("ÃƒÂ£","Ã£")
   .replaceAll("ÃƒÂ©","Ã©").replaceAll("ÃƒÂª","Ãª").replaceAll("ÃƒÂ­","Ã­").replaceAll("ÃƒÂ³","Ã³")
   .replaceAll("ÃƒÂ´","Ã´").replaceAll("ÃƒÂµ","Ãµ").replaceAll("ÃƒÂº","Ãº").replaceAll("ÃƒÂ§","Ã§")
+  .replaceAll("Ã¡","á").replaceAll("Ã ","à").replaceAll("Ã¢","â").replaceAll("Ã£","ã").replaceAll("Ã¤","ä")
+  .replaceAll("Ã©","é").replaceAll("Ãª","ê").replaceAll("Ã¨","è").replaceAll("Ã­","í").replaceAll("Ã³","ó")
+  .replaceAll("Ã´","ô").replaceAll("Ãµ","õ").replaceAll("Ãº","ú").replaceAll("Ã§","ç").replaceAll("Ã‡","Ç")
+  .replaceAll("Ã","Á").replaceAll("Ã€","À").replaceAll("Ã‚","Â").replaceAll("Ãƒ","Ã").replaceAll("Ã‰","É")
+  .replaceAll("ÃŠ","Ê").replaceAll("Ã","Í").replaceAll("Ã“","Ó").replaceAll("Ã”","Ô").replaceAll("Ã•","Õ")
+  .replaceAll("Ãš","Ú")
   .replaceAll("ÃƒÂ","Ã").replaceAll("Ãƒâ‚¬","Ã€").replaceAll("Ãƒâ€š","Ã‚").replaceAll("ÃƒÆ’","Ãƒ")
   .replaceAll("Ãƒâ€°","Ã‰").replaceAll("ÃƒÅ ","ÃŠ").replaceAll("ÃƒÂ","Ã").replaceAll("Ãƒâ€œ","Ã“")
   .replaceAll("Ãƒâ€","Ã”").replaceAll("Ãƒâ€¢","Ã•").replaceAll("ÃƒÅ¡","Ãš").replaceAll("Ãƒâ€¡","Ã‡")
   .replaceAll("Ã¢â‚¬Â¢","â€¢").replaceAll("Ã¢â‚¬â€œ","-").replaceAll("Ã¢â‚¬â€","-").replaceAll("Ã¢â‚¬Å“","\"").replaceAll("Ã¢â‚¬Â","\"")
   .replaceAll("Ã¢â‚¬Ëœ","'").replaceAll("Ã¢â‚¬â„¢","'").replaceAll("Ã¢Å“â€œ","OK").replaceAll("Ã¢Å“â€¦","OK")
-  .replaceAll("Ã¢Å¡Âª","").replace(/Ã°Å¸\S*/g,"").replace(/Ã¢Å“\S*/g,"").replace(/Ã¢Å¡\S*/g,"");
+  .replaceAll("Ã¢Å¡Âª","")
+  .replaceAll("â€¢","•").replaceAll("â€“","-").replaceAll("â€”","-").replaceAll("â€œ","\"").replaceAll("â€","\"")
+  .replaceAll("â€˜","'").replaceAll("â€™","'").replaceAll("â˜…","★").replaceAll("â˜†","☆")
+  .replaceAll("âœ…","✅").replaceAll("âœ“","✓").replaceAll("âœ”","✓")
+  .replaceAll("â†—","↗").replaceAll("â†’","→").replaceAll("â†‘","↑").replaceAll("â†","↗").replaceAll("â‹®","⋮")
+  .replace(/Ã°Å¸\S*/g,"").replace(/Ã¢Å“\S*/g,"").replace(/Ã¢Å¡\S*/g,"");
 const esc = value => repairText(value).replace(/[&<>"']/g, char => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;" }[char]));
 const scoreText = value => Number(value || 0).toFixed(1).replace(".", ",");
 const pointsText = value => {
@@ -1832,10 +1865,10 @@ async function downloadArt(scale){
   if(button){ button.disabled = true; button.textContent = "Gerando..."; }
   try{
     // GeraÃ§Ã£o rÃ¡pida: baixa a arte jÃ¡ no tamanho da prÃ©via executiva, evitando recriar uma imagem gigante no celular.
-    await drawShareArt(evaluation, 1240, 1754);
+    await drawShareArt(evaluation, 1800, 2545);
     const canvas = $("shareCanvas");
-    const fileName = `performance-${evaluation?.employeeSnapshot?.name || "avaliacao"}.png`.replace(/\s+/g,"-").toLowerCase();
-    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png", 0.92));
+    const fileName = `performance-${evaluation?.employeeSnapshot?.name || "avaliacao"}.jpg`.replace(/\s+/g,"-").toLowerCase();
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", 0.93));
     if(!blob) throw new Error("Falha ao gerar blob da imagem");
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -2653,17 +2686,17 @@ else init();
       const canvas = document.getElementById("shareCanvas");
       if(!canvas) throw new Error("Canvas da arte nao encontrado.");
 
-      // PNG HD: redesenha uma unica vez em 2x para preservar nitidez sem gerar arquivo 8K pesado.
-      await drawShareArt(evaluation, 2480, 3508);
+      // JPG HD equilibrado: boa nitidez com tempo de geracao menor no celular/PWA.
+      await drawShareArt(evaluation, 1800, 2545);
       const blob = await new Promise(resolve => {
-        try{ canvas.toBlob(resolve, "image/png"); }catch{ resolve(null); }
+        try{ canvas.toBlob(resolve, "image/jpeg", 0.93); }catch{ resolve(null); }
       });
       if(!blob) throw new Error("Nao foi possivel gerar a imagem.");
 
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `performance-${slug(evaluation.employeeSnapshot?.name)}-hd.png`;
+      link.download = `performance-${slug(evaluation.employeeSnapshot?.name)}-hd.jpg`;
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -2743,17 +2776,17 @@ else init();
     try{
       const evaluation = selectedReportEvaluationV33();
       if(!evaluation) throw new Error("Nenhuma avaliacao selecionada.");
-      await Promise.resolve(drawShareArt(evaluation, 2480, 3508));
+      await Promise.resolve(drawShareArt(evaluation, 1800, 2545));
       const canvas = document.getElementById("shareCanvas");
       if(!canvas || !canvas.width || !canvas.height) throw new Error("Canvas da arte nao encontrado.");
       const blob = await new Promise(resolve => {
-        try{ canvas.toBlob(resolve, "image/png"); }catch{ resolve(null); }
+        try{ canvas.toBlob(resolve, "image/jpeg", 0.93); }catch{ resolve(null); }
       });
-      const fileName = `performance-${cleanFileNameV33(evaluation.employeeSnapshot?.name)}-hd.png`;
+      const fileName = `performance-${cleanFileNameV33(evaluation.employeeSnapshot?.name)}-hd.jpg`;
       if(blob) downloadBlobV33(blob, fileName);
       else{
         const link = document.createElement("a");
-        link.href = canvas.toDataURL("image/png", 1);
+        link.href = canvas.toDataURL("image/jpeg", 0.93);
         link.download = fileName;
         document.body.appendChild(link);
         link.click();
@@ -3013,15 +3046,15 @@ else init();
     try{
       const evaluation = currentEvaluation();
       if(!evaluation) throw new Error("Sem avaliacao selecionada.");
-      await Promise.resolve(drawShareArt(evaluation, 2480, 3508));
+      await Promise.resolve(drawShareArt(evaluation, 1800, 2545));
       const canvas = document.getElementById("shareCanvas");
       if(!canvas || !canvas.width || !canvas.height) throw new Error("Canvas nao encontrado.");
-      const blob = await new Promise(resolve => { try{ canvas.toBlob(resolve, "image/png"); }catch{ resolve(null); } });
-      const name = `performance-${fileName(evaluation.employeeSnapshot?.name)}.png`;
+      const blob = await new Promise(resolve => { try{ canvas.toBlob(resolve, "image/jpeg", 0.93); }catch{ resolve(null); } });
+      const name = `performance-${fileName(evaluation.employeeSnapshot?.name)}.jpg`;
       if(blob) saveBlob(blob, name);
       else{
         const link = document.createElement("a");
-        link.href = canvas.toDataURL("image/png", 1);
+        link.href = canvas.toDataURL("image/jpeg", 0.93);
         link.download = name;
         document.body.appendChild(link);
         link.click();
@@ -5892,9 +5925,9 @@ else init();
       else icon.textContent = "";
     });
     document.querySelectorAll(".chart-toggle").forEach(button => {
-      button.textContent = "â†—";
-      button.title = "Abrir grafico";
-      button.setAttribute("aria-label", "Abrir grafico");
+      button.textContent = "📈";
+      button.title = "Abrir gráfico";
+      button.setAttribute("aria-label", "Abrir gráfico");
     });
     patchRankingCategory();
   }
@@ -6368,11 +6401,11 @@ else init();
     const originalLabel = button?.textContent || "Baixar imagem";
     if(button){ button.disabled = true; button.textContent = "Gerando..."; }
     try{
-      // Tamanho executivo mais leve para celular, mantendo boa definiÃ§Ã£o e reduzindo tempo de download.
-      await drawShareArt(evaluation, 2480, 3508);
+      // Tamanho executivo mais leve para celular, mantendo boa definicao e reduzindo tempo de download.
+      await drawShareArt(evaluation, 1800, 2545);
       const canvas = $("shareCanvas");
-      const fileName = `performance-${evaluation?.employeeSnapshot?.name || "avaliacao"}.png`.replace(/\s+/g,"-").toLowerCase();
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png", 0.88));
+      const fileName = `performance-${evaluation?.employeeSnapshot?.name || "avaliacao"}.jpg`.replace(/\s+/g,"-").toLowerCase();
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", 0.93));
       if(!blob) throw new Error("Falha ao gerar imagem");
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -6577,17 +6610,15 @@ else init();
     if(btn){ btn.disabled = true; btn.textContent = 'Gerando...'; }
     try{
       let canvas = document.getElementById('shareCanvas');
-      // Se a prÃ©via ainda nÃ£o existir, gera uma versÃ£o leve uma Ãºnica vez.
-      if(!canvas || !canvas.width || !canvas.height){
-        await drawShareArt(evaluation, 960, 1358);
-        canvas = document.getElementById('shareCanvas');
-      }
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.82));
+      // Gera uma versao HD leve, evitando baixar a previa pequena da tela.
+      await drawShareArt(evaluation, 1800, 2545);
+      canvas = document.getElementById('shareCanvas');
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.93));
       if(!blob) throw new Error('Falha ao gerar imagem');
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `performance-${(evaluation.employeeSnapshot?.name || 'avaliacao').replace(/\s+/g,'-').toLowerCase()}.png`;
+      a.download = `performance-${(evaluation.employeeSnapshot?.name || 'avaliacao').replace(/\s+/g,'-').toLowerCase()}.jpg`;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(()=>URL.revokeObjectURL(url), 900);
       if(typeof notify === 'function') notify('Imagem gerada com sucesso.');
@@ -6759,9 +6790,9 @@ else init();
     button.textContent = 'Gerando...';
 
     try{
-      // NÃ£o redesenha a arte se ela jÃ¡ aparece na tela. Isso elimina a demora causada por chamadas duplicadas.
+      // Nao redesenha a arte se ela ja aparece na tela. Isso elimina a demora causada por chamadas duplicadas.
       if((!canvas.width || !canvas.height) && typeof drawShareArt === 'function'){
-        await drawShareArt(evaluation, 2480, 3508);
+        await drawShareArt(evaluation, 1800, 2545);
       }
 
       const safeName = String(evaluation.employeeSnapshot?.name || 'avaliacao')
@@ -6770,13 +6801,13 @@ else init();
         .replace(/^-+|-+$/g,'')
         .toLowerCase() || 'avaliacao';
 
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.93));
       if(!blob) throw new Error('Falha ao gerar imagem.');
 
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `performance-${safeName}.png`;
+      link.download = `performance-${safeName}.jpg`;
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -7213,15 +7244,15 @@ else init();
     try{
       const evaluation = currentEvaluation();
       if(!evaluation) throw new Error("Sem avaliacao selecionada.");
-      await Promise.resolve(drawShareArt(evaluation, 2480, 3508));
+      await Promise.resolve(drawShareArt(evaluation, 1800, 2545));
       const canvas = document.getElementById("shareCanvas");
       if(!canvas || !canvas.width || !canvas.height) throw new Error("Canvas nao encontrado.");
-      const blob = await new Promise(resolve => { try{ canvas.toBlob(resolve, "image/png"); }catch{ resolve(null); } });
-      const name = `performance-${fileName(evaluation.employeeSnapshot?.name)}.png`;
+      const blob = await new Promise(resolve => { try{ canvas.toBlob(resolve, "image/jpeg", 0.93); }catch{ resolve(null); } });
+      const name = `performance-${fileName(evaluation.employeeSnapshot?.name)}.jpg`;
       if(blob) saveBlob(blob, name);
       else{
         const link = document.createElement("a");
-        link.href = canvas.toDataURL("image/png", 1);
+        link.href = canvas.toDataURL("image/jpeg", 0.93);
         link.download = name;
         document.body.appendChild(link);
         link.click();
@@ -7530,6 +7561,211 @@ else init();
 
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, {once:true});
   else boot();
+})();
+
+
+// Ajuste visual final: corrige textos mojibake vindos de cache/nuvem e preserva emojis.
+(function textIconPolishV47(){
+  const smallText = value => typeof value === "string" && value.length > 0 && value.length < 900 && !value.startsWith("data:");
+  const clean = value => typeof repairText === "function" ? repairText(value) : String(value ?? "");
+
+  function fixFormValues(root = document){
+    const fields = root.querySelectorAll?.("input:not([type='file']):not([type='date']):not([type='number']), textarea, option") || [];
+    fields.forEach(el => {
+      if(el.tagName === "OPTION"){
+        const nextText = clean(el.textContent);
+        if(nextText !== el.textContent) el.textContent = nextText;
+      }
+      if(smallText(el.value)){
+        const nextValue = clean(el.value);
+        if(nextValue !== el.value) el.value = nextValue;
+      }
+    });
+  }
+
+  function fixChartButtons(root = document){
+    const buttons = root.querySelectorAll?.("#view-dashboard .chart-toggle, .chart-toggle, [data-open-chart]") || [];
+    buttons.forEach(btn => {
+      btn.textContent = "📈";
+      btn.title = "Abrir gráfico";
+      btn.setAttribute("aria-label", "Abrir gráfico");
+    });
+  }
+
+  function polish(root = document.body){
+    try { if(typeof repairVisibleText === "function") repairVisibleText(root); } catch (error) {}
+    fixFormValues(root.ownerDocument || document);
+    fixChartButtons(root.ownerDocument || document);
+  }
+
+  const names = ["renderAll", "renderDashboard", "renderEmployees", "renderChecklist", "renderSettings", "renderTimeline", "renderReports"];
+  names.forEach(name => {
+    const original = window[name];
+    if(typeof original !== "function" || original.__textIconPolishV47) return;
+    const wrapped = function(){
+      const result = original.apply(this, arguments);
+      setTimeout(() => polish(), 0);
+      return result;
+    };
+    wrapped.__textIconPolishV47 = true;
+    window[name] = wrapped;
+  });
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", () => polish(), { once: true });
+  } else {
+    polish();
+  }
+document.addEventListener("click", () => setTimeout(() => polish(), 0), true);
+})();
+
+// Ajuste final v48: limpa dados vindos da nuvem/cache e usa um unico fluxo rapido para baixar imagem.
+(function textCloudAndImageV48(){
+  const canCleanText = value => (
+    typeof value === "string" &&
+    value.length > 0 &&
+    value.length < 2400 &&
+    !value.startsWith("data:") &&
+    !/^https?:\/\//i.test(value)
+  );
+
+  function cleanText(value){
+    return typeof repairText === "function" ? repairText(value) : String(value ?? "");
+  }
+
+  function cleanDeep(value, seen = new WeakSet()){
+    if(canCleanText(value)) return cleanText(value);
+    if(!value || typeof value !== "object") return value;
+    if(seen.has(value)) return value;
+    seen.add(value);
+
+    if(Array.isArray(value)){
+      for(let i = 0; i < value.length; i += 1) value[i] = cleanDeep(value[i], seen);
+      return value;
+    }
+
+    Object.keys(value).forEach(key => {
+      if(key.toLowerCase().includes("photo") || key.toLowerCase().includes("image") || key.toLowerCase().includes("audio") || key.toLowerCase().includes("video")){
+        if(typeof value[key] === "string" && value[key].startsWith("data:")) return;
+      }
+      value[key] = cleanDeep(value[key], seen);
+    });
+    return value;
+  }
+
+  function sanitizeStateTexts(){
+    try{ if(typeof state !== "undefined") cleanDeep(state); }catch(error){}
+    try{ if(typeof currentEval !== "undefined") cleanDeep(currentEval); }catch(error){}
+  }
+
+  function fixVisibleText(root = document.body){
+    sanitizeStateTexts();
+    try{ if(typeof repairVisibleText === "function") repairVisibleText(root); }catch(error){}
+
+    const doc = root?.ownerDocument || document;
+    doc.querySelectorAll?.("input:not([type='file']):not([type='date']):not([type='number']), textarea, option").forEach(el => {
+      if(el.tagName === "OPTION"){
+        const next = cleanText(el.textContent);
+        if(next !== el.textContent) el.textContent = next;
+      }
+      if(canCleanText(el.value)){
+        const next = cleanText(el.value);
+        if(next !== el.value) el.value = next;
+      }
+    });
+
+    doc.querySelectorAll?.("#view-dashboard .chart-toggle, .chart-toggle, [data-open-chart]").forEach(button => {
+      button.textContent = "📈";
+      button.title = "Abrir gráfico";
+      button.setAttribute("aria-label", "Abrir gráfico");
+    });
+  }
+
+  const renderNames = ["renderAll", "renderDashboard", "renderEmployees", "renderChecklist", "renderSettings", "renderTimeline", "renderReports"];
+  renderNames.forEach(name => {
+    const original = window[name];
+    if(typeof original !== "function" || original.__textCloudAndImageV48) return;
+    const wrapped = function(){
+      sanitizeStateTexts();
+      const result = original.apply(this, arguments);
+      requestAnimationFrame(() => fixVisibleText());
+      return result;
+    };
+    wrapped.__textCloudAndImageV48 = true;
+    window[name] = wrapped;
+  });
+
+  let scheduled = false;
+  function scheduleTextFix(){
+    if(scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(() => {
+      scheduled = false;
+      fixVisibleText();
+    });
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", () => {
+      fixVisibleText();
+      new MutationObserver(scheduleTextFix).observe(document.body, { childList:true, subtree:true, characterData:true });
+    }, { once:true });
+  } else {
+    fixVisibleText();
+    new MutationObserver(scheduleTextFix).observe(document.body, { childList:true, subtree:true, characterData:true });
+  }
+  setInterval(scheduleTextFix, 2500);
+
+  document.addEventListener("click", async event => {
+    const button = event.target?.closest?.("#downloadImageButton");
+    if(!button) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    const evaluation = typeof selectedEvaluation === "function" ? selectedEvaluation() : null;
+    if(!evaluation){
+      alert("Selecione uma avaliação para baixar.");
+      return;
+    }
+
+    const original = button.textContent || "Baixar imagem";
+    button.disabled = true;
+    button.textContent = "Gerando...";
+
+    try{
+      if(typeof drawShareArt !== "function") throw new Error("Gerador da arte indisponível.");
+      await Promise.resolve(drawShareArt(evaluation, 1800, 2545));
+      const canvas = document.getElementById("shareCanvas");
+      if(!canvas || !canvas.width || !canvas.height) throw new Error("Canvas da arte não foi montado.");
+
+      const blob = await new Promise(resolve => {
+        try{ canvas.toBlob(resolve, "image/jpeg", 0.94); }catch(error){ resolve(null); }
+      });
+      if(!blob) throw new Error("Falha ao gerar imagem.");
+
+      const name = typeof safeName === "function"
+        ? safeName(evaluation.employeeSnapshot?.name || evaluation.employeeName || "avaliacao")
+        : String(evaluation.employeeSnapshot?.name || evaluation.employeeName || "avaliacao").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/gi,"-").replace(/^-+|-+$/g,"").toLowerCase();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `performance-${name || "avaliacao"}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1200);
+      if(typeof notify === "function") notify("Imagem HD gerada com sucesso.");
+    }catch(error){
+      console.error(error);
+      alert("Não foi possível baixar a imagem. Atualize a prévia e tente novamente.");
+    }finally{
+      button.disabled = false;
+      button.textContent = original;
+      setTimeout(() => document.getElementById("appToast")?.remove(), 2000);
+    }
+  }, true);
 })();
 
 

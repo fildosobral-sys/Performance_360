@@ -1,4 +1,4 @@
-const CACHE_NAME = 'p360-v52-fast-jpg-footer';
+const CACHE_NAME = 'p360-v53-fast-export-menu';
 const APP_SHELL = ['./','./index.html','./styles.css','./app.js','./manifest.json','./icone-192.png'];
 
 self.addEventListener('install', event => {

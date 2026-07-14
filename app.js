@@ -820,7 +820,7 @@ function setView(view){
   if(view === "reports") renderReportSelectors();
   if(view === "dashboard") renderDashboard();
   if(view === "history") renderTimeline();
-  window.scrollTo({top:0, behavior:"smooth"});
+  window.scrollTo({top:0, behavior:"auto"});
 }
 
 function fileToDataUrl(file){
@@ -1126,7 +1126,7 @@ function saveEvaluation(){
   if($("reportEvaluation")) $("reportEvaluation").value = data.id;
   renderSelectedReport();
   notify(editingExisting ? "AvaliaÃƒÂ§ÃƒÂ£o atualizada e relatÃƒÂ³rio aberto." : "AvaliaÃƒÂ§ÃƒÂ£o salva e relatÃƒÂ³rio aberto.");
-  window.scrollTo({top:0, behavior:"smooth"});
+  window.scrollTo({top:0, behavior:"auto"});
   setTimeout(() => {
     setView("reports");
     if($("reportEvaluation")) $("reportEvaluation").value = data.id;
@@ -1618,13 +1618,19 @@ function drawWrappedText(ctx,text,x,y,maxWidth,lineHeight,maxLines){
   }
 }
 
+const p360ImageCache = new Map();
 function loadImage(src){
-  return new Promise(resolve => {
+  const source = src || defaultPhoto;
+  const key = `${String(source).length}:${String(source).slice(0,120)}`;
+  if(p360ImageCache.has(key)) return p360ImageCache.get(key);
+  const promise = new Promise(resolve => {
     const img = new Image();
     img.onload = () => resolve(img);
     img.onerror = () => resolve(null);
-    img.src = src || defaultPhoto;
+    img.src = source;
   });
+  p360ImageCache.set(key, promise);
+  return promise;
 }
 
 async function drawShareArt(evaluation, width=1240, height=1754){
@@ -2717,6 +2723,143 @@ else init();
 })();
 
 
+/* AJUSTE v53 - exportacao rapida de imagem + navegacao imediata */
+(function p360FastExportAndNavigationV53(){
+  if(window.__p360FastExportV53Installed) return;
+  window.__p360FastExportV53Installed = true;
+  window.__p360FastExportV53 = true;
+
+  function slug(value){
+    return String(value || "avaliacao")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/gi, "-")
+      .replace(/^-+|-+$/g, "")
+      .toLowerCase() || "avaliacao";
+  }
+
+  function currentEvaluation(){
+    try{
+      if(typeof selectedEvaluation === "function"){
+        const selected = selectedEvaluation();
+        if(selected) return selected;
+      }
+    }catch{}
+    const id = document.getElementById("reportEvaluation")?.value;
+    const appState = typeof state !== "undefined" ? state : window.state;
+    if(id && Array.isArray(appState?.evaluations)){
+      const found = appState.evaluations.find(item => item.id === id);
+      if(found) return found;
+    }
+    return Array.isArray(appState?.evaluations) && appState.evaluations.length
+      ? appState.evaluations[appState.evaluations.length - 1]
+      : null;
+  }
+
+  function saveBlob(blob, fileName){
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.rel = "noopener";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1200);
+  }
+
+  function fitCanvasForFastExport(source){
+    const pixels = source.width * source.height;
+    const maxWidth = 1440;
+    const maxPixels = 2800000;
+    const scale = Math.min(1, maxWidth / source.width, Math.sqrt(maxPixels / Math.max(pixels, 1)));
+    if(scale >= 0.98) return source;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(source.width * scale));
+    canvas.height = Math.max(1, Math.round(source.height * scale));
+    const ctx = canvas.getContext("2d", { alpha: false });
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.fillStyle = "#f2f5f9";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+    return canvas;
+  }
+
+  async function ensureCanvas(evaluation){
+    let canvas = document.getElementById("shareCanvas");
+    if(canvas && canvas.width >= 900 && canvas.height >= 900) return canvas;
+    if(typeof drawShareArt !== "function") throw new Error("Gerador da arte indisponivel.");
+    await Promise.resolve(drawShareArt(evaluation, 1240, 1754));
+    canvas = document.getElementById("shareCanvas");
+    if(!canvas || !canvas.width || !canvas.height) throw new Error("Canvas da arte indisponivel.");
+    return canvas;
+  }
+
+  async function canvasToJpegBlob(canvas){
+    return await new Promise(resolve => {
+      try{ canvas.toBlob(resolve, "image/jpeg", 0.9); }
+      catch{ resolve(null); }
+    });
+  }
+
+  async function downloadFastImage(event, forcedButton){
+    const button = forcedButton || event?.target?.closest?.("#downloadImageButton");
+    if(!button) return;
+
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    event?.stopImmediatePropagation?.();
+
+    if(button.dataset.busyFastExport === "1") return;
+    const evaluation = currentEvaluation();
+    if(!evaluation){
+      alert("Selecione uma avaliacao para baixar.");
+      return;
+    }
+
+    const original = button.textContent || "Baixar imagem";
+    button.dataset.busyFastExport = "1";
+    button.disabled = true;
+    button.textContent = "Gerando...";
+
+    try{
+      const baseCanvas = await ensureCanvas(evaluation);
+      const exportCanvas = fitCanvasForFastExport(baseCanvas);
+      const blob = await canvasToJpegBlob(exportCanvas);
+      if(!blob) throw new Error("Falha ao gerar JPG.");
+
+      const employeeName = evaluation.employeeSnapshot?.name || evaluation.employeeName || "avaliacao";
+      saveBlob(blob, `performance-${slug(employeeName)}.jpg`);
+      if(typeof notify === "function") notify("Imagem HD pronta.");
+    }catch(error){
+      console.error(error);
+      alert("Nao foi possivel baixar a imagem. Abra a previa da arte e tente novamente.");
+    }finally{
+      delete button.dataset.busyFastExport;
+      button.disabled = false;
+      button.textContent = original;
+      setTimeout(() => document.getElementById("appToast")?.remove(), 1800);
+    }
+  }
+
+  function fastViewFeedback(event){
+    const button = event.target?.closest?.("[data-view]");
+    if(!button || typeof setView !== "function") return;
+    const nextView = button.dataset.view;
+    const active = document.querySelector(`.view.is-active#view-${nextView}`);
+    if(active) return;
+    setView(nextView);
+  }
+
+  window.__p360FastImageDownloadV53 = downloadFastImage;
+  window.addEventListener("click", event => {
+    if(event.target?.closest?.("#downloadImageButton")) downloadFastImage(event);
+  }, true);
+  document.addEventListener("pointerdown", fastViewFeedback, {capture:true, passive:true});
+})();
+
 // Ajuste v51: acabamento iOS no menu, icones estaveis e download de imagem mais rapido.
 (function mobilePolishAndFastImageV51(){
   if(window.__mobilePolishAndFastImageV51) return;
@@ -2787,6 +2930,7 @@ else init();
   async function fastImageDownload(event){
     const button = event.target?.closest?.("#downloadImageButton");
     if(!button) return;
+    if(window.__p360FastImageDownloadV53) return window.__p360FastImageDownloadV53(event, button);
 
     event.preventDefault();
     event.stopPropagation();
@@ -2967,6 +3111,7 @@ else init();
   }
 
   window.addEventListener("click", event => {
+    if(window.__p360FastExportV53 && event.target?.closest?.("#downloadImageButton")) return;
     const imageButton = event.target?.closest?.("#downloadImageButton");
     if(imageButton){
       event.preventDefault();
@@ -3223,6 +3368,7 @@ else init();
     }
   }
   window.addEventListener("click", event => {
+    if(window.__p360FastExportV53 && event.target?.closest?.("#downloadImageButton")) return;
     const imageButton = event.target?.closest?.("#downloadImageButton");
     if(imageButton){
       event.preventDefault();
@@ -6827,6 +6973,7 @@ else init();
     button.dataset.fastV26 = '1';
 
     button.addEventListener('click', async function(event){
+      if(window.__p360FastExportV53) return;
       event.preventDefault();
       event.stopImmediatePropagation();
 
@@ -7198,7 +7345,10 @@ else init();
     hideReportShortcuts();
     document.getElementById('downloadImageButton')?.removeAttribute('disabled');
   }
-  document.addEventListener('click', instantDownload, true);
+  document.addEventListener('click', event => {
+    if(window.__p360FastExportV53 && event.target?.closest?.('#downloadImageButton')) return;
+    instantDownload(event);
+  }, true);
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot, {once:true}); else boot();
   setTimeout(boot,300); setTimeout(boot,1200);
 })();
@@ -7421,6 +7571,7 @@ else init();
     }
   }
   window.addEventListener("click", event => {
+    if(window.__p360FastExportV53 && event.target?.closest?.("#downloadImageButton")) return;
     const imageButton = event.target?.closest?.("#downloadImageButton");
     if(imageButton){
       event.preventDefault();
@@ -7846,6 +7997,7 @@ document.addEventListener("click", () => setTimeout(() => polish(), 0), true);
   setInterval(scheduleTextFix, 2500);
 
   document.addEventListener("click", async event => {
+    if(window.__p360FastExportV53 && event.target?.closest?.("#downloadImageButton")) return;
     const button = event.target?.closest?.("#downloadImageButton");
     if(!button) return;
 

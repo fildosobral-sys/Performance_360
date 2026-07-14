@@ -1,4 +1,4 @@
-const CACHE_NAME = 'p360-v50-filiais-backup-manual';
+const CACHE_NAME = 'p360-v51-ios-menu-fast-image';
 const APP_SHELL = ['./','./index.html','./styles.css','./app.js','./manifest.json','./icone-192.png'];
 
 self.addEventListener('install', event => {

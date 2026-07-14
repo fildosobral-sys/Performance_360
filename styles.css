@@ -414,3 +414,79 @@ dialog{border:0;border-radius:14px;width:min(92vw,640px);padding:0;box-shadow:0 
 /* AJUSTE FINAL v28 - oculta atalhos auxiliares definitivamente */
 #weeklyReportButton,#fortnightReportButton,#monthlyReportButton,#compareReportButton,#pdiReportButton{display:none!important;visibility:hidden!important;pointer-events:none!important;}
 #view-reports .report-actions:has(#weeklyReportButton){display:none!important;}
+
+/* AJUSTE v51 - dock mobile estilo iOS e exportacao mais leve */
+@media(max-width:780px){
+  body{padding-bottom:calc(94px + env(safe-area-inset-bottom))!important;}
+  .mobile-tabs{
+    left:12px!important;
+    right:12px!important;
+    bottom:10px!important;
+    min-height:70px!important;
+    padding:8px 8px calc(8px + env(safe-area-inset-bottom))!important;
+    border-radius:28px!important;
+    border:1px solid rgba(255,255,255,.72)!important;
+    background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(248,250,252,.88))!important;
+    box-shadow:0 22px 55px rgba(15,23,42,.22), inset 0 1px 0 rgba(255,255,255,.9)!important;
+    -webkit-backdrop-filter:blur(22px) saturate(1.15);
+    backdrop-filter:blur(22px) saturate(1.15);
+    overflow:visible!important;
+    touch-action:manipulation;
+  }
+  .tab-button{
+    position:relative!important;
+    min-height:58px!important;
+    border-radius:22px!important;
+    color:#475467!important;
+    transition:transform .18s ease, background .18s ease, color .18s ease, box-shadow .18s ease!important;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .tab-button span{
+    width:30px!important;
+    height:30px!important;
+    display:grid!important;
+    place-items:center!important;
+    margin:0 auto 2px!important;
+    border-radius:15px!important;
+    font-size:19px!important;
+    line-height:1!important;
+    background:rgba(241,245,249,.88)!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.85);
+  }
+  .tab-button b{
+    font-size:10px!important;
+    font-weight:900!important;
+    letter-spacing:-.01em!important;
+  }
+  .tab-button.is-active{
+    transform:translateY(-5px)!important;
+    background:#101827!important;
+    color:#fff!important;
+    box-shadow:0 14px 30px rgba(16,24,39,.26)!important;
+  }
+  .tab-button.is-active span{
+    background:rgba(255,255,255,.13)!important;
+    box-shadow:none!important;
+  }
+  .tab-button:active{transform:scale(.97)!important;}
+  .tab-button.is-active:active{transform:translateY(-5px) scale(.98)!important;}
+  .app-menu-panel{
+    border-radius:24px!important;
+    padding:12px!important;
+    box-shadow:0 24px 60px rgba(15,23,42,.22)!important;
+  }
+  .app-menu-panel button{
+    display:flex!important;
+    align-items:center!important;
+    gap:10px!important;
+    border-radius:16px!important;
+  }
+  .p360-branch-dialog{
+    border-radius:28px!important;
+  }
+}
+
+#shareCanvas{
+  image-rendering:auto;
+  contain:layout paint;
+}

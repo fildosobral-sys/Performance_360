@@ -2716,6 +2716,134 @@ else init();
 })();
 
 
+// Ajuste v51: acabamento iOS no menu, icones estaveis e download de imagem mais rapido.
+(function mobilePolishAndFastImageV51(){
+  if(window.__mobilePolishAndFastImageV51) return;
+  window.__mobilePolishAndFastImageV51 = true;
+
+  const tabIcons = {
+    dashboard:"\u{1F4CA}",
+    employees:"\u{1F465}",
+    evaluation:"\u2705",
+    history:"\u{1F552}",
+    reports:"\u{1F4C4}",
+    settings:"\u2699\uFE0F"
+  };
+
+  const menuIcons = [
+    ["menuInstallButton", "\u{1F4F2}", "Instalar app"],
+    ["sharePlatformButton", "\u{1F517}", "Compartilhar plataforma"],
+    ["checkUpdateButton", "\u{1F504}", "Verificar atualizacao"],
+    ["menuExportBackupButton", "\u{1F4E4}", "Exportar backup"],
+    ["menuImportBackupButton", "\u{1F4E5}", "Importar backup"],
+    ["menuClearPlatformButton", "\u{1F9F9}", "Limpar plataforma"]
+  ];
+
+  function cleanLabel(value){
+    if(typeof repairText === "function") return repairText(value);
+    return String(value || "");
+  }
+
+  function polishMenus(){
+    document.querySelectorAll(".mobile-tabs .tab-button").forEach(button => {
+      const view = button.getAttribute("data-view");
+      const icon = tabIcons[view];
+      const span = button.querySelector("span");
+      if(span && icon) span.textContent = icon;
+      const label = button.querySelector("b");
+      if(label) label.textContent = cleanLabel(label.textContent);
+      button.setAttribute("aria-label", label?.textContent || view || "Menu");
+    });
+
+    menuIcons.forEach(([id, icon, label]) => {
+      const button = document.getElementById(id);
+      if(!button || button.dataset.v51Icon === "1") return;
+      button.dataset.v51Icon = "1";
+      button.innerHTML = `<span aria-hidden="true">${icon}</span><b>${label}</b>`;
+    });
+  }
+
+  function slug(value){
+    return String(value || "avaliacao")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/gi, "-")
+      .replace(/^-+|-+$/g, "")
+      .toLowerCase() || "avaliacao";
+  }
+
+  function saveBlob(blob, fileName){
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1800);
+  }
+
+  async function fastImageDownload(event){
+    const button = event.target?.closest?.("#downloadImageButton");
+    if(!button) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    const evaluation = typeof selectedEvaluation === "function" ? selectedEvaluation() : null;
+    if(!evaluation){
+      alert("Selecione uma avaliação para baixar.");
+      return;
+    }
+
+    const original = button.textContent || "Baixar imagem";
+    button.disabled = true;
+    button.textContent = "Gerando...";
+
+    try{
+      let canvas = document.getElementById("shareCanvas");
+      if((!canvas || canvas.width < 900 || canvas.height < 900) && typeof drawShareArt === "function"){
+        await Promise.resolve(drawShareArt(evaluation, 1400, 1980));
+        canvas = document.getElementById("shareCanvas");
+      }
+      if(!canvas || !canvas.width || !canvas.height) throw new Error("Canvas da arte indisponivel.");
+
+      const pixels = canvas.width * canvas.height;
+      const mime = pixels > 5200000 ? "image/jpeg" : "image/png";
+      const extension = mime === "image/png" ? "png" : "jpg";
+      const quality = mime === "image/png" ? undefined : 0.96;
+      const blob = await new Promise(resolve => {
+        try{ canvas.toBlob(resolve, mime, quality); }catch(error){ resolve(null); }
+      });
+      if(!blob) throw new Error("Falha ao gerar imagem.");
+
+      const employee = evaluation.employeeSnapshot?.name || evaluation.employeeName || "avaliacao";
+      saveBlob(blob, `performance-${slug(employee)}.${extension}`);
+      if(typeof notify === "function") notify("Imagem HD pronta.");
+    }catch(error){
+      console.error(error);
+      alert("Nao foi possivel baixar a imagem. Abra a previa da arte e tente novamente.");
+    }finally{
+      button.disabled = false;
+      button.textContent = original;
+    }
+  }
+
+  window.addEventListener("click", fastImageDownload, true);
+
+  function boot(){
+    polishMenus();
+    requestAnimationFrame(polishMenus);
+    setTimeout(polishMenus, 500);
+    document.addEventListener("click", () => setTimeout(polishMenus, 50), true);
+  }
+
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, {once:true});
+  else boot();
+})();
+
+
 
 /* AJUSTE v33 - performance: bloqueia handlers duplicados de imagem e backup */
 (function sobralPerformanceGuardV33(){

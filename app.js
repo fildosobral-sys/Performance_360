@@ -814,13 +814,18 @@ function calculateScore(evaluation){
   return Math.max(0, Number(state.settings.initialScore || 10) - total);
 }
 
+let p360ViewRenderToken = 0;
 function setView(view){
   $$(".view").forEach(el => el.classList.toggle("is-active", el.id === `view-${view}`));
   $$("[data-view]").forEach(el => el.classList.toggle("is-active", el.dataset.view === view));
-  if(view === "reports") renderReportSelectors();
-  if(view === "dashboard") renderDashboard();
-  if(view === "history") renderTimeline();
   window.scrollTo({top:0, behavior:"auto"});
+  const token = ++p360ViewRenderToken;
+  requestAnimationFrame(() => {
+    if(token !== p360ViewRenderToken) return;
+    if(view === "reports") renderReportSelectors();
+    if(view === "dashboard") renderDashboard();
+    if(view === "history") renderTimeline();
+  });
 }
 
 function fileToDataUrl(file){
@@ -2660,6 +2665,158 @@ else init();
     injectFinalDashboardStyle();
     setTimeout(()=>{ try{renderDashboard();}catch(e){} }, 80);
   }
+})();
+
+
+/* AJUSTE v54 - exportacao de imagem mais direta e navegacao sem atraso perceptivel */
+(function p360FastExportV54(){
+  if(window.__p360FastExportV54Installed) return;
+  window.__p360FastExportV54Installed = true;
+  window.__p360FastExportV53 = true;
+  window.__p360FastExportV54 = true;
+
+  const MAX_EXPORT_WIDTH = 1440;
+  const MAX_EXPORT_PIXELS = 2800000;
+
+  function slug(value){
+    return String(value || "avaliacao")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/gi, "-")
+      .replace(/^-+|-+$/g, "")
+      .toLowerCase() || "avaliacao";
+  }
+
+  function uniqueStamp(){
+    const now = new Date();
+    const pad = value => String(value).padStart(2, "0");
+    return `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  }
+
+  function selected(){
+    try{
+      if(typeof selectedEvaluation === "function"){
+        const current = selectedEvaluation();
+        if(current) return current;
+      }
+    }catch{}
+    try{
+      const appState = typeof state !== "undefined" ? state : window.state;
+      const id = document.getElementById("reportEvaluation")?.value;
+      return appState?.evaluations?.find(item => item.id === id) || appState?.evaluations?.[appState.evaluations.length - 1] || null;
+    }catch{
+      return null;
+    }
+  }
+
+  function fittedCanvas(source){
+    if(!source || !source.width || !source.height) return source;
+    const pixels = source.width * source.height;
+    let ratio = Math.min(1, MAX_EXPORT_WIDTH / source.width);
+    if(pixels * ratio * ratio > MAX_EXPORT_PIXELS){
+      ratio = Math.sqrt(MAX_EXPORT_PIXELS / pixels);
+    }
+    if(ratio >= .995) return source;
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(source.width * ratio));
+    canvas.height = Math.max(1, Math.round(source.height * ratio));
+    const ctx = canvas.getContext("2d", {alpha:false});
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.fillStyle = "#f2f5f9";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+    return canvas;
+  }
+
+  function canvasBlob(canvas){
+    return new Promise(resolve => {
+      try{ canvas.toBlob(resolve, "image/jpeg", .9); }
+      catch{ resolve(null); }
+    });
+  }
+
+  async function ensureCanvas(evaluation){
+    const canvas = document.getElementById("shareCanvas");
+    const hasPreview = canvas && canvas.width >= 900 && canvas.height >= 900;
+    if(hasPreview) return canvas;
+    if(typeof drawShareArt !== "function") throw new Error("Gerador da arte indisponivel.");
+    await Promise.resolve(drawShareArt(evaluation, 1240, 1754));
+    return document.getElementById("shareCanvas");
+  }
+
+  async function downloadFast(event){
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    event?.stopImmediatePropagation?.();
+    const button = document.getElementById("downloadImageButton");
+    const previous = button?.textContent || "Baixar imagem";
+    if(button){
+      button.disabled = true;
+      button.textContent = "Gerando...";
+    }
+    try{
+      const evaluation = selected();
+      if(!evaluation){
+        alert("Selecione uma avaliacao para baixar.");
+        return false;
+      }
+      const source = await ensureCanvas(evaluation);
+      const exportCanvas = fittedCanvas(source);
+      const blob = await canvasBlob(exportCanvas);
+      if(!blob) throw new Error("Falha ao gerar a imagem.");
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `performance-${slug(evaluation.employeeSnapshot?.name || evaluation.employeeName)}-${uniqueStamp()}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1200);
+      if(typeof notify === "function") notify("Imagem HD pronta.");
+      return false;
+    }catch(error){
+      console.error(error);
+      alert("Nao foi possivel baixar a imagem agora. Tente novamente.");
+      return false;
+    }finally{
+      if(button){
+        button.disabled = false;
+        button.textContent = previous;
+      }
+    }
+  }
+
+  function rebindDownloadButton(){
+    const button = document.getElementById("downloadImageButton");
+    if(!button || button.dataset.fastExportV54 === "1") return;
+    const clean = button.cloneNode(true);
+    clean.dataset.fastExportV54 = "1";
+    clean.disabled = false;
+    clean.textContent = button.textContent && button.textContent !== "Gerando..." ? button.textContent : "Baixar imagem";
+    clean.addEventListener("click", downloadFast, {capture:true});
+    button.replaceWith(clean);
+  }
+
+  function install(){
+    rebindDownloadButton();
+    window.__p360FastImageDownloadV53 = downloadFast;
+    document.addEventListener("click", event => {
+      if(event.target?.closest?.("#downloadImageButton")){
+        downloadFast(event);
+      }
+    }, true);
+    document.addEventListener("pointerdown", event => {
+      const nav = event.target?.closest?.("[data-view]");
+      if(!nav || typeof setView !== "function") return;
+      setView(nav.dataset.view);
+    }, {capture:true, passive:true});
+    const observer = new MutationObserver(() => rebindDownloadButton());
+    observer.observe(document.body, {childList:true, subtree:true});
+  }
+
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", install, {once:true});
+  else install();
 })();
 
 /* AJUSTE v45 - exclusao de avaliacao e imagem HD */

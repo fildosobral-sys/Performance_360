@@ -1718,7 +1718,7 @@ async function drawShareArt(evaluation, width=1240, height=1754){
     rowsHeight += Math.max(48, lines * 18 + 22);
   });
   const evidenceHeight = photoEvidence.length ? (108 + Math.ceil(Math.min(photoEvidence.length,12) / 6) * 158) : 0;
-  const finalHeight = Math.max(height, sx(760 + rowsHeight + evidenceHeight + 360));
+  const finalHeight = Math.max(height, sx(760 + rowsHeight + evidenceHeight + 620));
   if(canvas.height < finalHeight){ canvas.height = Math.ceil(finalHeight); height = canvas.height; }
 
   ctx.fillStyle = "#f2f5f9";
@@ -1852,9 +1852,10 @@ async function drawShareArt(evaluation, width=1240, height=1754){
     : "Excelente entrega neste ciclo. Mantenha a disciplina, registre boas prÃ¡ticas e continue sendo referÃªncia positiva para a equipe.";
   setFont(600,18,"#475467"); textBlock(message,648,y+82,488,28,5);
 
-  setFont(700,12,"#98a2b3"); ctx.fillText("Gerado pelo MÃ©todo Sobral Performance 360", sx(50), sx(height/s - 32));
+  const footerY = y + 286;
+  setFont(700,12,"#98a2b3"); ctx.fillText("Gerado pelo MÃ©todo Sobral Performance 360", sx(50), sx(footerY));
   ctx.textAlign = "right";
-  ctx.fillText("Developed by Fildo Sobral", sx(width/s - 50), sx(height/s - 32));
+  ctx.fillText("Developed by Fildo Sobral", sx(width/s - 50), sx(footerY));
   ctx.textAlign = "left";
 }
 async function downloadArt(scale){
@@ -2804,15 +2805,14 @@ else init();
     try{
       let canvas = document.getElementById("shareCanvas");
       if((!canvas || canvas.width < 900 || canvas.height < 900) && typeof drawShareArt === "function"){
-        await Promise.resolve(drawShareArt(evaluation, 1400, 1980));
+        await Promise.resolve(drawShareArt(evaluation, 1240, 1754));
         canvas = document.getElementById("shareCanvas");
       }
       if(!canvas || !canvas.width || !canvas.height) throw new Error("Canvas da arte indisponivel.");
 
-      const pixels = canvas.width * canvas.height;
-      const mime = pixels > 5200000 ? "image/jpeg" : "image/png";
-      const extension = mime === "image/png" ? "png" : "jpg";
-      const quality = mime === "image/png" ? undefined : 0.96;
+      const mime = "image/jpeg";
+      const extension = "jpg";
+      const quality = 0.92;
       const blob = await new Promise(resolve => {
         try{ canvas.toBlob(resolve, mime, quality); }catch(error){ resolve(null); }
       });

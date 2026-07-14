@@ -28,7 +28,7 @@ function decodeBrokenUtf8_(value){
   }catch(error){}
   return text;
 }
-const repairText = value => decodeBrokenUtf8_(String(value ?? ""))
+const repairText = value => decodeBrokenUtf8_(decodeBrokenUtf8_(String(value ?? "")))
   .replaceAll("ÃƒÂ¡","Ã¡").replaceAll("Ãƒ ","Ã ").replaceAll("ÃƒÂ¢","Ã¢").replaceAll("ÃƒÂ£","Ã£")
   .replaceAll("ÃƒÂ©","Ã©").replaceAll("ÃƒÂª","Ãª").replaceAll("ÃƒÂ­","Ã­").replaceAll("ÃƒÂ³","Ã³")
   .replaceAll("ÃƒÂ´","Ã´").replaceAll("ÃƒÂµ","Ãµ").replaceAll("ÃƒÂº","Ãº").replaceAll("ÃƒÂ§","Ã§")
@@ -7321,6 +7321,7 @@ else init();
 
 /* AJUSTE v44 - sincronizacao viva por Google Sheets */
 (function sobralSheetsSyncV44(){
+  return;
   const CLOUD_URL = "https://script.google.com/macros/s/AKfycbwnEFspShYAV7nJDH9fbnP1xPS_ywKm208AKpFRUctoM9TruYTojHQE1AqhJQlJf-2J/exec";
   const STAMP_KEY = `${STORAGE_KEY}_cloud_updated_at`;
   const HASH_KEY = `${STORAGE_KEY}_cloud_hash`;
@@ -7766,6 +7767,398 @@ document.addEventListener("click", () => setTimeout(() => polish(), 0), true);
       setTimeout(() => document.getElementById("appToast")?.remove(), 2000);
     }
   }, true);
+})();
+
+// Ajuste v49: corrige textos tambem em alertas nativos do navegador.
+(function nativeDialogTextRepairV49(){
+  if(window.__nativeDialogTextRepairV49) return;
+  window.__nativeDialogTextRepairV49 = true;
+  const clean = value => typeof repairText === "function" ? repairText(value) : String(value ?? "");
+  const originalAlert = window.alert?.bind(window);
+  const originalConfirm = window.confirm?.bind(window);
+  const originalPrompt = window.prompt?.bind(window);
+
+  if(originalAlert){
+    window.alert = message => originalAlert(clean(message));
+  }
+  if(originalConfirm){
+    window.confirm = message => originalConfirm(clean(message));
+  }
+  if(originalPrompt){
+    window.prompt = (message, defaultValue) => originalPrompt(clean(message), canCleanDialogDefault(defaultValue) ? clean(defaultValue) : defaultValue);
+  }
+
+  function canCleanDialogDefault(value){
+    return typeof value === "string" && value.length < 1000 && !value.startsWith("data:");
+  }
+})();
+
+// Ajuste v50: modo backup manual com multiplas filiais e nuvem desativada.
+(function branchBackupModeV50(){
+  if(window.__branchBackupModeV50) return;
+  window.__branchBackupModeV50 = true;
+
+  const BRANCH_KEY = `${STORAGE_KEY}_branches_v50`;
+  const DISABLED_CLOUD_TEXT = "Modo backup manual";
+  let activeStore = null;
+  let applyingBranch = false;
+  let saveWrapped = false;
+
+  const clone = value => {
+    try{ return structuredClone(value); }
+    catch{ return JSON.parse(JSON.stringify(value || null)); }
+  };
+
+  const text = value => {
+    const raw = String(value ?? "").trim();
+    return typeof repairText === "function" ? repairText(raw) : raw;
+  };
+
+  const branchId = () => `filial_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+  const currentData = () => ({
+    employees: clone(state?.employees || []),
+    evaluations: clone(state?.evaluations || [])
+  });
+
+  function normalizeStore(store){
+    if(!store || !Array.isArray(store.branches)) return null;
+    const branches = store.branches
+      .filter(item => item && item.id)
+      .map(item => ({
+        id: String(item.id),
+        name: text(item.name || "Filial"),
+        data: {
+          employees: Array.isArray(item.data?.employees) ? item.data.employees : [],
+          evaluations: Array.isArray(item.data?.evaluations) ? item.data.evaluations : []
+        }
+      }));
+    if(!branches.length) return null;
+    const activeId = branches.some(item => item.id === store.activeId) ? store.activeId : branches[0].id;
+    return { activeId, branches, updatedAt: store.updatedAt || new Date().toISOString() };
+  }
+
+  function readStore(){
+    const embedded = normalizeStore(state?.branchStore);
+    const saved = (() => {
+      try{ return normalizeStore(JSON.parse(localStorage.getItem(BRANCH_KEY) || "null")); }
+      catch{ return null; }
+    })();
+
+    if(embedded && (!saved || String(embedded.updatedAt || "") >= String(saved.updatedAt || ""))){
+      localStorage.setItem(BRANCH_KEY, JSON.stringify(embedded));
+      return embedded;
+    }
+    if(saved) return saved;
+
+    const name = "Filial atual";
+    const first = { id: branchId(), name, data: currentData() };
+    return { activeId: first.id, branches: [first], updatedAt: new Date().toISOString() };
+  }
+
+  function writeStore(store){
+    const normalized = normalizeStore(store) || readStore();
+    normalized.updatedAt = new Date().toISOString();
+    activeStore = normalized;
+    localStorage.setItem(BRANCH_KEY, JSON.stringify(normalized));
+    if(state){
+      state.activeBranchId = normalized.activeId;
+      state.activeBranchName = activeBranch()?.name || "";
+      state.branchStore = normalized;
+    }
+    return normalized;
+  }
+
+  function activeBranch(){
+    const store = activeStore || readStore();
+    return store.branches.find(item => item.id === store.activeId) || store.branches[0];
+  }
+
+  function syncCurrentBranch(){
+    if(applyingBranch || !state) return;
+    const store = activeStore || readStore();
+    const branch = store.branches.find(item => item.id === store.activeId);
+    if(!branch) return;
+    branch.data = currentData();
+    writeStore(store);
+  }
+
+  function applyBranch(id, options = {}){
+    const store = activeStore || readStore();
+    const branch = store.branches.find(item => item.id === id);
+    if(!branch) return;
+
+    if(!options.skipSync) syncCurrentBranch();
+    store.activeId = branch.id;
+    writeStore(store);
+
+    applyingBranch = true;
+    try{
+      state.employees = clone(branch.data.employees || []);
+      state.evaluations = clone(branch.data.evaluations || []);
+      state.activeBranchId = branch.id;
+      state.activeBranchName = branch.name;
+      state.branchStore = store;
+      if(typeof emptyEvaluation === "function") currentEval = emptyEvaluation();
+      if(typeof saveState === "function") saveState();
+      if(typeof renderAll === "function") renderAll();
+      updateBranchButton();
+      closeBranchPanel();
+      if(typeof notify === "function") notify(`${branch.name} selecionada.`);
+    }finally{
+      applyingBranch = false;
+    }
+  }
+
+  function addBranch(){
+    const name = text(prompt("Nome da nova filial:", "Filial ")) || "";
+    if(!name) return;
+    syncCurrentBranch();
+    const store = activeStore || readStore();
+    const branch = { id: branchId(), name, data: { employees: [], evaluations: [] } };
+    store.branches.push(branch);
+    store.activeId = branch.id;
+    writeStore(store);
+    applyBranch(branch.id, { skipSync: true });
+  }
+
+  function renameBranch(){
+    const branch = activeBranch();
+    if(!branch) return;
+    const name = text(prompt("Nome da filial atual:", branch.name)) || "";
+    if(!name) return;
+    const store = activeStore || readStore();
+    const item = store.branches.find(next => next.id === branch.id);
+    if(item) item.name = name;
+    writeStore(store);
+    updateBranchButton();
+    renderBranchList();
+    if(typeof saveState === "function") saveState();
+  }
+
+  function deleteBranch(id){
+    const store = activeStore || readStore();
+    if(store.branches.length <= 1){
+      alert("Mantenha pelo menos uma filial cadastrada.");
+      return;
+    }
+    const branch = store.branches.find(item => item.id === id);
+    if(!branch || !confirm(`Excluir a filial "${branch.name}" deste aparelho?\n\nUse exportar backup antes se quiser preservar esses dados.`)) return;
+    store.branches = store.branches.filter(item => item.id !== id);
+    if(store.activeId === id) store.activeId = store.branches[0].id;
+    writeStore(store);
+    applyBranch(store.activeId, { skipSync: true });
+  }
+
+  function ensureBranchNamed(){
+    const branch = activeBranch();
+    if(!branch || branch.name !== "Filial atual") return;
+    const name = text(prompt("Informe a filial deste cadastro:", "Filial 28")) || "Filial 28";
+    branch.name = name;
+    writeStore(activeStore || readStore());
+    updateBranchButton();
+  }
+
+  function installStyle(){
+    if(document.getElementById("branchBackupModeStyleV50")) return;
+    const style = document.createElement("style");
+    style.id = "branchBackupModeStyleV50";
+    style.textContent = `
+      #cloudSyncStatus{display:none!important}
+      .p360-branch-button{border:1px solid rgba(255,255,255,.32);background:rgba(255,255,255,.13);color:#fff;border-radius:999px;padding:10px 14px;font-weight:900;box-shadow:0 12px 24px rgba(15,23,42,.16);max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .p360-branch-button small{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.12em;opacity:.72}
+      .p360-branch-dialog{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:rgba(15,23,42,.46);padding:18px}
+      .p360-branch-dialog[hidden]{display:none!important}
+      .p360-branch-card{width:min(520px,100%);max-height:min(76vh,720px);overflow:auto;background:#fff;border-radius:22px;box-shadow:0 30px 80px rgba(15,23,42,.32);padding:18px}
+      .p360-branch-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+      .p360-branch-head h3{margin:0;font-size:22px;color:#101827}
+      .p360-branch-list{display:grid;gap:10px;margin:14px 0}
+      .p360-branch-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;border:1px solid #e5e7eb;border-radius:16px;padding:12px;background:#f8fafc;text-align:left}
+      .p360-branch-row.is-active{border-color:#16a34a;background:#ecfdf5}
+      .p360-branch-row strong{display:block;color:#101827}
+      .p360-branch-row small{color:#64748b}
+      .p360-branch-row button,.p360-branch-actions button{border:0;border-radius:12px;padding:10px 12px;font-weight:900;background:#e9edf5;color:#101827}
+      .p360-branch-row .danger{background:#fee2e2;color:#991b1b}
+      .p360-branch-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+      .p360-branch-actions .primary{background:#101827;color:#fff}
+      .p360-branch-note{font-size:13px;color:#64748b;line-height:1.35;margin:8px 0 0}
+      @media(max-width:720px){
+        .topbar .topbar-actions{gap:8px}
+        .p360-branch-button{max-width:138px;padding:8px 10px;font-size:12px}
+        .p360-branch-button small{font-size:8px}
+        .p360-branch-row{grid-template-columns:1fr;align-items:stretch}
+        .p360-branch-actions{grid-template-columns:1fr}
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function installHeader(){
+    if(document.getElementById("p360BranchButton")) return;
+    const actions = document.querySelector(".topbar-actions") || document.querySelector(".topbar");
+    if(!actions) return;
+    const button = document.createElement("button");
+    button.id = "p360BranchButton";
+    button.className = "p360-branch-button";
+    button.type = "button";
+    button.addEventListener("click", openBranchPanel);
+    actions.prepend(button);
+    updateBranchButton();
+  }
+
+  function updateBranchButton(){
+    const button = document.getElementById("p360BranchButton");
+    const branch = activeBranch();
+    if(button && branch) button.innerHTML = `<small>Filial</small>${escapeHtml(branch.name)}`;
+  }
+
+  function escapeHtml(value){
+    return String(value ?? "").replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[char]));
+  }
+
+  function installDialog(){
+    if(document.getElementById("p360BranchDialog")) return;
+    const dialog = document.createElement("div");
+    dialog.id = "p360BranchDialog";
+    dialog.className = "p360-branch-dialog";
+    dialog.hidden = true;
+    dialog.innerHTML = `
+      <div class="p360-branch-card" role="dialog" aria-modal="true" aria-labelledby="p360BranchTitle">
+        <div class="p360-branch-head">
+          <h3 id="p360BranchTitle">Filiais</h3>
+          <button class="button secondary" type="button" data-branch-close>Fechar</button>
+        </div>
+        <div class="p360-branch-list" id="p360BranchList"></div>
+        <div class="p360-branch-actions">
+          <button class="primary" type="button" data-branch-add>Inserir nova filial</button>
+          <button type="button" data-branch-rename>Renomear filial atual</button>
+        </div>
+        <p class="p360-branch-note">Cada filial possui seus próprios colaboradores e avaliações. Use Exportar backup para levar todas as filiais para outro aparelho.</p>
+      </div>`;
+    document.body.appendChild(dialog);
+    dialog.addEventListener("click", event => {
+      if(event.target === dialog || event.target.closest("[data-branch-close]")) closeBranchPanel();
+      const select = event.target.closest("[data-branch-select]");
+      if(select) applyBranch(select.dataset.branchSelect);
+      const del = event.target.closest("[data-branch-delete]");
+      if(del) deleteBranch(del.dataset.branchDelete);
+      if(event.target.closest("[data-branch-add]")) addBranch();
+      if(event.target.closest("[data-branch-rename]")) renameBranch();
+    });
+  }
+
+  function renderBranchList(){
+    const list = document.getElementById("p360BranchList");
+    if(!list) return;
+    const store = activeStore || readStore();
+    list.innerHTML = store.branches.map(branch => {
+      const employees = branch.data?.employees?.length || 0;
+      const evaluations = branch.data?.evaluations?.length || 0;
+      return `<div class="p360-branch-row ${branch.id === store.activeId ? "is-active" : ""}">
+        <div><strong>${escapeHtml(branch.name)}</strong><small>${employees} colaboradores · ${evaluations} avaliações</small></div>
+        <button type="button" data-branch-select="${escapeHtml(branch.id)}">${branch.id === store.activeId ? "Atual" : "Abrir"}</button>
+        <button class="danger" type="button" data-branch-delete="${escapeHtml(branch.id)}">Excluir</button>
+      </div>`;
+    }).join("");
+  }
+
+  function openBranchPanel(){
+    syncCurrentBranch();
+    renderBranchList();
+    const dialog = document.getElementById("p360BranchDialog");
+    if(dialog) dialog.hidden = false;
+  }
+
+  function closeBranchPanel(){
+    const dialog = document.getElementById("p360BranchDialog");
+    if(dialog) dialog.hidden = true;
+  }
+
+  function wrapSaveState(){
+    if(saveWrapped || typeof saveState !== "function") return;
+    saveWrapped = true;
+    const original = saveState;
+    saveState = function(){
+      if(!applyingBranch){
+        if(state?.branchStore) activeStore = normalizeStore(state.branchStore) || activeStore;
+        syncCurrentBranch();
+      }
+      const store = activeStore || readStore();
+      state.branchStore = store;
+      state.activeBranchId = store.activeId;
+      state.activeBranchName = activeBranch()?.name || "";
+      const result = original.apply(this, arguments);
+      updateBranchButton();
+      return result;
+    };
+  }
+
+  function wrapBackup(){
+    if(window.__branchBackupExportWrappedV50) return;
+    window.__branchBackupExportWrappedV50 = true;
+    const originalServiceExport = window.Performance360DataService?.exportarBackup;
+    if(typeof originalServiceExport === "function"){
+      window.Performance360DataService.exportarBackup = function(){
+        syncCurrentBranch();
+        state.branchStore = activeStore || readStore();
+        return originalServiceExport.apply(this, arguments);
+      };
+    }
+    const originalExport = window.exportBackup;
+    if(typeof originalExport === "function"){
+      window.exportBackup = function(){
+        syncCurrentBranch();
+        state.branchStore = activeStore || readStore();
+        return originalExport.apply(this, arguments);
+      };
+    }
+    const originalImport = window.importBackup;
+    if(typeof originalImport === "function"){
+      window.importBackup = function(file){
+        const result = originalImport.apply(this, arguments);
+        setTimeout(() => {
+          if(state?.branchStore){
+            activeStore = normalizeStore(state.branchStore) || activeStore;
+            if(activeStore) localStorage.setItem(BRANCH_KEY, JSON.stringify(activeStore));
+            applyBranch(activeStore?.activeId, { skipSync: true });
+          }
+        }, 600);
+        return result;
+      };
+    }
+  }
+
+  function disableCloudInterface(){
+    try{
+      ["fsPerformanceIndividual360_v1_cloud_updated_at","fsPerformanceIndividual360_v1_cloud_hash"].forEach(key => localStorage.removeItem(key));
+    }catch{}
+    window.p360PullCloudNow = () => Promise.resolve({ok:false, disabled:true});
+    window.p360PushCloudNow = () => Promise.resolve({ok:false, disabled:true});
+    document.getElementById("cloudSyncStatus")?.remove();
+    if(typeof notify === "function") setTimeout(() => notify(DISABLED_CLOUD_TEXT), 700);
+  }
+
+  function boot(){
+    installStyle();
+    activeStore = readStore();
+    writeStore(activeStore);
+    wrapSaveState();
+    wrapBackup();
+    installHeader();
+    installDialog();
+    disableCloudInterface();
+    applyBranch(activeStore.activeId, { skipSync: true });
+    document.addEventListener("click", event => {
+      if(event.target.closest("#newEmployeeButton")) ensureBranchNamed();
+      if(event.target.closest("#exportBackupButton,#menuExportBackupButton")) syncCurrentBranch();
+      if(event.target.closest("#menuClearPlatformButton,#resetDataButton")){
+        localStorage.removeItem(BRANCH_KEY);
+        activeStore = null;
+      }
+    }, true);
+  }
+
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, {once:true});
+  else boot();
 })();
 
 
